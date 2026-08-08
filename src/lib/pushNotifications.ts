@@ -17,49 +17,46 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export async function registerAndSubscribeToPush(userId: string) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    alert('Tarayıcınız anlık bildirimleri desteklemiyor (iOS Safari kullanıyorsanız ana ekrana eklemeniz gerekebilir).');
+    alert('Tarayıcınız anlık bildirimleri desteklemiyor.');
     return null;
   }
 
   try {
-    // 1. Service Worker'ı kaydet
     const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service Worker başarıyla kaydedildi.');
-
-    // 2. Kullanıcıdan izin iste
     const permission = await Notification.requestPermission();
+    
     if (permission !== 'granted') {
       return permission;
     }
 
-    // 3. VAPID anahtarı kontrolü
+    // VAPID KONTROLÜ İÇİN ALERT
     if (!publicVapidKey) {
-      console.error('VAPID Public Key eksik! .env dosyanızı kontrol edin.');
+      alert('HATA: VAPID Public Key Vercel ortamında bulunamadı!');
       return permission;
     }
 
-    // 4. Tarayıcıyı Push servisine abone yap
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
     });
 
-    // 5. Alınan o özel adresi (Token) Supabase'e kaydet
     const { error } = await supabase
       .from('user_settings')
       .update({ push_subscription: JSON.parse(JSON.stringify(subscription)) })
       .eq('user_id', userId);
 
+    // SUPABASE KAYIT KONTROLÜ İÇİN ALERT
     if (error) {
-      console.error('Push aboneliği veritabanına kaydedilemedi:', error);
+      alert('HATA: Veritabanına yazılamadı! Sebep: ' + error.message);
     } else {
-      console.log('Cihaz başarıyla bildirim sistemine kaydedildi!');
+      alert('BAŞARILI: Cihaz adresi veritabanına kaydedildi!'); // Başarıyı da görelim
     }
 
     return permission;
 
-  } catch (error) {
-    console.error('Push aboneliği sırasında hata oluştu:', error);
+  } catch (error: any) {
+    // BEKLENMEYEN HATALAR İÇİN ALERT
+    alert('SİSTEM HATASI: ' + error.message);
     return null;
   }
 }
