@@ -21,7 +21,18 @@ const HEALTH_TIPS = [
   "Vardiya dönüşümlerinde uyku düzenini sıfırlamak için geçiş günündeki gündüz uykusunu 3-4 saatle (kestirme) sınırlamayı deneyin."
 ];
 
-serve(async () => {
+// CORS Başlıkları Eklendi
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req: Request) => {
+  // Preflight İsteğini Yakalama
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const today = new Date();
     const tomorrow = new Date(today);
@@ -46,9 +57,8 @@ serve(async () => {
     if (absentLogs) absentLogs.forEach(log => absentCounts[log.user_id] = (absentCounts[log.user_id] || 0) + 1);
 
     let sentCount = 0;
-    const dbNotifications = []; // Veritabanına yazılacaklar havuzu
+    const dbNotifications = [];
 
-    // Push ve DB ekleme işlemini hızlandıran yardımcı fonksiyon
     const sendAndLog = async (user_id, sub, type, title, message, link, isInteractive = true) => {
       await webPush.sendNotification(sub, JSON.stringify({ title, message, url: link })).catch(() => {});
       dbNotifications.push({ user_id, type, title, message, link, is_interactive: isInteractive });
@@ -108,13 +118,18 @@ serve(async () => {
       }
     }
 
-    // İşlem bitince veritabanına tek seferde toplu kayıt atıyoruz
     if (dbNotifications.length > 0) {
       await supabase.from('notifications').insert(dbNotifications);
     }
 
-    return new Response(JSON.stringify({ success: true, processedUsers: users.length, notificationsSent: sentCount }), { headers: { 'Content-Type': 'application/json' } })
+    // CORS başlıklarını dönüş response'una ekle
+    return new Response(JSON.stringify({ success: true, processedUsers: users.length, notificationsSent: sentCount }), { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
   }
 })

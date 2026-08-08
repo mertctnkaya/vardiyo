@@ -36,24 +36,29 @@ export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
         </ul>
       </div>
 
-      <div className="navbar-end hidden lg:flex gap-3 pr-2">
+      <div className="navbar-end flex justify-end gap-2 pr-2">
         {user ? (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* HER EKRANDA GÖRÜNEN ÇAN İKONU */}
             <NotificationDropdown />
-            <span className="text-sm font-semibold text-base-content/80 border border-base-300 bg-base-200 px-3 py-1.5 rounded-full">
-              {user.user_metadata?.name}
-            </span>
-            <button onClick={onLogout} className="btn btn-sm btn-outline hover:bg-red-600 hover:text-white border-red-500/30 text-red-400 transition-colors">
-              Çıkış
-            </button>
+            
+            {/* SADECE MASAÜSTÜNDE GÖRÜNEN İSİM VE ÇIKIŞ BUTONU */}
+            <div className="hidden lg:flex items-center gap-4">
+              <span className="text-sm font-semibold text-base-content/80 border border-base-300 bg-base-200 px-3 py-1.5 rounded-full">
+                {user.user_metadata?.name}
+              </span>
+              <button onClick={onLogout} className="btn btn-sm btn-outline hover:bg-red-600 hover:text-white border-red-500/30 text-red-400 transition-colors">
+                Çıkış
+              </button>
+            </div>
           </div>
         ) : (
-          <>
+          <div className="hidden lg:flex gap-3">
             <Link to="/login" className="btn btn-ghost btn-sm text-base-content hover:bg-base-200">Giriş Yap</Link>
             <Link to="/register" className="btn btn-sm bg-indigo-600 hover:bg-indigo-700 text-white border-none transition-colors shadow-lg shadow-indigo-900/50">
               Kayıt Ol
             </Link>
-          </>
+          </div>
         )}
       </div>
     </div>

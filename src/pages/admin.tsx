@@ -25,6 +25,8 @@ export default function AdminPanel() {
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
 
+  const [isTriggeringCron, setIsTriggeringCron] = useState(false);
+
   const handleSendBroadcast = async () => {
     if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
       alert("Lütfen başlık ve mesaj girin.");
@@ -38,7 +40,7 @@ export default function AdminPanel() {
       });
 
       if (error) throw error;
-      
+
       alert(`Duyuru başarıyla gönderildi! (${data.sentCount} kişiye ulaştı)`);
       setBroadcastTitle('');
       setBroadcastMessage('');
@@ -53,6 +55,20 @@ export default function AdminPanel() {
   if (!user || (user.email !== 'm3rt7132@gmail.com' && settings?.role !== 'admin')) {
     return <Navigate to="/" replace />;
   }
+
+  const handleForceCronRun = async () => {
+    setIsTriggeringCron(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('daily-worker');
+      if (error) throw error;
+      alert(`Günlük işçi başarıyla çalıştırıldı! İşlenen kullanıcı: ${data.processedUsers}, Atılan Bildirim: ${data.notificationsSent}`);
+    } catch (err) {
+      console.error(err);
+      alert("Tetikleme başarısız oldu.");
+    } finally {
+      setIsTriggeringCron(false);
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -74,7 +90,7 @@ export default function AdminPanel() {
   // OPTIMISTIC UI: Bekleme yapmadan anında (tak tak) çalışan Premium Motoru
   const handleGrantPremium = async (userId: string, monthsToAdd: number) => {
     const targetUser = users.find(u => u.id === userId);
-    
+
     let baseDate = new Date();
     if (monthsToAdd === 999) {
       baseDate = new Date('2099-12-31');
@@ -91,7 +107,7 @@ export default function AdminPanel() {
 
     // 1. Ekrandaki veriyi saniyesinde değiştir (Kullanıcı beklemez, tablo kaymaz)
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, premium_until: premiumUntilStr } : u));
-    
+
     // 2. Arka planda veritabanını sessizce güncelle
     const { error } = await supabase
       .from('user_settings')
@@ -109,23 +125,23 @@ export default function AdminPanel() {
   // OPTIMISTIC UI: Anında silinen mesajlar
   const handleDeleteMessage = async (id: number) => {
     if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
-    
+
     // Anında ekrandan uçur
     setMessages(prev => prev.filter(m => m.id !== id));
-    
+
     // Arka planda DB'den sil
     const { error } = await supabase.rpc('delete_admin_message', { msg_id: id });
     if (error) {
       setActionFeedback('Hata: ' + error.message);
       setTimeout(() => setActionFeedback(''), 3000);
-      fetchData(); 
+      fetchData();
     }
   };
 
   // OPTIMISTIC UI: Anında silinen hesaplar
   const handleDeleteAccount = async (id: string, email: string) => {
     if (!window.confirm(`${email} e-posta adresli kullanıcının hesabını (ve tüm verilerini) KALICI OLARAK silmek istediğinize emin misiniz?`)) return;
-    
+
     // Anında ekrandan uçur (Tablo kayması olmaz, anında silinir)
     setUsers(prev => prev.filter(u => u.id !== id));
 
@@ -134,13 +150,13 @@ export default function AdminPanel() {
     if (error) {
       setActionFeedback('Hata: ' + error.message);
       setTimeout(() => setActionFeedback(''), 3000);
-      fetchData(); 
+      fetchData();
     }
   };
 
   return (
     <div className="flex flex-col items-center animate-fade-in w-full pb-10">
-      
+
       <AdminHeader email={user.email || ''} />
 
       <div className="w-full max-w-5xl px-2 mb-6">
@@ -178,25 +194,38 @@ export default function AdminPanel() {
         ) : (
           <>
             {activeTab === 'premium' && (
-              <PremiumTab 
-                users={users} 
-                actionFeedback={actionFeedback} 
-                onGrantPremium={handleGrantPremium} 
-                onDeleteAccount={handleDeleteAccount} 
+              <PremiumTab
+                users={users}
+                actionFeedback={actionFeedback}
+                onGrantPremium={handleGrantPremium}
+                onDeleteAccount={handleDeleteAccount}
               />
             )}
-            
+
             {activeTab === 'messages' && (
-              <MessagesTab 
-                messages={messages} 
-                onDeleteMessage={handleDeleteMessage} 
+              <MessagesTab
+                messages={messages}
+                onDeleteMessage={handleDeleteMessage}
               />
             )}
-            
+
             {activeTab === 'stats' && <StatsTab stats={stats} />}
-            
+
+            {/* CRON TEST BUTONU (YARINI BEKLEMEMEK İÇİN) */}
             {activeTab === 'broadcast' && (
-              <BroadcastTab 
+              <div className="flex justify-center mt-4 mb-8">
+                <button
+                  onClick={handleForceCronRun}
+                  disabled={isTriggeringCron}
+                  className="btn btn-md w-full font-bold p-3 bg-purple-900/20 text-purple-400 hover:bg-purple-600 hover:text-white border border-purple-500/30"
+                >
+                  {isTriggeringCron ? <span className="loading loading-spinner"></span> : '⚙️ 20:00 Otomasyonunu Şimdi Tetikle'}
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'broadcast' && (
+              <BroadcastTab
                 title={broadcastTitle}
                 message={broadcastMessage}
                 isBroadcasting={isBroadcasting}
@@ -205,6 +234,8 @@ export default function AdminPanel() {
                 onSend={handleSendBroadcast}
               />
             )}
+
+
           </>
         )}
       </div>

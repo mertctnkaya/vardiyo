@@ -49,11 +49,11 @@ export default function NotificationDropdown() {
     fetchNotifications();
 
     const channel = supabase.channel('realtime-notifications')
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'notifications', 
-        filter: `user_id=eq.${user.id}` 
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`
       }, (payload) => {
         setNotifications(prev => [payload.new, ...prev]);
       })
@@ -81,7 +81,7 @@ export default function NotificationDropdown() {
       setNotifications(notifications.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
       await supabase.from('notifications').update({ is_read: true }).eq('id', notif.id);
     }
-    
+
     // YENİ: Sadece is_interactive true ise ve link varsa yönlendir
     if (notif.is_interactive && notif.link) {
       navigate(notif.link);
@@ -103,8 +103,8 @@ export default function NotificationDropdown() {
         )}
       </div>
 
-      <div tabIndex={0} className="dropdown-content mt-4 z-[1] w-80 sm:w-96 rounded-2xl shadow-2xl bg-[#16191d] border border-base-300 overflow-hidden animate-fade-in origin-top-right">
-        
+      <div tabIndex={0} className="dropdown-content mt-4 z-50 w-[85vw] max-w-sm sm:w-96 rounded-2xl shadow-2xl bg-base-100 border border-base-300 overflow-hidden animate-fade-in origin-top-right">
+
         <div className="bg-base-200 border-b border-base-300 p-4 flex justify-between items-center sticky top-0 z-10">
           <h3 className="font-bold text-base-content text-lg">Bildirimler</h3>
           {notifications.length > 0 && (
@@ -129,23 +129,25 @@ export default function NotificationDropdown() {
               {notifications.map((notif) => {
                 const ui = getIconData(notif.type);
                 return (
-                  <div 
+                  <div
                     key={notif.id}
-                    onClick={() => handleNotificationClick(notif)}
-                    className={`p-4 border-b border-base-300/50 transition-colors flex gap-4 
-                      hover:bg-base-200/50 
-                      ${notif.is_interactive ? 'cursor-pointer' : 'cursor-default'} 
-                      ${!notif.is_read ? 'bg-base-200/30' : 'opacity-70'}`}
+                    onClick={() => notif.is_interactive ? handleNotificationClick(notif) : null}
+                    className={`p-4 border-b border-base-300/50 transition-all duration-200 flex gap-4 
+                      ${notif.is_interactive ? 'cursor-pointer hover:bg-base-200 active:scale-[0.99]' : 'cursor-default'} 
+                      ${!notif.is_read ? 'bg-base-300/20' : 'opacity-70 hover:opacity-100'}
+                      ${!notif.is_interactive && 'hover:bg-transparent'}
+                  `}
                   >
                     <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${ui.bg} ${ui.color}`}>
                       {ui.icon}
                     </div>
-                    <div className="flex-1">
+                    {/* flex-1 içine de pointer-events-none vermiyoruz ki metin seçilemesin ama tıklama parent'a gitsin. cursor-inherit kullanıyoruz. */}
+                    <div className="flex-1 cursor-inherit">
                       <div className="flex justify-between items-start mb-1">
                         <h4 className={`text-sm ${!notif.is_read ? 'font-bold text-base-content' : 'font-medium text-base-content/80'}`}>
                           {notif.title}
                         </h4>
-                        {!notif.is_read && <span className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0"></span>}
+                        {!notif.is_read && <span className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>}
                       </div>
                       <p className="text-xs text-base-content/60 leading-relaxed line-clamp-2">{notif.message}</p>
                       <p className="text-[10px] text-base-content/40 mt-2 font-medium">{getTimeAgo(notif.created_at)}</p>
