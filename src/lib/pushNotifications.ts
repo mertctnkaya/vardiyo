@@ -22,19 +22,27 @@ export async function registerAndSubscribeToPush(userId: string) {
   }
 
   try {
+    // 1. MEVCUT TÜM SERVICE WORKER'LARI ZORLA ÖLDÜR
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (let reg of registrations) {
+      await reg.unregister();
+    }
+
+    // 2. YENİDEN KAYDET VE AKTİF OLMASINI BEKLE
     const registration = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready; // İşçinin tam uyanmasını bekle
+
     const permission = await Notification.requestPermission();
-    
     if (permission !== 'granted') {
       return permission;
     }
 
-    // VAPID KONTROLÜ İÇİN ALERT
     if (!publicVapidKey) {
-      alert('HATA: VAPID Public Key Vercel ortamında bulunamadı!');
+      alert('HATA: VAPID Key bulunamadı!');
       return permission;
     }
 
+    // 3. ABONELİK İŞLEMİ
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
@@ -45,18 +53,17 @@ export async function registerAndSubscribeToPush(userId: string) {
       .update({ push_subscription: JSON.parse(JSON.stringify(subscription)) })
       .eq('user_id', userId);
 
-    // SUPABASE KAYIT KONTROLÜ İÇİN ALERT
     if (error) {
-      alert('HATA: Veritabanına yazılamadı! Sebep: ' + error.message);
+      alert('DB HATA: ' + error.message);
     } else {
-      alert('BAŞARILI: Cihaz adresi veritabanına kaydedildi!'); // Başarıyı da görelim
+      alert('BAŞARILI: Cihaz sisteme bağlandı!');
     }
 
     return permission;
 
   } catch (error: any) {
-    // BEKLENMEYEN HATALAR İÇİN ALERT
-    alert('SİSTEM HATASI: ' + error.message);
+    // Hatayı daha detaylı görebilmek için adını (name) da yazdırıyoruz
+    alert(`SİSTEM HATASI [${error.name}]: ${error.message}`);
     return null;
   }
 }
