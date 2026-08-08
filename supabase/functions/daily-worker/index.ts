@@ -122,7 +122,6 @@ serve(async (req: Request) => {
       await supabase.from('notifications').insert(dbNotifications);
     }
 
-    // CORS başlıklarını dönüş response'una ekle
     return new Response(JSON.stringify({ success: true, processedUsers: users.length, notificationsSent: sentCount }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     })
