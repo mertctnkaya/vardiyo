@@ -67,7 +67,7 @@ export default function SeveranceTab() {
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
       
-      {/* ÜST PANEL: YENİ SEVİLEN İNPUT TASARIMI */}
+      {/* ÜST PANEL*/}
       <div className="bg-[#1e2329] rounded-xl border border-base-300 p-6 sm:p-8 shadow-lg">
         <h3 className="text-2xl font-bold text-amber-400 mb-6 flex items-center gap-2 border-b border-base-300 pb-4">
           <Icon name="calendar" className="w-6 h-6 text-amber-500" />
@@ -103,14 +103,14 @@ export default function SeveranceTab() {
           </div>
 
           <div className="form-control w-full md:col-span-2">
-            <label className="cursor-pointer label bg-base-200 p-4 rounded-xl border border-base-300/50 hover:border-amber-500/30 transition-colors flex justify-between items-center">
-              <span className="label-text font-bold text-base-content/80 flex items-center gap-2">
-                <Icon name="info" className="w-5 h-5 text-amber-400" />
+            <label className="cursor-pointer label bg-base-200 p-4 rounded-xl border border-base-300/50 hover:border-amber-500/30 transition-colors flex justify-between items-center gap-4 w-full">
+              <span className="label-text font-bold text-base-content/80 flex items-start sm:items-center gap-2 flex-1 whitespace-normal text-left leading-snug">
+                <Icon name="info" className="w-5 h-5 text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
                 İhbar Süresi Kullandırılacak Mı? (Hemen mi çıkıyorsunuz?)
               </span>
               <input 
                 type="checkbox" 
-                className="toggle bg-base-300 border-red-500 hover:bg-base-100 checked:bg-emerald-500 checked:border-emerald-500 hover:checked:bg-emerald-700 [--tglbg:white]" 
+                className="toggle bg-base-300 border-red-500 hover:bg-base-100 checked:bg-emerald-500 checked:border-emerald-500 hover:checked:bg-emerald-700 [--tglbg:white] shrink-0" 
                 checked={payNotice} 
                 onChange={(e) => setPayNotice(e.target.checked)} 
               />

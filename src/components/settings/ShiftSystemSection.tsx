@@ -32,14 +32,14 @@ export default function ShiftSystemSection({
 
         {workType === 'fixed' && (
           <div className="form-control w-full md:col-span-2 animate-fade-in mt-2">
-            <label className="cursor-pointer label bg-base-200 p-4 rounded-xl border border-gray-500 hover:border-indigo-700 transition-colors flex justify-between items-center">
-              <span className="label-text font-bold text-base-content/80 flex items-center gap-2">
-                <Icon name="calendar" className="w-5 h-5 text-indigo-400" />
+            <label className="cursor-pointer label bg-base-200 p-4 rounded-xl border border-gray-500 hover:border-indigo-700 transition-colors flex justify-between items-center gap-4 w-full">
+              <span className="label-text font-bold text-base-content/80 flex items-center gap-2 flex-1 whitespace-normal text-left">
+                <Icon name="calendar" className="w-5 h-5 text-indigo-400 shrink-0" />
                 Cumartesi günleri çalışma var mı?
               </span>
               <input 
                 type="checkbox" 
-                className="toggle bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600 checked:bg-emerald-500 checked:border-emerald-500 checked:hover:bg-emerald-600 checked:hover:border-emerald-600 [--tglbg:white]" 
+                className="toggle bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600 checked:bg-emerald-500 checked:border-emerald-500 checked:hover:bg-emerald-600 checked:hover:border-emerald-600 [--tglbg:white] shrink-0" 
                 checked={isSaturdayWorkday} 
                 onChange={(e) => setIsSaturdayWorkday(e.target.checked)} 
               />

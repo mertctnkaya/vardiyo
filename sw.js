@@ -1,45 +1,42 @@
-// public/sw.js
-
-// 1. Arka planda gelen bildirimi yakalama (Push Event)
 self.addEventListener('push', function(event) {
-  if (event.data) {
-    const data = event.data.json();
-    
-    const options = {
-      body: data.message,
-      icon: '/icon-192x192.png', // Varsa logonu koy, yoksa boş kalabilir
-      badge: '/badge-icon.png',  // Varsa bildirim çubuğu ikonun
-      vibrate: [100, 50, 100],   // Telefonda titreşim ritmi
-      data: {
-        url: data.url || '/'     // Bildirime tıklanınca gidilecek adres
-      },
-      requireInteraction: false   // Kullanıcı tıklayana veya kapatana kadar ekranda kalır
-    };
+  if (!event.data) return;
 
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
-  }
+  // event.waitUntil: Tarayıcıya "Ben bildirimi ekrana çizene kadar Service Workerı öldürme" der.
+  event.waitUntil(
+    (async () => {
+      try {
+        const data = event.data.json();
+        
+        const options = {
+          body: data.message,
+          icon: '/icon-192x192.png',
+          badge: '/badge-icon.png',
+          vibrate: [100, 50, 100],
+          data: {
+            url: data.url || '/'
+          },
+          requireInteraction: false
+        };
+
+        return self.registration.showNotification(data.title, options);
+      } catch (error) {
+        console.error('Bildirim verisi okunamadı:', error);
+        // Hata olursa en azından boş kalmasın, genel bir bildirim göstersin
+        return self.registration.showNotification('Vardiyo', { 
+          body: 'Yeni bir sistem bildirimi aldınız.' 
+        });
+      }
+    })()
+  );
 });
 
-// 2. Bildirime tıklandığında yapılacak işlem (Notification Click Event)
+// Bildirime tıklanma olayı
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close(); // Bildirimi kapat
-
-  const urlToOpen = event.notification.data.url;
-
-  // Kullanıcı zaten sitemizdeyse o sekmeye odaklan, değilse yeni sekme aç
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      for (let i = 0; i < clientList.length; i++) {
-        let client = clientList[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
+  event.notification.close();
+  
+  if (event.notification.data && event.notification.data.url) {
+    event.waitUntil(
+      clients.openWindow(event.notification.data.url)
+    );
+  }
 });
