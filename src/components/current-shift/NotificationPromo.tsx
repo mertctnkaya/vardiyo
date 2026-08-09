@@ -1,10 +1,7 @@
 import type { NotificationPromoProps } from '../../types/currentShift';
-import { useNavigate } from 'react-router-dom';
 
 export default function NotificationPromo({ showPromo, onRequest, onDismiss }: NotificationPromoProps) {
   if (!showPromo) return null;
-
-  const navigate = useNavigate();
 
   return (
     <div className="md:col-span-2 mt-2 bg-gradient-to-r from-emerald-900/40 to-[#16191d] border border-emerald-500/30 rounded-xl p-6 shadow-xl relative overflow-hidden animate-fade-in group">
@@ -31,7 +28,7 @@ export default function NotificationPromo({ showPromo, onRequest, onDismiss }: N
         </div>
 
         <div className="flex flex-col gap-2 w-full sm:w-auto shrink-0 mr-0 sm:mr-2">
-          <button onClick={() => navigate('/settings')} className="btn p-3 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-lg shadow-emerald-900/40">
+          <button onClick={onRequest} className="btn p-3 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-lg shadow-emerald-900/40">
             Evet, Ayarlara Git ve Aç
           </button>
           <button onClick={onDismiss} className="btn btn-sm btn-ghost text-base-content/60 hover:bg-base-200">

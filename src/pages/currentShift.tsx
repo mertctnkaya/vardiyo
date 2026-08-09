@@ -2,6 +2,7 @@ import { useOutletContext } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
 import type { Reminder } from '../types';
 
 // Makro Componentlerimiz
@@ -19,6 +20,7 @@ export default function CurrentShift() {
   // A. Merkezi Durum Yönetimi (State & Context)
   const { targetDate, setTargetDate, currentShift } = useOutletContext<ShiftContextType>();
   const { user, settings } = useAppStore();
+  const navigate = useNavigate();
 
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [showReminderModal, setShowReminderModal] = useState(false);
@@ -122,14 +124,7 @@ export default function CurrentShift() {
       
       <NotificationPromo 
         showPromo={showNotificationPromo} 
-        onRequest={() => {
-          if (!('Notification' in window)) return;
-          Notification.requestPermission().then((permission) => {
-            if (permission === 'granted') alert('Harika! Artık bildirim alacaksınız.');
-            localStorage.setItem('hideNotificationPromo', 'true');
-            setShowNotificationPromo(false);
-          });
-        }} 
+        onRequest={() => navigate('/settings')} 
         onDismiss={() => { localStorage.setItem('hideNotificationPromo', 'true'); setShowNotificationPromo(false); }} 
       />
 
