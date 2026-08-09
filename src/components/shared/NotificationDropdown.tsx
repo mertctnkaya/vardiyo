@@ -3,13 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { useAppStore } from '../../store/useAppStore';
 
-const getTimeAgo = (dateString: string) => {
-  const diff = new Date().getTime() - new Date(dateString).getTime();
+// GÜNCELLENEN ZAMAN FORMATLAYICI (Dakika, Saat, Gün ve Tam Tarih)
+const formatTimeData = (dateString: string) => {
+  const date = new Date(dateString);
+  const diff = new Date().getTime() - date.getTime();
+  const minutes = Math.floor(diff / (1000 * 60));
   const hours = Math.floor(diff / (1000 * 60 * 60));
-  if (hours < 1) return 'Az önce';
-  if (hours < 24) return `${hours} saat önce`;
   const days = Math.floor(hours / 24);
-  return `${days} gün önce`;
+
+  let relative = '';
+  if (minutes < 1) relative = 'Az önce';
+  else if (minutes < 60) relative = `${minutes} dakika önce`;
+  else if (hours < 24) relative = `${hours} saat önce`;
+  else relative = `${days} gün önce`;
+
+  // Tam tarih ve saat (Örn: 09.08.2026 19:30)
+  const exact = date.toLocaleString('tr-TR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  return { relative, exact };
 };
 
 const getIconData = (type: string) => {
@@ -41,7 +55,7 @@ export default function NotificationDropdown() {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(30); // Biraz daha fazla bildirim çekelim
 
       if (data && !error) setNotifications(data);
     };
@@ -49,11 +63,11 @@ export default function NotificationDropdown() {
     fetchNotifications();
 
     const channel = supabase.channel('realtime-notifications')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${user.id}`
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'notifications', 
+        filter: `user_id=eq.${user.id}` 
       }, (payload) => {
         setNotifications(prev => [payload.new, ...prev]);
       })
@@ -76,13 +90,23 @@ export default function NotificationDropdown() {
     await supabase.from('notifications').delete().eq('user_id', user.id);
   };
 
+  // YENİ: Tekil Bildirim Silme Fonksiyonu
+  const deleteNotification = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Tıklamanın karta geçip yönlendirme yapmasını engeller
+    if (!user) return;
+    
+    // UI'dan anında kaldır
+    setNotifications(notifications.filter(n => n.id !== id));
+    // Veritabanından sil
+    await supabase.from('notifications').delete().eq('id', id);
+  };
+
   const handleNotificationClick = async (notif: any) => {
     if (!notif.is_read) {
       setNotifications(notifications.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
       await supabase.from('notifications').update({ is_read: true }).eq('id', notif.id);
     }
-
-    // YENİ: Sadece is_interactive true ise ve link varsa yönlendir
+    
     if (notif.is_interactive && notif.link) {
       navigate(notif.link);
       (document.activeElement as HTMLElement)?.blur();
@@ -103,14 +127,15 @@ export default function NotificationDropdown() {
         )}
       </div>
 
-      <div tabIndex={0} className="dropdown-content mt-4 z-50 w-[85vw] max-w-sm sm:w-96 rounded-2xl shadow-2xl bg-base-100 border border-base-300 overflow-hidden animate-fade-in origin-top-right">
-
+      {/* Saydamlık sorununu çözdüğümüz katı ve blur'lu z-9999 arkaplan */}
+      <div tabIndex={0} className="dropdown-content mt-4 z-[9999] w-[85vw] max-w-sm sm:w-96 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] bg-[#1e2329] border border-base-300 overflow-hidden animate-fade-in origin-top-right backdrop-blur-xl">
+        
         <div className="bg-base-200 border-b border-base-300 p-4 flex justify-between items-center sticky top-0 z-10">
           <h3 className="font-bold text-base-content text-lg">Bildirimler</h3>
           {notifications.length > 0 && (
             <div className="flex gap-2">
               {unreadCount > 0 && (
-                <button onClick={markAllAsRead} className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                <button onClick={markAllAsRead} onMouseDown={(e) => e.preventDefault()} className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
                   Okundu İşaretle
                 </button>
               )}
@@ -128,21 +153,23 @@ export default function NotificationDropdown() {
             <div className="flex flex-col">
               {notifications.map((notif) => {
                 const ui = getIconData(notif.type);
+                const timeInfo = formatTimeData(notif.created_at);
+                
                 return (
-                  <div
+                  // group class'ı eklendi, böylece hover olduğunda içindeki çarpı belirebilir
+                  <div 
                     key={notif.id}
                     onClick={() => notif.is_interactive ? handleNotificationClick(notif) : null}
-                    className={`p-4 border-b border-base-300/50 transition-all duration-200 flex gap-4 
-                      ${notif.is_interactive ? 'cursor-pointer hover:bg-base-200 active:scale-[0.99]' : 'cursor-default'} 
+                    className={`group relative p-4 border-b border-base-300/50 transition-all duration-200 flex gap-4 
+                      ${notif.is_interactive ? 'cursor-pointer hover:bg-base-200 active:scale-[0.99]' : 'cursor-default hover:bg-base-200/30'} 
                       ${!notif.is_read ? 'bg-base-300/20' : 'opacity-70 hover:opacity-100'}
-                      ${!notif.is_interactive && 'hover:bg-transparent'}
-                  `}
+                    `}
                   >
                     <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${ui.bg} ${ui.color}`}>
                       {ui.icon}
                     </div>
-                    {/* flex-1 içine de pointer-events-none vermiyoruz ki metin seçilemesin ama tıklama parent'a gitsin. cursor-inherit kullanıyoruz. */}
-                    <div className="flex-1 cursor-inherit">
+                    
+                    <div className="flex-1 cursor-inherit pr-6"> {/* Çarpı için pr-6 boşluğu bırakıldı */}
                       <div className="flex justify-between items-start mb-1">
                         <h4 className={`text-sm ${!notif.is_read ? 'font-bold text-base-content' : 'font-medium text-base-content/80'}`}>
                           {notif.title}
@@ -150,8 +177,27 @@ export default function NotificationDropdown() {
                         {!notif.is_read && <span className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></span>}
                       </div>
                       <p className="text-xs text-base-content/60 leading-relaxed line-clamp-2">{notif.message}</p>
-                      <p className="text-[10px] text-base-content/40 mt-2 font-medium">{getTimeAgo(notif.created_at)}</p>
+                      
+                      {/* YENİ ZAMAN FORMATI: Hem göreceli hem kesin tarih */}
+                      <p className="text-[10px] text-base-content/40 mt-2 font-medium flex gap-1.5">
+                        <span className="text-base-content/60">{timeInfo.relative}</span> 
+                        <span>•</span> 
+                        <span>{timeInfo.exact}</span>
+                      </p>
                     </div>
+
+                    {/* TEKİL SİLME (ÇARPI) BUTONU: Mobilde hep görünür, PC'de hover olunca belirginleşir */}
+                    <button 
+                      onClick={(e) => deleteNotification(e, notif.id)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-base-content/30 hover:text-red-400 hover:bg-red-900/20 rounded-full transition-colors md:opacity-0 md:group-hover:opacity-100"
+                      title="Bildirimi Sil"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
                   </div>
                 );
               })}

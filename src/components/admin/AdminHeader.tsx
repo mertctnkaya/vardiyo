@@ -13,7 +13,7 @@ export default function AdminHeader({ email }: AdminHeaderProps) {
             Sistem senindir.
           </p>
         </div>
-        <div className="hidden sm:block relative z-10 text-right">
+        <div className="hidden sm:block relative text-right">
           <p className="text-xs text-base-content/50 uppercase font-bold tracking-widest">YETKİLİ HESAP</p>
           <p className="font-bold text-emerald-400">{email}</p>
         </div>

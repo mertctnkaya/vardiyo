@@ -219,7 +219,7 @@ export default function AdminPanel() {
                   disabled={isTriggeringCron}
                   className="btn btn-md w-full font-bold p-3 bg-purple-900/20 text-purple-400 hover:bg-purple-600 hover:text-white border border-purple-500/30"
                 >
-                  {isTriggeringCron ? <span className="loading loading-spinner"></span> : '⚙️ 20:00 Otomasyonunu Şimdi Tetikle'}
+                  {isTriggeringCron ? <span className="loading loading-spinner"></span> : '⚙️ 07:00-19:00 Otomasyonunu Şimdi Tetikle'}
                 </button>
               </div>
             )}

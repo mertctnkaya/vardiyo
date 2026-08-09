@@ -4,9 +4,16 @@ import AnnualLeaveTab from '../components/calculations/AnnualLeaveTab';
 import SeveranceTab from '../components/calculations/SeveranceTab';
 import HourlyTab from '../components/calculations/HourlyTab';
 import MonthlyToolsTab from '../components/calculations/MonthlyToolsTab';
+import UnemploymentTab from '../components/calculations/UnemploymentTab';
+import RaiseSimulatorTab from '../components/calculations/RaiseSimulatorTab';
+import ReportPayTab from '../components/calculations/ReportPayTab';
+import ShortWorkTab from '../components/calculations/ShortWorkTab';
+import MaternityLeaveTab from '../components/calculations/MaternityLeaveTab';
+
+type TabType = 'payroll' | 'annual_leave' | 'tazminat' | 'hourly' | 'tools' | 'unemployment' | 'raise' | 'report' | 'short_work' | 'maternity';
 
 export default function Calculations() {
-  const [activeTab, setActiveTab] = useState<'payroll' | 'annual_leave' | 'tazminat' | 'hourly' | 'tools'>('payroll');
+  const [activeTab, setActiveTab] = useState<TabType>('payroll');
 
   return (
     <div className="flex flex-col items-center animate-fade-in w-full pb-10" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
@@ -26,7 +33,12 @@ export default function Calculations() {
           <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'annual_leave' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('annual_leave')}>Yıllık İzin</a>
           <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'tazminat' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('tazminat')}>Tazminat Hesapla</a>
           <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'hourly' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('hourly')}>Saatlikten Bul</a>
-          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'tools' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('tools')}>Araçlar (Aylıktan)</a>
+          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'tools' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('tools')}>Maaştan Bul</a>
+          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'unemployment' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('unemployment')}>İşsizlik</a>
+          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'raise' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('raise')}>Zam Simülatörü</a>
+          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'report' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('report')}>Rapor Parası</a>
+          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'short_work' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('short_work')}>Kısa/Yarım Çalışma</a>
+          <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'maternity' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('maternity')}>Doğum & Süt İzni</a>
         </div>
       </div>
 
@@ -37,6 +49,11 @@ export default function Calculations() {
         {activeTab === 'tazminat' && <SeveranceTab />}
         {activeTab === 'hourly' && <HourlyTab />}
         {activeTab === 'tools' && <MonthlyToolsTab />}
+        {activeTab === 'unemployment' && <UnemploymentTab />}
+        {activeTab === 'raise' && <RaiseSimulatorTab />}
+        {activeTab === 'report' && <ReportPayTab />}
+        {activeTab === 'short_work' && <ShortWorkTab />}
+        {activeTab === 'maternity' && <MaternityLeaveTab />}
       </div>
 
     </div>
