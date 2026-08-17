@@ -5,7 +5,9 @@ import type { SeveranceResult } from '../../types';
 import Alert from '../shared/Alert';
 import Icon from '../shared/Icon';
 import ExportPanel from '../shared/ExportPanel';
+import PremiumPaywallModal from '../shared/PremiumPaywallModal';
 import { printDocumentAsPDF, downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
+import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function SeveranceTab() {
   const { settings, user } = useAppStore();
@@ -16,18 +18,24 @@ export default function SeveranceTab() {
   const [payNotice, setPayNotice] = useState<boolean>(true);
   const [severanceResult, setSeveranceResult] = useState<SeveranceResult | null>(null);
 
-  const handleCalculate = () => {
-    if (!settings || !settings.employment_start_date) return;
+  // Premium Kontrolleri
+  const [showPaywall, setShowPaywall] = useState(false);
+  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
+  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
-    const result = calculateSeverance(
-      settings,
-      terminationDate,
-      payNotice
-    );
+  const handleCalculate = () => {
+    // 1. Önce Premium Kontrolü
+    if (!hasAccess) {
+      setShowPaywall(true);
+      return;
+    }
+
+    // 2. Erişim varsa hesapla
+    if (!settings || !settings.employment_start_date) return;
+    const result = calculateSeverance(settings, terminationDate, payNotice);
     setSeveranceResult(result);
   };
 
-  // --- DIŞA AKTARMA FONKSİYONLARI ---
   const exportTazminatCSV = () => {
     if (!severanceResult) return;
     let csv = "\uFEFFKalem,Deger\n";
@@ -67,6 +75,13 @@ export default function SeveranceTab() {
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
       
+      {/* PREMIUM UYARISI */}
+      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
+        <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
+          Detaylı Kıdem ve İhbar Tazminatı hesaplama aracı Premium kullanıcılara özeldir. Hesapla butonuna basarak yükseltme seçeneklerini görüntüleyebilirsiniz.
+        </Alert>
+      )}
+
       {/* ÜST PANEL*/}
       <div className="bg-[#1e2329] rounded-xl border border-base-300 p-6 sm:p-8 shadow-lg">
         <h3 className="text-2xl font-bold text-amber-400 mb-6 flex items-center gap-2 border-b border-base-300 pb-4">
@@ -124,14 +139,13 @@ export default function SeveranceTab() {
         <div className="mt-8">
           <button onClick={handleCalculate} className="btn w-full bg-amber-600 hover:bg-amber-700 text-white border-none shadow-lg shadow-amber-900/50 text-lg h-14">
             Tazminatımı Hesapla
+            {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-2 text-xs bg-amber-900/40 px-2 py-1 rounded text-amber-200">PRO</span>}
           </button>
         </div>
       </div>
 
-      {/* ALT PANEL: ESKİ ÖZLENEN DETAYLI TURUNCU TASARIM */}
       {severanceResult && (
         <div className="space-y-6 animate-fade-in mt-6">
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-[#16191d] p-5 rounded-xl border border-base-300 shadow-lg">
               <h4 className="font-bold text-base-content/70 mb-4 border-b border-base-300 pb-2">Kıdem Tazminatı</h4>
@@ -166,6 +180,13 @@ export default function SeveranceTab() {
           />
         </div>
       )}
+
+      {/* Paywall Modalı */}
+      <PremiumPaywallModal 
+        isOpen={showPaywall} 
+        onClose={() => setShowPaywall(false)} 
+        featureName="Tazminat Hesaplama Motoru" 
+      />
     </div>
   );
 }

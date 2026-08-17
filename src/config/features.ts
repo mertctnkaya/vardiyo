@@ -1,0 +1,1 @@
+export const IS_PAYWALL_ACTIVE = true; // true = Premium Kilitli, false = Premium Kilitsiz

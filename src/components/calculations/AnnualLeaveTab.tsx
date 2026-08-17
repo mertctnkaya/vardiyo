@@ -3,6 +3,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { updateUserSettings } from '../../services/dbService';
 import { supabase } from '../../lib/supabaseClient';
 import Alert from '../shared/Alert';
+import PremiumPaywallModal from '../shared/PremiumPaywallModal';
+import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function AnnualLeaveTab() {
   const { settings, user, setSettings } = useAppStore();
@@ -10,28 +12,22 @@ export default function AnnualLeaveTab() {
   const [knownLeaveBalance, setKnownLeaveBalance] = useState('');
   const [isSavingLeave, setIsSavingLeave] = useState(false);
   const [leaveFeedback, setLeaveFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-  
-  // YENİ: Takvimden girilen izinleri saymak için state
   const [calendarUsedLeave, setCalendarUsedLeave] = useState(0);
 
-  // YENİ: Veritabanından (work_logs) tüm yıllık izinleri sayan fonksiyon
+  // Premium Kontrolleri
+  const [showPaywall, setShowPaywall] = useState(false);
+  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
+  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
+
   useEffect(() => {
     const fetchCalendarLeaves = async () => {
       if (!user) return;
-      const { count, error } = await supabase
-        .from('work_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('status', 'annual_leave');
-
-      if (!error && count !== null) {
-        setCalendarUsedLeave(count);
-      }
+      const { count, error } = await supabase.from('work_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'annual_leave');
+      if (!error && count !== null) setCalendarUsedLeave(count);
     };
     fetchCalendarLeaves();
   }, [user]);
 
-  // İşe giriş tarihi yoksa hesaplama yapılamaz
   if (!settings?.employment_start_date) {
     return (
       <Alert color="amber" title="Eksik Bilgi" icon="warning">
@@ -40,7 +36,6 @@ export default function AnnualLeaveTab() {
     );
   }
 
-  // Yıllık İzin Hakediş Hesaplamaları
   const start = new Date(settings.employment_start_date);
   const today = new Date();
   const yearsWorked = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
@@ -56,20 +51,16 @@ export default function AnnualLeaveTab() {
   nextLeaveDate.setFullYear(start.getFullYear() + yearsWorked + 1);
   const nextLeaveDays = (yearsWorked + 1) <= 5 ? 14 : ((yearsWorked + 1) < 15 ? 20 : 26);
 
-  // DÜZELTME: Takvimdeki izinler + Ayarlardaki geçmiş izinler
   const pastUsed = settings.past_used_leave || 0;
-  const totalUsedLeave = pastUsed + calendarUsedLeave; // YENİ: İkisi toplanıyor
+  const totalUsedLeave = pastUsed + calendarUsedLeave; 
   const remainingLeave = earnedLeave - totalUsedLeave;
 
   const saveLeaveBalance = async () => {
+    if (!hasAccess) return setShowPaywall(true);
     if (!user || knownLeaveBalance === '') return;
     setIsSavingLeave(true);
 
     const targetBalance = Number(knownLeaveBalance);
-
-    // DÜZELTME: Eşitleme yaparken takvimdeki kullanımları (calendarUsedLeave) da hesaba katıyoruz
-    // Formül: (Kazanılan İzin) - (Hedef İzin Bakiyesi) = (Toplam Kullanılması Gereken)
-    // (Toplam Kullanılması Gereken) - (Takvimde Kullanılan) = (Ayarlara Yazılacak Geçmiş İzin)
     const requiredTotalUse = Math.max(0, earnedLeave - targetBalance);
     const pastUsedCalculated = Math.max(0, requiredTotalUse - calendarUsedLeave);
 
@@ -87,6 +78,7 @@ export default function AnnualLeaveTab() {
   };
 
   const resetLeaveBalance = async () => {
+    if (!hasAccess) return setShowPaywall(true);
     if (!user) return;
     setIsSavingLeave(true);
     const { error, data } = await updateUserSettings(user.id, { past_used_leave: 0 });
@@ -101,7 +93,14 @@ export default function AnnualLeaveTab() {
 
   return (
     <div className="w-full space-y-6 animate-fade-in px-2 sm:px-0">
+      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
+        <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
+          Gelişmiş Bakiye Eşitleme Aracı Premium kullanıcılara özeldir.
+        </Alert>
+      )}
+
       <div className="bg-[#1e2329] rounded-xl border border-base-300 p-6 sm:p-8 shadow-lg">
+        {/* ... (Yıllık İzin Kartları eskisi gibi aynı kalacak) ... */}
         <div className="flex justify-between items-end mb-6">
           <h3 className="text-2xl font-bold text-pink-400">Yıllık İzin Durumu</h3>
           <div className="text-right">
@@ -122,7 +121,6 @@ export default function AnnualLeaveTab() {
           <div className="bg-[#16191d] p-5 rounded-xl border border-base-300 shadow-md flex flex-col justify-center">
             <p className="text-[10px] text-base-content/60 font-bold mb-1">TOPLAM KULLANILAN İZİN</p>
             <p className="text-2xl font-bold text-amber-500">{totalUsedLeave} <span className="text-lg">Gün</span></p>
-            {/* YENİ: Kullanıcıya ufak bir detay gösteriyoruz */}
             <p className="text-[9px] text-base-content/40 mt-1">Takvim: {calendarUsedLeave} | Geçmiş: {pastUsed}</p>
           </div>
           <div className="bg-pink-900/10 p-5 rounded-xl border border-pink-500/30 ring-2 ring-pink-500/20 shadow-inner">
@@ -132,47 +130,30 @@ export default function AnnualLeaveTab() {
         </div>
       </div>
 
-      {/* BAKİYE EŞİTLEME PANELİ */}
       <div className="bg-[#16191d] rounded-xl border border-base-300 p-6 shadow-lg flex flex-col md:flex-row gap-6 items-center">
         <div className="flex-1">
           <h4 className="text-lg font-bold text-base-content mb-1">Bakiye Eşitleme Aracı</h4>
-          <p className="text-sm text-base-content/60">
-            Eğer sistemdeki kalan izniniz gerçekle uyuşmuyorsa, şirketinize sorarak öğrendiğiniz <strong>güncel kalan izin bakiyenizi</strong> girin. Sistem takvimdeki kullanımlarınızı da hesaba katarak veritabanını kusursuz eşitleyecektir.
-          </p>
+          <p className="text-sm text-base-content/60">Eğer sistemdeki kalan izniniz gerçekle uyuşmuyorsa <strong>güncel kalan bakiyenizi</strong> girin. Sistem takvimdeki kullanımlarınızı hesaba katarak veritabanını eşitleyecektir.</p>
         </div>
         <div className="flex-1 w-full flex flex-col gap-2">
           <div className="flex gap-2 w-full">
-            <input
-              type="number"
-              min="0"
-              className="input p-2 input-bordered bg-base-200 flex-1 focus:ring-2 focus:ring-pink-500"
-              placeholder="Şu anki gerçek bakiyem (Gün)"
-              value={knownLeaveBalance}
-              onChange={(e) => setKnownLeaveBalance(e.target.value)}
-            />
-            <button
-              className="btn p-4 bg-pink-600 hover:bg-pink-700 text-white border-none shadow-lg shadow-pink-900/40"
-              onClick={saveLeaveBalance}
-              disabled={isSavingLeave || knownLeaveBalance === ''}
-            >
+            <input type="number" min="0" className="input p-2 input-bordered bg-base-200 flex-1 focus:ring-2 focus:ring-pink-500" placeholder="Gerçek bakiyem (Gün)" value={knownLeaveBalance} onChange={(e) => setKnownLeaveBalance(e.target.value)} />
+            
+            <button className="btn p-4 bg-pink-600 hover:bg-pink-700 text-white border-none shadow-lg shadow-pink-900/40" onClick={saveLeaveBalance} disabled={isSavingLeave || knownLeaveBalance === ''}>
               {isSavingLeave ? <span className="loading loading-spinner"></span> : 'Eşitle'}
+              {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-1 text-[10px] bg-pink-900/40 px-1 rounded text-pink-200">PRO</span>}
             </button>
-            <button
-              className="btn p-4 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/40"
-              title="Sistemi varsayılan yasal hakedişe döndürür"
-              onClick={resetLeaveBalance}
-              disabled={isSavingLeave}
-            >
+
+            <button className="btn p-4 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/40" title="Sıfırla" onClick={resetLeaveBalance} disabled={isSavingLeave}>
               Sıfırla
+              {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-1 text-[10px] bg-red-900/40 px-1 rounded text-red-200">PRO</span>}
             </button>
           </div>
-          {leaveFeedback && (
-            <div className={`p-2 rounded-lg text-xs font-bold text-center animate-fade-in ${leaveFeedback.type === 'success' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>
-              {leaveFeedback.message}
-            </div>
-          )}
+          {leaveFeedback && <div className={`p-2 rounded-lg text-xs font-bold text-center animate-fade-in ${leaveFeedback.type === 'success' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>{leaveFeedback.message}</div>}
         </div>
       </div>
+      
+      <PremiumPaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} featureName="İzin Bakiyesi Eşitleme" />
     </div>
   );
 }

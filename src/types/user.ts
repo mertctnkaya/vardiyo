@@ -20,14 +20,14 @@ export interface UserSettings {
   base_work_hours: number;
   past_used_leave: number;
   updated_at?: string;
-  // --- Buradan aşağısı vardiya motoru için ---
+  role?: 'free' | 'premium' | 'admin';
+  premium_until?: string | null;
   shift_epoch_date: string;
   work_type: string;
   is_saturday_workday: boolean;
   shift_start_time: string;
   shift_end_time: string;
   shift_duration: number;
-  role: 'user' | 'admin';
   notification_preferences?: NotificationPreferences;
 }
 
