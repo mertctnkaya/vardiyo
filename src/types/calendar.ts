@@ -40,6 +40,8 @@ export interface CalendarGridProps {
   employmentStartDate: Date;
   workLogs: Record<string, any>;
   onDayClick: (dayData: DayDetail, isBeforeEmployment: boolean) => void;
+  isPaused?: boolean;
+  pausedDates?: { start: string; end: string | null } | null;
 }
 
 export interface CalendarStatsProps {

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { updateUserSettings } from '../../services/dbService';
+import { supabase } from '../../lib/supabaseClient';
 import Alert from '../shared/Alert';
 
 export default function AnnualLeaveTab() {
@@ -9,6 +10,26 @@ export default function AnnualLeaveTab() {
   const [knownLeaveBalance, setKnownLeaveBalance] = useState('');
   const [isSavingLeave, setIsSavingLeave] = useState(false);
   const [leaveFeedback, setLeaveFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  
+  // YENİ: Takvimden girilen izinleri saymak için state
+  const [calendarUsedLeave, setCalendarUsedLeave] = useState(0);
+
+  // YENİ: Veritabanından (work_logs) tüm yıllık izinleri sayan fonksiyon
+  useEffect(() => {
+    const fetchCalendarLeaves = async () => {
+      if (!user) return;
+      const { count, error } = await supabase
+        .from('work_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'annual_leave');
+
+      if (!error && count !== null) {
+        setCalendarUsedLeave(count);
+      }
+    };
+    fetchCalendarLeaves();
+  }, [user]);
 
   // İşe giriş tarihi yoksa hesaplama yapılamaz
   if (!settings?.employment_start_date) {
@@ -35,8 +56,9 @@ export default function AnnualLeaveTab() {
   nextLeaveDate.setFullYear(start.getFullYear() + yearsWorked + 1);
   const nextLeaveDays = (yearsWorked + 1) <= 5 ? 14 : ((yearsWorked + 1) < 15 ? 20 : 26);
 
+  // DÜZELTME: Takvimdeki izinler + Ayarlardaki geçmiş izinler
   const pastUsed = settings.past_used_leave || 0;
-  const totalUsedLeave = pastUsed
+  const totalUsedLeave = pastUsed + calendarUsedLeave; // YENİ: İkisi toplanıyor
   const remainingLeave = earnedLeave - totalUsedLeave;
 
   const saveLeaveBalance = async () => {
@@ -45,7 +67,11 @@ export default function AnnualLeaveTab() {
 
     const targetBalance = Number(knownLeaveBalance);
 
-    const pastUsedCalculated = Math.max(0, earnedLeave - targetBalance);
+    // DÜZELTME: Eşitleme yaparken takvimdeki kullanımları (calendarUsedLeave) da hesaba katıyoruz
+    // Formül: (Kazanılan İzin) - (Hedef İzin Bakiyesi) = (Toplam Kullanılması Gereken)
+    // (Toplam Kullanılması Gereken) - (Takvimde Kullanılan) = (Ayarlara Yazılacak Geçmiş İzin)
+    const requiredTotalUse = Math.max(0, earnedLeave - targetBalance);
+    const pastUsedCalculated = Math.max(0, requiredTotalUse - calendarUsedLeave);
 
     const { error, data } = await updateUserSettings(user.id, { past_used_leave: pastUsedCalculated });
 
@@ -93,9 +119,11 @@ export default function AnnualLeaveTab() {
             <p className="text-xs text-base-content/60 font-bold mb-1">Yasal Toplam Hakediş</p>
             <p className="text-3xl font-bold text-emerald-400">{earnedLeave} <span className="text-lg">Gün</span></p>
           </div>
-          <div className="bg-[#16191d] p-5 rounded-xl border border-base-300 shadow-md">
-            <p className="text-xs text-base-content/60 font-bold mb-1">Toplam Kullanılan</p>
-            <p className="text-3xl font-bold text-amber-500">{totalUsedLeave} <span className="text-lg">Gün</span></p>
+          <div className="bg-[#16191d] p-5 rounded-xl border border-base-300 shadow-md flex flex-col justify-center">
+            <p className="text-[10px] text-base-content/60 font-bold mb-1">TOPLAM KULLANILAN İZİN</p>
+            <p className="text-2xl font-bold text-amber-500">{totalUsedLeave} <span className="text-lg">Gün</span></p>
+            {/* YENİ: Kullanıcıya ufak bir detay gösteriyoruz */}
+            <p className="text-[9px] text-base-content/40 mt-1">Takvim: {calendarUsedLeave} | Geçmiş: {pastUsed}</p>
           </div>
           <div className="bg-pink-900/10 p-5 rounded-xl border border-pink-500/30 ring-2 ring-pink-500/20 shadow-inner">
             <p className="text-xs text-pink-400/80 font-bold mb-1">Kalan Net İzin Bakiyesi</p>

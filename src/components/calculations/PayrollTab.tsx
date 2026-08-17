@@ -8,7 +8,7 @@ import type { LegacyPayrollData } from '../../types';
 
 export default function PayrollTab() {
   const { settings, user } = useAppStore();
-  
+
   const [payrollDate, setPayrollDate] = useState(new Date());
   const [isLoadingPayroll, setIsLoadingPayroll] = useState(false);
   const [fetchedLogs, setFetchedLogs] = useState<any[]>([]);
@@ -102,8 +102,8 @@ export default function PayrollTab() {
 
   return (
     <div className="w-full space-y-6 animate-fade-in style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}">
-      
-      <ExportPanel 
+
+      <ExportPanel
         title="Bordroyu Dışa Aktar"
         description="Hesaplanan aylık bordro dökümünüzü cihazınıza indirin veya yazdırın."
         onExportCSV={exportPayrollCSV}
@@ -151,6 +151,12 @@ export default function PayrollTab() {
               <p className="text-sm text-base-content/60">Bordroya Esas Gün: <strong>{payrollData.stats.payrollDays} Gün</strong></p>
               <p className="text-sm text-base-content/60">Brüt Günlük: <strong>{payrollData.baseGrossInfo.daily.toFixed(2)} ₺</strong></p>
             </div>
+          </div>
+
+          <div className="text-center mt-6">
+            <p className="text-[12px] text-base-content/40 leading-relaxed">
+              * Hesaplamalar sabit ilk vergi dilimi üzerinden yapılmaktadır. Yıl sonuna doğru artan kümülatif gelir vergisi matrahı (üst vergi dilimlerine geçiş) nedeniyle gerçek bordronuzdaki net maaşınızda kesinti yönünde ufak sapmalar olabilir.
+            </p>
           </div>
 
           {/* BORDRO ADIMLARI */}

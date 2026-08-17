@@ -8,8 +8,20 @@ export default function CalendarGrid({
     actualToday,
     employmentStartDate,
     workLogs,
-    onDayClick
+    onDayClick,
+    isPaused,
+    pausedDates
 }: CalendarGridProps) {
+    // Gelen tarihin duraklatılıp duraklatılmadığını kontrol eden yardımcı fonksiyon
+    const isDatePaused = (dateObj: Date) => {
+        if (!isPaused || !pausedDates?.start) return false;
+        const dateStr = getLocalDateString(dateObj);
+
+        if (pausedDates.end) {
+            return dateStr >= pausedDates.start && dateStr <= pausedDates.end;
+        }
+        return dateStr >= pausedDates.start; // Bitiş yoksa başlangıçtan sonrası hep donuktur
+    };
     return (
         <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden">
             {/* Haftanın Günleri Başlığı */}
@@ -26,6 +38,7 @@ export default function CalendarGrid({
                     const isPast = item.date < actualToday;
                     const isToday = item.date.toDateString() === actualToday.toDateString();
                     const isBeforeEmployment = item.date < employmentStartDate;
+                    const dayPaused = isDatePaused(item.date); // BUGÜN DURAKLATILMIŞ MI?
 
                     const dateKeyStr = getLocalDateString(item.date);
                     const holidayName = TURKISH_HOLIDAYS_2026[dateKeyStr];
@@ -65,12 +78,20 @@ export default function CalendarGrid({
                     return (
                         <div
                             key={index}
-                            onClick={() => onDayClick({
+                            onClick={() => !dayPaused && onDayClick({
                                 date: item.date, shiftName: shift.name, isNightShift: shift.isNight,
                                 isOffDay: shift.isOffDay, isPast, isCurrentMonth: item.isCurrentMonth, shiftId: shift.id
                             }, isBeforeEmployment)}
-                            className={`relative min-h-[5rem] sm:min-h-[7rem] p-2 border-r border-b border-base-300 transition-colors duration-200 flex flex-col justify-start ${cellBg} ${index % 7 === 6 ? 'border-r-0' : ''}`}
+                            className={`relative min-h-[5rem] sm:min-h-[7rem] p-2 border-r border-b border-base-300 transition-colors duration-200 flex flex-col justify-start ${cellBg} ${index % 7 === 6 ? 'border-r-0' : ''}
+                                        ${dayPaused ? 'opacity-40 grayscale bg-base-300 border-base-300/50 pointer-events-none' : ''}`}
                         >
+                            {dayPaused && item.isCurrentMonth && (
+                                <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                            )}
                             {holidayName && (
                                 <div className="absolute top-1 right-1 z-20 group">
                                     <span className="text-[10px] sm:text-[11px] font-bold text-yellow-300 bg-yellow-900/60 px-1.5 py-0.5 rounded shadow-lg border border-yellow-500/40 cursor-help flex items-center justify-center">

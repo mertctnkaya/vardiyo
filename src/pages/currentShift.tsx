@@ -1,11 +1,10 @@
 import { useOutletContext } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import type { Reminder } from '../types';
 
-// Makro Componentlerimiz
 import DateSelectorCard from '../components/current-shift/DateSelectorCard';
 import ShiftDisplayCard from '../components/current-shift/ShiftDisplayCard';
 import WelcomeBanner from '../components/current-shift/WelcomeBanner';
@@ -17,7 +16,6 @@ import GuestPromoCard from '../components/current-shift/GuestPromoCard';
 type ShiftContextType = ReturnType<typeof import("../hooks/useShiftCalculator").useShiftCalculator>;
 
 export default function CurrentShift() {
-  // A. Merkezi Durum Yönetimi (State & Context)
   const { targetDate, setTargetDate, currentShift } = useOutletContext<ShiftContextType>();
   const { user, settings } = useAppStore();
   const navigate = useNavigate();
@@ -27,18 +25,20 @@ export default function CurrentShift() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showNotificationPromo, setShowNotificationPromo] = useState(false);
 
-  const formattedDateValue = targetDate.toISOString().split("T")[0];
+  // YENİ: Duraklatma State'leri
+  const [isCalendarPaused, setIsCalendarPaused] = useState(false);
+  const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
 
-  // B. İş Mantığı (Logic & API)
+  // HATA DÜZELTMESİ: toISOString yerine yerel saat formatı (Tarih kaymalarını önler)
+  const formattedDateValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+
   useEffect(() => {
-    // 1. Bildirim İzni Kontrolü
     if ('Notification' in window) {
       const isDismissed = localStorage.getItem('hideNotificationPromo');
       if (Notification.permission === 'default' && isDismissed !== 'true') {
         setShowNotificationPromo(true);
       }
     }
-    // 2. Hoş Geldin Mesajı Kontrolü
     const isHiddenWelcome = localStorage.getItem('hideWelcomeInfo');
     if (isHiddenWelcome !== 'true') {
       setShowWelcome(true);
@@ -54,11 +54,37 @@ export default function CurrentShift() {
     if (data) setReminders(data);
   }, [user]);
 
+  // YENİ: Duraklatma Ayarlarını Çek
   useEffect(() => {
-    fetchReminders();
-  }, [fetchReminders]);
+    if (!user) return;
+    const fetchPauseConfig = async () => {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('is_paused, pause_start_date, pause_end_date')
+        .eq('user_id', user.id)
+        .single();
 
-  // C. Yardımcı Fonksiyonlar (Handlers & Calculators)
+      if (data && !error) {
+        setIsCalendarPaused(data.is_paused || false);
+        if (data.is_paused && data.pause_start_date) {
+          setPausedDates({ start: data.pause_start_date, end: data.pause_end_date });
+        }
+      }
+    };
+    fetchPauseConfig();
+    fetchReminders();
+  }, [user, fetchReminders]);
+
+  // YENİ: Seçili olan (ekranda görünen) tarih duraklatılmış aralıkta mı?
+  const isDatePaused = useMemo(() => {
+    if (!isCalendarPaused || !pausedDates?.start) return false;
+    
+    if (pausedDates.end) {
+      return formattedDateValue >= pausedDates.start && formattedDateValue <= pausedDates.end;
+    }
+    return formattedDateValue >= pausedDates.start;
+  }, [isCalendarPaused, pausedDates, formattedDateValue]);
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) setTargetDate(new Date(e.target.value));
   };
@@ -100,8 +126,6 @@ export default function CurrentShift() {
 
   return (
     <div className="grid md:grid-cols-2 gap-8 animate-fade-in w-full pb-10">
-
-      {/* Tarih Seçici Kart */}
       <DateSelectorCard 
         targetDate={targetDate}
         formattedDateValue={formattedDateValue}
@@ -110,13 +134,12 @@ export default function CurrentShift() {
         onSetToday={() => setTargetDate(new Date())}
       />
 
-      {/* Vardiya Gösterici Kart */}
       <ShiftDisplayCard 
         currentShift={currentShift}
         shiftHours={getShiftHours()}
+        isDatePaused={isDatePaused} 
       />
 
-      {/* Hoş Geldin & Bildirim Uyarıları */}
       <WelcomeBanner 
         showWelcome={showWelcome} 
         onClose={() => { localStorage.setItem('hideWelcomeInfo', 'true'); setShowWelcome(false); }} 
@@ -128,7 +151,6 @@ export default function CurrentShift() {
         onDismiss={() => { localStorage.setItem('hideNotificationPromo', 'true'); setShowNotificationPromo(false); }} 
       />
 
-      {/* Hatırlatmalar Modülü */}
       <RemindersList 
         reminders={reminders}
         onToggle={async (id, status) => { await supabase.from('reminders').update({ is_completed: !status }).eq('id', id); fetchReminders(); }}
@@ -136,7 +158,6 @@ export default function CurrentShift() {
         onOpenModal={() => setShowReminderModal(true)}
       />
 
-      {/* Modallar ve Misafir Paneli */}
       <ReminderModal 
         isOpen={showReminderModal}
         onClose={() => setShowReminderModal(false)}
@@ -146,7 +167,6 @@ export default function CurrentShift() {
       />
 
       <GuestPromoCard user={user} />
-      
     </div>
   );
 }
