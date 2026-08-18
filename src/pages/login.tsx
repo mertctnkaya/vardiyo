@@ -73,7 +73,6 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            {/* ŞİFREMİ UNUTTUM LİNKİ EKLENDİ */}
             <label className="label pt-2 pb-0 justify-end">
               <Link to="/forgot-password" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 hover:underline transition-colors">Şifremi Unuttum</Link>
             </label>

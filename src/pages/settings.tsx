@@ -48,7 +48,6 @@ export default function Settings() {
   const handleRequestPermission = async () => {
     if (!user) return;
     
-    // Cihazdan izin iste ve arka planda SW kaydını yapıp Supabase'e token'ı fırlat
     const newStatus = await registerAndSubscribeToPush(user.id);
     
     if (newStatus) {
@@ -206,7 +205,7 @@ export default function Settings() {
 
           <NotificationSection 
             notificationStatus={notificationStatus}
-            onRequestPermission={handleRequestPermission} // Burayı değiştirdik
+            onRequestPermission={handleRequestPermission}
             prefs={notifPrefs}           
             onToggle={handleTogglePref}
           />

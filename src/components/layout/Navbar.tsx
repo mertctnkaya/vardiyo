@@ -39,10 +39,8 @@ export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
       <div className="navbar-end flex justify-end gap-2 pr-2">
         {user ? (
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* HER EKRANDA GÖRÜNEN ÇAN İKONU */}
             <NotificationDropdown />
             
-            {/* SADECE MASAÜSTÜNDE GÖRÜNEN İSİM VE ÇIKIŞ BUTONU */}
             <div className="hidden lg:flex items-center gap-4">
               <span className="text-sm font-semibold text-base-content/80 border border-base-300 bg-base-200 px-3 py-1.5 rounded-full">
                 {user.user_metadata?.name}

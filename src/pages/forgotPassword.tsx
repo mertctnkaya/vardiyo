@@ -14,7 +14,6 @@ export default function ForgotPassword() {
     setLoading(true);
     setMessage(null);
     
-    // E-postaya şifre sıfırlama linki yolluyoruz ve kullanıcıyı yeni şifre belirleme sayfasına yönlendiriyoruz
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/update-password`,
     });

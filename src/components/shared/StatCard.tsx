@@ -2,7 +2,6 @@ import type { StatCardProps } from '../../types';
 import Icon from './Icon';
 
 export default function StatCard({ title, value, desc, colorTheme = 'emerald', iconName }: StatCardProps) {
-  // Tailwind sınıflarını dinamik verebilmek için map yapısı kullanıyoruz
   const themeMap = {
     white: { text: 'text-white', glow: 'bg-white/10' },
     blue: { text: 'text-blue-400', glow: 'bg-blue-500/10' },
@@ -17,10 +16,8 @@ export default function StatCard({ title, value, desc, colorTheme = 'emerald', i
 
   return (
     <div className="bg-[#16191d] rounded-2xl border border-base-300 p-8 shadow-lg text-center relative overflow-hidden flex flex-col items-center justify-center">
-      {/* Sağ üstteki parlayan küre */}
       <div className={`absolute top-0 right-0 p-16 rounded-full blur-3xl -mr-10 -mt-10 ${theme.glow}`}></div>
       
-      {/* Varsa İkon */}
       {iconName && (
         <div className={`mb-3 relative z-10 ${theme.text}`}>
           <Icon name={iconName} className="w-8 h-8 opacity-80" />

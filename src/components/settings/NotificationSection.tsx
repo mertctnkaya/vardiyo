@@ -13,7 +13,6 @@ export default function NotificationSection({ notificationStatus, onRequestPermi
           Bildirim Ayarları
         </h2>
 
-        {/* TARAYICI İZİN KONTROLÜ */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-base-200 p-4 rounded-xl border border-emerald-500/70 mb-8">
           <div>
             <h4 className="font-bold text-base-content text-lg">Cihaz Bildirimleri (Push Notifications)</h4>
@@ -45,7 +44,6 @@ export default function NotificationSection({ notificationStatus, onRequestPermi
           </div>
         </div>
 
-        {/* 10 ADET DETAYLI BİLDİRİM TERCİHİ */}
         <div className={`space-y-2 transition-opacity duration-300 ${notificationStatus !== 'granted' ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
           <h4 className="font-bold text-base-content/80 mb-4 px-2 uppercase tracking-wider text-xs">Nelerden haberdar olmak istersiniz?</h4>
 

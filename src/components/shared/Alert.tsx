@@ -12,7 +12,6 @@ export default function Alert({
   titleColored = true,
 }: AlertProps) {
 
-  // Tema Renk Sözlüğü (Struct Map)
   const colorMap = {
     emerald: { text: 'text-emerald-400', bg: 'bg-emerald-900/10', border: 'border-emerald-500/30', borderLeft: 'border-emerald-500', defaultIcon: 'check' },
     red: { text: 'text-red-400', bg: 'bg-red-900/10', border: 'border-red-500/50', borderLeft: 'border-red-500', defaultIcon: 'warning' },
@@ -27,23 +26,19 @@ export default function Alert({
 
   const theme = colorMap[color];
 
-  // 1. Arka plan CSS'i
   let bgClass = '';
   if (bgStyle === 'colored') bgClass = theme.bg;
-  else if (bgStyle === 'base') bgClass = 'bg-[#16191d]'; // SS'teki karanlık kart arkaplanı
+  else if (bgStyle === 'base') bgClass = 'bg-[#16191d]';
   else if (bgStyle === 'transparent') bgClass = 'bg-transparent';
 
-  // 2. Çerçeve CSS'i
   let borderClass = '';
   if (borderStyle === 'colored') borderClass = `border ${theme.border}`;
   else if (borderStyle === 'left-colored') borderClass = `border-l-2 ${theme.borderLeft}  border-base-300`;
   else if (borderStyle === 'base') borderClass = 'border border-base-300';
 
-  // 3. İkon Mantığı
   const finalIcon = icon === undefined ? theme.defaultIcon : icon;
   const showIcon = finalIcon !== 'none';
 
-  // 4. Başlık Rengi
   const titleClass = titleColored ? theme.text : 'text-base-content/90';
 
   return (

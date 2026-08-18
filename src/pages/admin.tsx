@@ -87,7 +87,6 @@ export default function AdminPanel() {
     fetchData();
   }, []);
 
-  // OPTIMISTIC UI: Bekleme yapmadan anında (tak tak) çalışan Premium Motoru
   const handleGrantPremium = async (userId: string, monthsToAdd: number) => {
     const targetUser = users.find(u => u.id === userId);
 
@@ -105,31 +104,25 @@ export default function AdminPanel() {
 
     const premiumUntilStr = monthsToAdd === 0 ? null : baseDate.toISOString();
 
-    // 1. Ekrandaki veriyi saniyesinde değiştir (Kullanıcı beklemez, tablo kaymaz)
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, premium_until: premiumUntilStr } : u));
 
-    // 2. Arka planda veritabanını sessizce güncelle
     const { error } = await supabase
       .from('user_settings')
       .update({ premium_until: premiumUntilStr })
       .eq('user_id', userId);
 
-    // 3. SADECE HATA VARSA UYARI VER VE TABLOYU GERİ AL
     if (error) {
       setActionFeedback('Hata: ' + error.message);
       setTimeout(() => setActionFeedback(''), 3000);
-      fetchData(); // Hata durumunda tabloyu eski gerçek haline döndür
+      fetchData();
     }
   };
 
-  // OPTIMISTIC UI: Anında silinen mesajlar
   const handleDeleteMessage = async (id: number) => {
     if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
 
-    // Anında ekrandan uçur
     setMessages(prev => prev.filter(m => m.id !== id));
 
-    // Arka planda DB'den sil
     const { error } = await supabase.rpc('delete_admin_message', { msg_id: id });
     if (error) {
       setActionFeedback('Hata: ' + error.message);
@@ -138,14 +131,11 @@ export default function AdminPanel() {
     }
   };
 
-  // OPTIMISTIC UI: Anında silinen hesaplar
   const handleDeleteAccount = async (id: string, email: string) => {
     if (!window.confirm(`${email} e-posta adresli kullanıcının hesabını (ve tüm verilerini) KALICI OLARAK silmek istediğinize emin misiniz?`)) return;
 
-    // Anında ekrandan uçur (Tablo kayması olmaz, anında silinir)
     setUsers(prev => prev.filter(u => u.id !== id));
 
-    // Arka planda DB'den sil
     const { error } = await supabase.rpc('delete_user_account', { target_user_id: id });
     if (error) {
       setActionFeedback('Hata: ' + error.message);
@@ -211,7 +201,6 @@ export default function AdminPanel() {
 
             {activeTab === 'stats' && <StatsTab stats={stats} />}
 
-            {/* CRON TEST BUTONU (YARINI BEKLEMEMEK İÇİN) */}
             {activeTab === 'broadcast' && (
               <div className="flex justify-center mt-4 mb-8">
                 <button

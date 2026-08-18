@@ -3,14 +3,12 @@ import { supabase } from '../../lib/supabaseClient';
 import type { ReminderModalProps } from '../../types/currentShift';
 
 export default function ReminderModal({ isOpen, onClose, defaultDate, user, onSuccess }: ReminderModalProps) {
-  // Modal State'leri Ana sayfadan izole edildi (Standartlaştırma / Seiketsu)
   const [reminderStartDate, setReminderStartDate] = useState(defaultDate);
   const [reminderEndDate, setReminderEndDate] = useState('');
   const [reminderTimeRange, setReminderTimeRange] = useState('');
   const [reminderText, setReminderText] = useState('');
   const [isSavingReminder, setIsSavingReminder] = useState(false);
 
-  // Modal her açıldığında veya takvimden tarih değiştiğinde form başlangıç tarihini eşitler
   useEffect(() => {
     if (isOpen) {
       setReminderStartDate(defaultDate);
@@ -36,7 +34,7 @@ export default function ReminderModal({ isOpen, onClose, defaultDate, user, onSu
       setReminderText('');
       setReminderEndDate('');
       setReminderTimeRange('');
-      onSuccess(); // Ana sayfaya "başarılı oldu, listeyi yenile" der.
+      onSuccess();
     }
     setIsSavingReminder(false);
   };

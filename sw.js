@@ -1,7 +1,6 @@
 self.addEventListener('push', function(event) {
   if (!event.data) return;
 
-  // event.waitUntil: Tarayıcıya "Ben bildirimi ekrana çizene kadar Service Workerı öldürme" der.
   event.waitUntil(
     (async () => {
       try {
@@ -21,7 +20,6 @@ self.addEventListener('push', function(event) {
         return self.registration.showNotification(data.title, options);
       } catch (error) {
         console.error('Bildirim verisi okunamadı:', error);
-        // Hata olursa en azından boş kalmasın, genel bir bildirim göstersin
         return self.registration.showNotification('Vardiyo', { 
           body: 'Yeni bir sistem bildirimi aldınız.' 
         });
@@ -30,7 +28,6 @@ self.addEventListener('push', function(event) {
   );
 });
 
-// Bildirime tıklanma olayı
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   

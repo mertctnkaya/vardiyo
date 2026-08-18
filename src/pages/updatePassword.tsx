@@ -11,20 +11,14 @@ export default function UpdatePassword() {
   const { user } = useAppStore();
 
   useEffect(() => {
-    // GÜVENLİK VE UX KONTROLÜ: 
-    // Kullanıcı url'ye elle mi yazdı, yoksa e-postadaki linkten mi geldi?
-    // E-postadan gelen linklerin URL'sinde "#access_token=" veya "type=recovery" gibi gizli hash'ler olur.
-    // Eğer kullanıcı giriş yapmamışsa VE url'de o gizli şifreler yoksa login sayfasına yönlendir.
     const hash = window.location.hash;
     if (!user && !hash.includes('access_token') && !hash.includes('recovery')) {
       navigate('/login');
       return;
     }
 
-    // Supabase şifre sıfırlama işlemi için kullanıcıyı bu sayfaya otomatik oturum açmış olarak yönlendirir.
     const { data: authListener } = supabase.auth.onAuthStateChange((event, _session) => {
       if (event === 'PASSWORD_RECOVERY') {
-        // Kurtarma modundayız, her şey yolunda.
       }
     });
     
@@ -38,7 +32,6 @@ export default function UpdatePassword() {
     setLoading(true);
     setMessage(null);
 
-    // Oturum açmış olan kullanıcının şifresini güncelliyoruz
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
@@ -46,7 +39,6 @@ export default function UpdatePassword() {
     } else {
       setMessage({ type: 'success', text: 'Şifreniz başarıyla güncellendi! Giriş yapabilirsiniz...' });
       setTimeout(() => {
-        // İşlem bitince Supabase oturumunu tamamen kapatıp giriş ekranına atıyoruz
         supabase.auth.signOut().then(() => {
           navigate('/login');
         });

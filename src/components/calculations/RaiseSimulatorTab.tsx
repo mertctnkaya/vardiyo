@@ -13,7 +13,6 @@ export default function RaiseSimulatorTab() {
   const [result, setResult] = useState<any>(null);
   const [showPaywall, setShowPaywall] = useState(false);
 
-  // Premium Kontrolleri
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 

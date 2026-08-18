@@ -99,7 +99,7 @@ export default function Register() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              disabled={loading || successMsg.length > 0} // Başarılı olunca form kitlenir
+              disabled={loading || successMsg.length > 0}
             />
           </div>
 

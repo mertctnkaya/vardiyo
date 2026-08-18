@@ -1,9 +1,7 @@
 import { supabase } from './supabaseClient';
 
-// VAPID Public Key (Bunu .env dosyasından alacağız)
 const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
-// Base64 güvenlik anahtarını tarayıcının anlayacağı formata çeviren yardımcı fonksiyon
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -22,15 +20,13 @@ export async function registerAndSubscribeToPush(userId: string) {
   }
 
   try {
-    // 1. MEVCUT TÜM SERVICE WORKER'LARI ZORLA ÖLDÜR
     const registrations = await navigator.serviceWorker.getRegistrations();
     for (let reg of registrations) {
       await reg.unregister();
     }
 
-    // 2. YENİDEN KAYDET VE AKTİF OLMASINI BEKLE
     const registration = await navigator.serviceWorker.register('/sw.js');
-    await navigator.serviceWorker.ready; // İşçinin tam uyanmasını bekle
+    await navigator.serviceWorker.ready;
 
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
@@ -42,7 +38,6 @@ export async function registerAndSubscribeToPush(userId: string) {
       return permission;
     }
 
-    // 3. ABONELİK İŞLEMİ
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
@@ -62,7 +57,6 @@ export async function registerAndSubscribeToPush(userId: string) {
     return permission;
 
   } catch (error: any) {
-    // Hatayı daha detaylı görebilmek için adını (name) da yazdırıyoruz
     alert(`SİSTEM HATASI [${error.name}]: ${error.message}`);
     return null;
   }
@@ -70,7 +64,6 @@ export async function registerAndSubscribeToPush(userId: string) {
 
 export async function sendTestNotification(userId: string) {
   try {
-    // 1. Kullanıcının cihaz adresini veritabanından çek
     const { data, error } = await supabase
       .from('user_settings')
       .select('push_subscription')
@@ -82,7 +75,6 @@ export async function sendTestNotification(userId: string) {
       return;
     }
 
-    // 2. Supabase Edge Function'ı tetikle (Postacıya mektubu ver)
     const { error: funcError } = await supabase.functions.invoke('send-push', {
       body: {
         subscription: data.push_subscription,

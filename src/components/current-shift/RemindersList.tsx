@@ -3,7 +3,6 @@ import type { RemindersListProps } from '../../types/currentShift';
 
 export default function RemindersList({ reminders, onToggle, onDelete, onOpenModal }: RemindersListProps) {
   
-  // Görsel/Yardımcı Fonksiyonlar (Sadece burada kullanıldığı için içeri taşıdık)
   const formatDateLabel = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
   };

@@ -15,7 +15,6 @@ export default function UnemploymentTab() {
 
   const CURRENT_GROSS_MIN_WAGE = 20002.50; 
 
-  // Premium Kontrolleri
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 

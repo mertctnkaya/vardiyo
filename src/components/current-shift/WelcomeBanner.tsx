@@ -6,7 +6,6 @@ export default function WelcomeBanner({ showWelcome, onClose }: WelcomeBannerPro
 
   return (
     <div className="md:col-span-2 mt-4 bg-indigo-900/10 border border-indigo-500/20 rounded-xl p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-fade-in relative">
-      {/* Kapatma (Bir Daha Gösterme) Butonu */}
       <button
         onClick={onClose}
         className="absolute top-2 right-2 btn btn-xs btn-circle btn-ghost text-base-content/50 hover:text-base-content"

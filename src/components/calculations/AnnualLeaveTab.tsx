@@ -14,7 +14,6 @@ export default function AnnualLeaveTab() {
   const [leaveFeedback, setLeaveFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [calendarUsedLeave, setCalendarUsedLeave] = useState(0);
 
-  // Premium Kontrolleri
   const [showPaywall, setShowPaywall] = useState(false);
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
@@ -100,7 +99,6 @@ export default function AnnualLeaveTab() {
       )}
 
       <div className="bg-[#1e2329] rounded-xl border border-base-300 p-6 sm:p-8 shadow-lg">
-        {/* ... (Yıllık İzin Kartları eskisi gibi aynı kalacak) ... */}
         <div className="flex justify-between items-end mb-6">
           <h3 className="text-2xl font-bold text-pink-400">Yıllık İzin Durumu</h3>
           <div className="text-right">

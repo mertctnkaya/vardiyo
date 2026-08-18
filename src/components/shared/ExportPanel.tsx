@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ExportPanelProps } from "../../types/index";
 import { useAppStore } from '../../store/useAppStore';
 import PremiumPaywallModal from './PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features'; // Şalteri içeri alıyoruz
+import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function ExportPanel({ 
   title = "Raporu Dışa Aktar", 
@@ -15,15 +15,12 @@ export default function ExportPanel({
   const [showPaywall, setShowPaywall] = useState(false);
   const [attemptedFeature, setAttemptedFeature] = useState('');
 
-  // Kullanıcının Premium veya Admin olma durumu
   const isPremiumOrAdmin = 
     settings?.role === 'admin' || 
     (settings?.premium_until && new Date(settings.premium_until) > new Date());
 
-  // KİLİT NOKTA: Şalter kapalıysa VEYA kullanıcı premiumsa erişim ver
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
-  // Tıklanan butonu kontrol eden aracı fonksiyon
   const handleRestrictedAction = (action: () => void, featureName: string) => {
     if (hasAccess) {
       action();
@@ -38,7 +35,6 @@ export default function ExportPanel({
       <div className="w-full max-w-4xl mt-4 bg-[#1e2329] rounded-xl border border-base-300 p-6 shadow-lg animate-fade-in print:hidden">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           
-          {/* Metin Alanı */}
           <div className="w-full text-left">
             <h4 className="font-bold text-base-content text-lg flex items-center gap-2">
               {title}
@@ -46,7 +42,6 @@ export default function ExportPanel({
             <p className="text-sm text-base-content/60 mt-1">{description}</p>
           </div>
           
-          {/* Butonlar Alanı */}
           <div className="grid grid-cols-2 md:flex md:flex-row gap-2 w-full md:w-auto">
             
             <button 
@@ -57,7 +52,6 @@ export default function ExportPanel({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Excel (CSV)
-              {/* Sadece şalter açık ve kullanıcı ücretsizse PRO yazar */}
               {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="text-[9px] bg-amber-500 text-black px-1 rounded font-bold ml-1">PRO</span>}
             </button>
             
@@ -85,7 +79,6 @@ export default function ExportPanel({
         </div>
       </div>
 
-      {/* Premium Modal (Şalter kapalıyken asla açılmaz çünkü onClick engellemez) */}
       <PremiumPaywallModal 
         isOpen={showPaywall} 
         onClose={() => setShowPaywall(false)} 

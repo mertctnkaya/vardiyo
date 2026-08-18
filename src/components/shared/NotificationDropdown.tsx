@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { useAppStore } from '../../store/useAppStore';
 
-// GÜNCELLENEN ZAMAN FORMATLAYICI (Dakika, Saat, Gün ve Tam Tarih)
+// (Dakika, Saat, Gün ve Tam Tarih)
 const formatTimeData = (dateString: string) => {
   const date = new Date(dateString);
   const diff = new Date().getTime() - date.getTime();
@@ -55,7 +55,7 @@ export default function NotificationDropdown() {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(30); // Biraz daha fazla bildirim çekelim
+        .limit(30);
 
       if (data && !error) setNotifications(data);
     };
@@ -90,14 +90,11 @@ export default function NotificationDropdown() {
     await supabase.from('notifications').delete().eq('user_id', user.id);
   };
 
-  // YENİ: Tekil Bildirim Silme Fonksiyonu
   const deleteNotification = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Tıklamanın karta geçip yönlendirme yapmasını engeller
+    e.stopPropagation();
     if (!user) return;
     
-    // UI'dan anında kaldır
     setNotifications(notifications.filter(n => n.id !== id));
-    // Veritabanından sil
     await supabase.from('notifications').delete().eq('id', id);
   };
 
@@ -127,7 +124,6 @@ export default function NotificationDropdown() {
         )}
       </div>
 
-      {/* Saydamlık sorununu çözdüğümüz katı ve blur'lu z-9999 arkaplan */}
       <div tabIndex={0} className="dropdown-content mt-4 z-[9999] w-[85vw] max-w-sm sm:w-96 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] bg-[#1e2329] border border-base-300 overflow-hidden animate-fade-in origin-top-right backdrop-blur-xl">
         
         <div className="bg-base-200 border-b border-base-300 p-4 flex justify-between items-center sticky top-0 z-10">
@@ -156,7 +152,6 @@ export default function NotificationDropdown() {
                 const timeInfo = formatTimeData(notif.created_at);
                 
                 return (
-                  // group class'ı eklendi, böylece hover olduğunda içindeki çarpı belirebilir
                   <div 
                     key={notif.id}
                     onClick={() => notif.is_interactive ? handleNotificationClick(notif) : null}
@@ -169,7 +164,7 @@ export default function NotificationDropdown() {
                       {ui.icon}
                     </div>
                     
-                    <div className="flex-1 cursor-inherit pr-6"> {/* Çarpı için pr-6 boşluğu bırakıldı */}
+                    <div className="flex-1 cursor-inherit pr-6">
                       <div className="flex justify-between items-start mb-1">
                         <h4 className={`text-sm ${!notif.is_read ? 'font-bold text-base-content' : 'font-medium text-base-content/80'}`}>
                           {notif.title}
@@ -178,7 +173,6 @@ export default function NotificationDropdown() {
                       </div>
                       <p className="text-xs text-base-content/60 leading-relaxed line-clamp-2">{notif.message}</p>
                       
-                      {/* YENİ ZAMAN FORMATI: Hem göreceli hem kesin tarih */}
                       <p className="text-[10px] text-base-content/40 mt-2 font-medium flex gap-1.5">
                         <span className="text-base-content/60">{timeInfo.relative}</span> 
                         <span>•</span> 
@@ -186,7 +180,6 @@ export default function NotificationDropdown() {
                       </p>
                     </div>
 
-                    {/* TEKİL SİLME (ÇARPI) BUTONU: Mobilde hep görünür, PC'de hover olunca belirginleşir */}
                     <button 
                       onClick={(e) => deleteNotification(e, notif.id)}
                       onMouseDown={(e) => e.preventDefault()}

@@ -17,7 +17,7 @@ export default function CalendarPause({
   onPauseCurrentMonth,
   onResume,
   onSaveAnnualLeave,
-  onClearRange // YENİ EKLENDİ
+  onClearRange
 }: CalendarPauseProps) {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -27,7 +27,6 @@ export default function CalendarPause({
 
   return (
     <div className="mt-8 bg-[#1e2329] p-4 sm:p-6 rounded-2xl border border-base-300 shadow-xl w-full max-w-4xl mx-auto">
-      {/* BAŞLIK KISMI AYNI */}
       <div className="mb-6 border-b border-base-300/50 pb-4">
         <h3 className="text-lg font-bold text-base-content flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,7 +40,6 @@ export default function CalendarPause({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        {/* SOL KOLON */}
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="form-control">
@@ -50,7 +48,6 @@ export default function CalendarPause({
                 type="date" 
                 className="input input-bordered input-sm sm:input-md bg-base-200 focus:border-indigo-500 transition-colors" 
                 value={startDate}
-                // min={today} KALDIRILDI! Artık geçmiş seçilebilir.
                 onChange={(e) => {
                   setStartDate(e.target.value);
                   if (endDate && e.target.value > endDate) setEndDate('');
@@ -63,7 +60,7 @@ export default function CalendarPause({
                 type="date" 
                 className="input input-bordered input-sm sm:input-md bg-base-200 focus:border-indigo-500 transition-colors" 
                 value={endDate}
-                min={startDate} // Sadece başlangıçtan öncesi seçilemez
+                min={startDate}
                 disabled={!startDate}
                 onChange={(e) => setEndDate(e.target.value)}
               />
@@ -102,10 +99,8 @@ export default function CalendarPause({
               </button>
             </div>
           ) : (
-            /* NORMAL DURUM ARAYÜZÜ (SİMETRİK 2x2 GRID) */
             <div className="flex flex-col justify-center gap-3 h-full animate-fade-in">
               
-              {/* Üst Satır: İzin İşlemleri */}
               <div className="grid grid-cols-2 gap-3">
                 <button 
                   disabled={!isValidForLeave}
@@ -125,7 +120,6 @@ export default function CalendarPause({
 
               <div className="divider my-0 text-xs text-base-content/30 font-medium">VEYA</div>
 
-              {/* Alt Satır: Duraklatma İşlemleri */}
               <div className="grid grid-cols-2 gap-3">
                 <button 
                   disabled={!isValidForPause}

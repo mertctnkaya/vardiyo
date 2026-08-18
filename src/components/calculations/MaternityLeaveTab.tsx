@@ -12,13 +12,11 @@ export default function MaternityLeaveTab() {
   
   const [result, setResult] = useState<any>(null);
 
-  // Premium Kontrolleri
   const [showPaywall, setShowPaywall] = useState(false);
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    // Premium Kontrolü
     if (!hasAccess) {
       setShowPaywall(true);
       return;

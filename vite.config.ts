@@ -11,7 +11,7 @@ export default defineConfig({
         name: 'vardiyo',
         short_name: 'vardiyo',
         description: 'Akıllı Vardiya ve Bordro Takip Sistemi',
-        theme_color: '#4f46e5', // İndigo rengimiz
+        theme_color: '#4f46e5', // indigo-600
       }
     })
   ],

@@ -8,7 +8,6 @@ export const printDocumentAsPDF = (documentTitle: string) => {
   document.title = originalTitle; 
 };
 
-// JSON İndirme Motoru
 export const downloadDataAsJSON = (fileName: string, data: Record<string, any>) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -20,7 +19,6 @@ export const downloadDataAsJSON = (fileName: string, data: Record<string, any>) 
   document.body.removeChild(link);
 };
 
-// CSV İndirme Motoru (Takvim Özel)
 export const downloadCalendarAsCSV = (
   fileName: string, 
   calendarDays: any[], 
@@ -67,7 +65,6 @@ export const downloadCalendarAsCSV = (
   document.body.removeChild(link);
 };
 
-// İsimlendirme Motoru
 export const generateFileName = (prefix: string, date: Date, userName?: string, extension: string = '') => {
   const monthName = new Intl.DateTimeFormat('tr-TR', { month: 'long' }).format(date);
   const safeUserName = userName ? userName.replace(/\s+/g, '_') : 'Rapor';

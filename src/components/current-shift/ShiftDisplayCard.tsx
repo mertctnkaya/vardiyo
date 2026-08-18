@@ -1,6 +1,5 @@
 import type { ShiftDisplayCardProps } from '../../types/currentShift';
 
-// Types dosyasını bozmamak için & ile isDatePaused ekliyoruz
 export default function ShiftDisplayCard({ 
   currentShift, 
   shiftHours, 
@@ -15,7 +14,6 @@ export default function ShiftDisplayCard({
         </h2>
 
         {isDatePaused ? (
-          /* YENİ: DURAKLATILMIŞ UX */
           <div className="flex flex-col items-center justify-center py-4 opacity-60 grayscale animate-fade-in">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-warning mb-2" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
@@ -24,7 +22,6 @@ export default function ShiftDisplayCard({
             <p className="text-sm text-base-content/60">Bu tarih için mesai sayımı durduruldu.</p>
           </div>
         ) : (
-          /* NORMAL VARDİYA ARAYÜZÜ */
           <>
             <div className="text-4xl font-black text-primary mt-4 mb-1">
               {currentShift.name}

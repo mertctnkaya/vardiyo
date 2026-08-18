@@ -45,7 +45,6 @@ export default function WorktimeCalendar() {
     return d;
   }, []);
 
-  // 1. DÜZELTME: Veri çekme işlemi bağımsızlaştırıldı ki diğer fonksiyonlar (yıllık izin kaydetme vb.) çağırabilsin
   const fetchLogs = useCallback(async () => {
     if (!user) return;
     const firstDay = getLocalDateString(new Date(currentYear, currentMonth, 1));
@@ -58,7 +57,6 @@ export default function WorktimeCalendar() {
     fetchLogs();
   }, [fetchLogs, baseDate]);
 
-  // Sayfa yüklendiğinde kullanıcının duraklatma ayarlarını çek
   useEffect(() => {
     if (!user) return;
 
@@ -109,7 +107,6 @@ export default function WorktimeCalendar() {
     if (!user) return;
     if (!window.confirm(`${start} ile ${end} tarihleri arasındaki tüm kayıtlar silinecek. Onaylıyor musunuz?`)) return;
 
-    // gte ve lte kısımları log_date olarak güncellendi
     const { error } = await supabase
       .from('work_logs')
       .delete()
@@ -210,7 +207,6 @@ export default function WorktimeCalendar() {
 
   const handlePauseCurrentMonth = async () => {
     const today = new Date();
-    // 2. DÜZELTME: toISOString() UTC kayması yapıp tarihi 1 gün geriye atıyordu. Kendi utils fonksiyonumuzu kullandık.
     const firstDay = getLocalDateString(new Date(today.getFullYear(), today.getMonth(), 1));
     const lastDay = getLocalDateString(new Date(today.getFullYear(), today.getMonth() + 1, 0));
 
@@ -245,13 +241,12 @@ export default function WorktimeCalendar() {
     while (currentDate <= finalDate) {
       datesToInsert.push({
         user_id: user.id,
-        log_date: getLocalDateString(currentDate), // BURASI 'date' İDİ, 'log_date' OLDU
+        log_date: getLocalDateString(currentDate),
         status: 'annual_leave',
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // onConflict kısmı güncellendi
     const { error } = await supabase.from('work_logs').upsert(datesToInsert, { onConflict: 'user_id, log_date' });
 
     if (!error) {
@@ -265,7 +260,6 @@ export default function WorktimeCalendar() {
   return (
     <div className="flex flex-col items-center animate-fade-in w-full pb-10" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
 
-      {/* YENİ: SAYFA ÜSTÜ DURAKLATMA UYARISI (ALERT) */}
       {isCalendarPaused && (
         <div className="w-full max-w-5xl px-2 mb-4 mt-2 animate-fade-in">
           <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 flex gap-4 items-center shadow-lg">
@@ -298,7 +292,7 @@ export default function WorktimeCalendar() {
         employmentStartDate={employmentStartDate}
         workLogs={workLogs}
         onDayClick={handleDayClick}
-        isPaused={isCalendarPaused}      // YENİ EKLENDİ
+        isPaused={isCalendarPaused}
         pausedDates={pausedDates}
       />
 

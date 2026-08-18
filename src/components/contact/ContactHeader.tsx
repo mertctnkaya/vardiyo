@@ -1,4 +1,4 @@
-export default function ContactHero() {
+export default function ContactHeader() {
   return (
     <div className="w-full max-w-4xl mb-8 px-2">
       <div className="bg-gradient-to-r from-indigo-900/40 to-[#16191d] border border-indigo-500/30 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">

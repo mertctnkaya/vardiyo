@@ -33,7 +33,6 @@ serve(async (req: Request) => {
       throw new Error('Başlık ve mesaj zorunludur.')
     }
 
-    // DİKKAT: Veritabanına kayıt yapabilmek için 'user_id' sütununu da çekiyoruz
     const { data: users, error } = await supabase
       .from('user_settings')
       .select('user_id, push_subscription, notification_preferences')
@@ -42,20 +41,18 @@ serve(async (req: Request) => {
     if (error) throw error
 
     let sentCount = 0;
-    const dbNotifications = []; // Veritabanına eklenecek bildirimler havuzu
+    const dbNotifications = [];
 
     for (const user of users) {
       const prefs = user.notification_preferences || {};
       
       if (prefs.app_updates) {
-        // 1. Cihaza Push At
         await webPush.sendNotification(user.push_subscription, JSON.stringify({
           title: title,
           message: message,
           url: "/" 
         })).catch(e => console.log('Gönderim hatası:', e));
         
-        // 2. Uygulama İçi (Dropdown) Bildirim Havuzuna Ekle
         dbNotifications.push({
           user_id: user.user_id,
           type: 'broadcast',
@@ -69,7 +66,6 @@ serve(async (req: Request) => {
       }
     }
 
-    // Döngü bitince tüm bildirimleri TEK SEFERDE veritabanına yaz (Performans/5S)
     if (dbNotifications.length > 0) {
       const { error: dbError } = await supabase.from('notifications').insert(dbNotifications);
       if (dbError) console.error("Veritabanı kayıt hatası:", dbError);

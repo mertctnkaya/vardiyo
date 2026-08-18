@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
 
-// --- calculations.tsx ---
 export const updateUserSettings = async (userId: string, payload: any) => {
   const { data, error } = await supabase
     .from('user_settings')
@@ -11,7 +10,7 @@ export const updateUserSettings = async (userId: string, payload: any) => {
         updated_at: new Date().toISOString() 
       }, 
       { 
-        onConflict: 'user_id' // Eğer bu user_id zaten varsa üstüne yaz, yoksa yeni satır aç
+        onConflict: 'user_id'
       }
     )
     .select()
@@ -19,7 +18,6 @@ export const updateUserSettings = async (userId: string, payload: any) => {
   return { data, error };
 };
 
-// --- worktimeCalendar.tsx bu fonksiyon ve aşağısındakiler ---
 export const fetchMonthWorkLogs = async (userId: string, firstDay: string, lastDay: string) => {
   const { data, error } = await supabase
     .from('work_logs')

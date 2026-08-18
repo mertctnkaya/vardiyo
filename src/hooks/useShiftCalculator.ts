@@ -38,18 +38,16 @@ export function useShiftCalculator() {
     const deltaWeeks = Math.floor(diffMs / MS_PER_WEEK);
     
     let shiftIndex = 0;
-    // DÜZELTME: Vardiya tipine göre döngüyü sınırlar
     if (workType === '3-shift') {
         shiftIndex = ((deltaWeeks % 3) + 3) % 3;
     } else if (workType === '2-shift') {
-        shiftIndex = ((deltaWeeks % 2) + 2) % 2; // Sadece 0 (Gündüz) ve 1 (Gece)
+        shiftIndex = ((deltaWeeks % 2) + 2) % 2;
     } else if (workType === 'fixed') {
-        shiftIndex = 0; // Her zaman 0
+        shiftIndex = 0;
     }
 
     const shift = { ...SHIFTS[shiftIndex] };
 
-    // DÜZELTME: Sabit gündüz ise ismi ez
     if (workType === 'fixed') {
         shift.name = 'Sabit Gündüz';
     }
@@ -70,7 +68,6 @@ export function useShiftCalculator() {
         shift.note = ''; 
       }
     } else {
-      // DÜZELTME: Sadece Pazar günü uyaracak, diğer günler not boş kalacak.
       shift.note = ''; 
     }
 

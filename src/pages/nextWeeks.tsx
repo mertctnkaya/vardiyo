@@ -5,12 +5,10 @@ import WeekList from '../components/next-weeks/WeekList';
 export default function NextWeeks() {
   const { settings } = useAppStore();
 
-  // Ayarlardan okuyup tam 10 haftalık listeyi oluşturan motor
   const upcomingWeeks = useMemo(() => {
     const list = [];
     const today = new Date();
     
-    // Bu haftanın Pazartesi gününü bul
     const dayOfWeek = today.getDay();
     const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const currentMonday = new Date(today);
@@ -23,7 +21,6 @@ export default function NextWeeks() {
     const workType = settings?.work_type || '3-shift';
     const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
 
-    // 10 haftalık döngü
     for (let i = 0; i < 10; i++) {
       const weekStart = new Date(currentMonday);
       weekStart.setDate(currentMonday.getDate() + (i * 7));

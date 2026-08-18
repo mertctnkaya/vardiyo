@@ -33,12 +33,10 @@ serve(async (req: Request) => {
 
   try {
     const now = new Date();
-    // UTC saatini Türkiye saati (UTC+3) yapıyoruz
     const trHour = (now.getUTCHours() + 3) % 24; 
     
-    // İşçi saat kaçta çalıştı?
-    const isMorning = trHour >= 5 && trHour <= 12; // Sabah 08:00 civarı tetiklenmeler
-    const isEvening = trHour >= 16 && trHour <= 23; // Akşam 20:00 civarı tetiklenmeler
+    const isMorning = trHour >= 5 && trHour <= 12;
+    const isEvening = trHour >= 16 && trHour <= 23;
 
     const today = new Date();
     const tomorrow = new Date(today);
@@ -57,7 +55,6 @@ serve(async (req: Request) => {
 
     if (error) throw error
 
-    // Sadece yarına ait olanları değil, tamamlanmamış TÜM hatırlatmaları çekiyoruz[cite: 2]
     const { data: allReminders } = await supabase
       .from('reminders')
       .select('user_id, content, time_range, date, end_date')
@@ -82,43 +79,31 @@ serve(async (req: Request) => {
       const sub = user.push_subscription;
       const uid = user.user_id;
 
-      // ============================================
-      // YENİ HATIRLATMA SİSTEMİ (3 AŞAMALI)
-      // ============================================
       if (prefs.reminders && allReminders) {
         const userRems = allReminders.filter(r => r.user_id === uid);
         
-        // 1. Bugünün Görevleri: Bitiş tarihi varsa ve bugün aralıktaysa VEYA bitiş tarihi yoksa ve tarih bugünse
         const todayRems = userRems.filter(r => r.end_date ? (todayDateString >= r.date && todayDateString <= r.end_date) : r.date === todayDateString);
         
-        // 2. Yarının Görevleri
         const tomorrowRems = userRems.filter(r => r.end_date ? (tomorrowDateString >= r.date && tomorrowDateString <= r.end_date) : r.date === tomorrowDateString);
         
-        // 3. Geciken Görevler: Bitiş tarihi varsa ve bugün ondan büyükse VEYA bitiş tarihi yoksa ve tarih bugünden küçükse
         const overdueRems = userRems.filter(r => r.end_date ? (r.end_date < todayDateString) : (r.date < todayDateString));
 
-        // SABAH AKSİYONU
         if (isMorning && todayRems.length > 0) {
           const msg = todayRems.length === 1 ? `[Bugün] ${todayRems[0].time_range ? '('+todayRems[0].time_range+') ' : ''}${todayRems[0].content}` : `Bugün için planlanmış ${todayRems.length} adet göreviniz bulunuyor.`;
           await sendAndLog(uid, sub, 'reminder', "⏰ Bugünün Planı", msg, "/", true);
         }
 
-        // AKŞAM AKSİYONU (Ön Uyarı)
         if (isEvening && tomorrowRems.length > 0) {
           const msg = tomorrowRems.length === 1 ? `[Yarın] ${tomorrowRems[0].time_range ? '('+tomorrowRems[0].time_range+') ' : ''}${tomorrowRems[0].content}` : `Yarın için planlanmış ${tomorrowRems.length} adet göreviniz bulunuyor.`;
           await sendAndLog(uid, sub, 'reminder', "📅 Yarına Dair Notunuz Var", msg, "/", true);
         }
 
-        // AKŞAM AKSİYONU (Gecikenler - Sadece Pazar Günleri Darlar)
         if (isEvening && today.getDay() === 0 && overdueRems.length > 0) {
           const msg = overdueRems.length === 1 ? `Süresi geçen görev: ${overdueRems[0].content}` : `Tamamlanmamış ve süresi geçmiş ${overdueRems.length} adet göreviniz bulunuyor.`;
           await sendAndLog(uid, sub, 'risk', "⚠️ Geciken Görevleriniz Var!", msg, "/", true);
         }
       }
 
-      // ============================================
-      // DİĞER BİLDİRİMLER (Sadece Akşamları Çift Atmayı Önlemek İçin)
-      // ============================================
       if (isEvening) {
         if (prefs.shift_changes && today.getDay() === 0) { 
           await sendAndLog(uid, sub, 'shift', "🔄 Yarın Yeni Hafta!", "Vardiyanız değişiyor olabilir. Uyku düzeninizi ayarlamayı unutmayın.", "/", true);

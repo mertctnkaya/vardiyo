@@ -26,13 +26,9 @@ export default function PayrollTab() {
     netKesintiler: { bes: 0, other: 0, total: 0 },
     hesabaYatanNet: 0,
     calculatedNightHours: 0,
-    // activeDays ve passedDays çöp kodları SİLİNDİ:
     stats: { payrollDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0, totalMesai: 0, totalGece: 0, totalTatil: 0, devamsizlik: 0, gecKalma: 0 }
   });
 
-  // =========================================================
-  // 1. VERİ ÇEKME VE BORDRO HESAPLAMA MOTORU (Core)
-  // =========================================================
   const fetchWorkLogs = async () => {
     if (!user) return;
     setIsLoadingPayroll(true);
@@ -59,9 +55,6 @@ export default function PayrollTab() {
     setPayrollData(computedData as unknown as LegacyPayrollData);
   }, [fetchedLogs, settings, besDeduction, otherDeductions, payrollDate]);
 
-  // =========================================================
-  // 2. DIŞA AKTARMA MOTORLARI (Utils)
-  // =========================================================
   const getCalcExportName = (prefix: string) => {
     return generateFileName(`Vardiyo_${prefix}`, payrollDate, user?.user_metadata?.name, '');
   };
@@ -159,7 +152,6 @@ export default function PayrollTab() {
             </p>
           </div>
 
-          {/* BORDRO ADIMLARI */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* 1. BRÜT HAKEDİŞLER */}
@@ -220,7 +212,7 @@ export default function PayrollTab() {
               </div>
             </div>
 
-            {/* 4. YASAL KESİNTİLER */}
+            {/* 3. YASAL KESİNTİLER */}
             <div className="bg-[#16191d] rounded-xl border border-base-300 shadow-lg overflow-hidden md:col-span-2">
               <div className="bg-red-900/20 p-4 border-b border-base-300">
                 <h4 className="font-bold text-red-400">4. Yasal Kesintiler (SGK ve Vergiler)</h4>
@@ -249,11 +241,11 @@ export default function PayrollTab() {
               </div>
             </div>
 
-            {/* 5. ÖZEL KESİNTİLER */}
+            {/* 4. ÖZEL KESİNTİLER */}
             {payrollData.netKesintiler.total > 0 && (
               <div className="bg-[#16191d] rounded-xl border border-base-300 shadow-lg overflow-hidden md:col-span-2">
                 <div className="bg-orange-900/20 p-4 border-b border-base-300 flex justify-between">
-                  <h4 className="font-bold text-orange-400">5. Özel Kesintiler (Net Üzerinden)</h4>
+                  <h4 className="font-bold text-orange-400">4. Özel Kesintiler (Net Üzerinden)</h4>
                   <span className="font-bold text-orange-400">-{payrollData.netKesintiler.total.toFixed(2)} ₺</span>
                 </div>
               </div>

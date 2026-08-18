@@ -25,11 +25,9 @@ export default function CurrentShift() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showNotificationPromo, setShowNotificationPromo] = useState(false);
 
-  // YENİ: Duraklatma State'leri
   const [isCalendarPaused, setIsCalendarPaused] = useState(false);
   const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
 
-  // HATA DÜZELTMESİ: toISOString yerine yerel saat formatı (Tarih kaymalarını önler)
   const formattedDateValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
   useEffect(() => {
@@ -54,7 +52,6 @@ export default function CurrentShift() {
     if (data) setReminders(data);
   }, [user]);
 
-  // YENİ: Duraklatma Ayarlarını Çek
   useEffect(() => {
     if (!user) return;
     const fetchPauseConfig = async () => {
@@ -75,7 +72,6 @@ export default function CurrentShift() {
     fetchReminders();
   }, [user, fetchReminders]);
 
-  // YENİ: Seçili olan (ekranda görünen) tarih duraklatılmış aralıkta mı?
   const isDatePaused = useMemo(() => {
     if (!isCalendarPaused || !pausedDates?.start) return false;
     

@@ -3,7 +3,6 @@ import type { CalendarStatsProps } from "../../types";
 export default function CalendarStats({ monthlyStats, baseDate }: CalendarStatsProps) {
   return (
     <>
-      {/* YASAL DEVAMSIZLIK UYARISI EKRANI */}
       {monthlyStats.isDangerAbsent && (
         <div className="w-full max-w-4xl mt-6 bg-red-900/10 border-l-4 border-red-500 rounded-r-xl p-5 shadow-sm animate-fade-in flex gap-4 items-start">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500 shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -18,7 +17,6 @@ export default function CalendarStats({ monthlyStats, baseDate }: CalendarStatsP
         </div>
       )}
 
-      {/* TAKVİM ALTI: AYLIK ÖZET RAPORU */}
       <div className="w-full max-w-4xl mt-6 bg-[#16191d] rounded-xl border border-base-300 p-6 shadow-lg animate-fade-in">
         <h3 className="text-lg font-bold text-base-content mb-4 flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">

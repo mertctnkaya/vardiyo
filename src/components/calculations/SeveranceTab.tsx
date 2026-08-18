@@ -18,19 +18,16 @@ export default function SeveranceTab() {
   const [payNotice, setPayNotice] = useState<boolean>(true);
   const [severanceResult, setSeveranceResult] = useState<SeveranceResult | null>(null);
 
-  // Premium Kontrolleri
   const [showPaywall, setShowPaywall] = useState(false);
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    // 1. Önce Premium Kontrolü
     if (!hasAccess) {
       setShowPaywall(true);
       return;
     }
 
-    // 2. Erişim varsa hesapla
     if (!settings || !settings.employment_start_date) return;
     const result = calculateSeverance(settings, terminationDate, payNotice);
     setSeveranceResult(result);
@@ -75,14 +72,12 @@ export default function SeveranceTab() {
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
       
-      {/* PREMIUM UYARISI */}
       {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
         <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
           Detaylı Kıdem ve İhbar Tazminatı hesaplama aracı Premium kullanıcılara özeldir. Hesapla butonuna basarak yükseltme seçeneklerini görüntüleyebilirsiniz.
         </Alert>
       )}
 
-      {/* ÜST PANEL*/}
       <div className="bg-[#1e2329] rounded-xl border border-base-300 p-6 sm:p-8 shadow-lg">
         <h3 className="text-2xl font-bold text-amber-400 mb-6 flex items-center gap-2 border-b border-base-300 pb-4">
           <Icon name="calendar" className="w-6 h-6 text-amber-500" />
@@ -181,7 +176,6 @@ export default function SeveranceTab() {
         </div>
       )}
 
-      {/* Paywall Modalı */}
       <PremiumPaywallModal 
         isOpen={showPaywall} 
         onClose={() => setShowPaywall(false)} 

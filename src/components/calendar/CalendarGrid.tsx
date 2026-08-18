@@ -12,7 +12,6 @@ export default function CalendarGrid({
     isPaused,
     pausedDates
 }: CalendarGridProps) {
-    // Gelen tarihin duraklatılıp duraklatılmadığını kontrol eden yardımcı fonksiyon
     const isDatePaused = (dateObj: Date) => {
         if (!isPaused || !pausedDates?.start) return false;
         const dateStr = getLocalDateString(dateObj);
@@ -24,14 +23,12 @@ export default function CalendarGrid({
     };
     return (
         <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden">
-            {/* Haftanın Günleri Başlığı */}
             <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
                 {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(day => (
                     <div key={day} className="py-3 text-center text-sm font-bold text-base-content/60">{day}</div>
                 ))}
             </div>
 
-            {/* Takvim Kutularının Çizilmesi */}
             <div className="grid grid-cols-7 auto-rows-fr">
                 {calendarDays.map((item, index) => {
                     const shift = getShiftForDate(item.date);
@@ -47,7 +44,6 @@ export default function CalendarGrid({
                     let cellBg = "bg-[#1e2329] hover:bg-[#2a3038] cursor-pointer";
                     let textColor = "text-white";
 
-                    // Renklendirme Motoru
                     if (isBeforeEmployment) {
                         cellBg = "bg-[#1e2329] opacity-30 cursor-not-allowed";
                         textColor = "text-white/50";

@@ -11,16 +11,13 @@ export default function ReportPayTab() {
   const [reportDays, setReportDays] = useState<string>('');
   const [treatmentType, setTreatmentType] = useState<'ayakta' | 'yatarak'>('ayakta');
   
-  // Hesaplanan sonucu tutmak için state
   const [result, setResult] = useState<any>(null);
 
-  // Premium Kontrolleri
   const [showPaywall, setShowPaywall] = useState(false);
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
   const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    // Premium Kontrolü
     if (!hasAccess) {
       setShowPaywall(true);
       return;
@@ -53,7 +50,6 @@ export default function ReportPayTab() {
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
       
-      {/* PREMIUM UYARISI */}
       {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
         <Alert color="amber" title="Premium Özellik" icon="warning">
           SGK İş Göremezlik (Rapor Parası) hesaplama modülü Premium üyelere özel bir özelliktir.
