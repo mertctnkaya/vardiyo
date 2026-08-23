@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { supabase } from '../lib/supabaseClient';
 import { registerAndSubscribeToPush } from '../lib/pushNotifications';
+import { LocalNotifications } from '@capacitor/local-notifications'; // NATIVE API
+import { isNative } from "../utils/isNative";
 
 import Alert from '../components/shared/Alert';
 import SettingsHeader from '../components/settings/SettingsHeader';
@@ -35,9 +37,10 @@ export default function Settings() {
   const [weekendMultiplier, setWeekendMultiplier] = useState('2');
   const [holidayMultiplier, _setHolidayMultiplier] = useState('2');
 
-  const [notificationStatus, setNotificationStatus] = useState<NotificationPermission>(
+  /* const [notificationStatus, setNotificationStatus] = useState<NotificationPermission>(
     'Notification' in window ? Notification.permission : 'denied'
-  );
+  ); */
+  const [notificationStatus, setNotificationStatus] = useState<string>('default');
 
   const [notifPrefs, setNotifPrefs] = useState({
     shift_changes: true, holidays: true, reminders: true, payroll: true,
@@ -45,7 +48,7 @@ export default function Settings() {
     night_shift_health: false, app_updates: false
   });
 
-  const handleRequestPermission = async () => {
+  /* const handleRequestPermission = async () => {
     if (!user) return;
     
     const newStatus = await registerAndSubscribeToPush(user.id);
@@ -53,7 +56,39 @@ export default function Settings() {
     if (newStatus) {
       setNotificationStatus(newStatus);
     }
+  }; */
+
+  const handleRequestPermission = async () => {
+    if (!user) return;
+    
+    if (isNative()) {
+      let permStatus = await LocalNotifications.requestPermissions();
+      const finalStatus = permStatus.display === 'prompt' ? 'default' : permStatus.display;
+      setNotificationStatus(finalStatus);
+      if (finalStatus === 'granted') {
+        alert('Mobil bildirim izni başarıyla alındı!');
+      }
+    } else {
+      const newStatus = await registerAndSubscribeToPush(user.id);
+      if (newStatus) setNotificationStatus(newStatus);
+    }
   };
+
+  useEffect(() => {
+    const checkNotificationStatus = async () => {
+      if (isNative()) {
+        const permStatus = await LocalNotifications.checkPermissions();
+        setNotificationStatus(permStatus.display === 'prompt' ? 'default' : permStatus.display);
+      } else {
+        if ('Notification' in window) {
+          setNotificationStatus(Notification.permission);
+        } else {
+          setNotificationStatus('denied');
+        }
+      }
+    };
+    checkNotificationStatus();
+  }, []);
 
   useEffect(() => {
     async function loadSettings() {

@@ -3,6 +3,8 @@ import { useAppStore } from "../store/useAppStore";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { isNative } from "../utils/isNative";
+import { LocalNotifications } from "@capacitor/local-notifications"; // NATIVE API
 import type { Reminder } from '../types';
 
 import DateSelectorCard from '../components/current-shift/DateSelectorCard';
@@ -30,13 +32,36 @@ export default function CurrentShift() {
 
   const formattedDateValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
-  useEffect(() => {
+  /* useEffect(() => {
     if ('Notification' in window) {
       const isDismissed = localStorage.getItem('hideNotificationPromo');
       if (Notification.permission === 'default' && isDismissed !== 'true') {
         setShowNotificationPromo(true);
       }
     }
+    const isHiddenWelcome = localStorage.getItem('hideWelcomeInfo');
+    if (isHiddenWelcome !== 'true') {
+      setShowWelcome(true);
+    }
+  }, []); */
+  useEffect(() => {
+    const checkInitialNotifStatus = async () => {
+      const isDismissed = localStorage.getItem('hideNotificationPromo');
+      if (isDismissed === 'true') return;
+
+      if (isNative()) {
+        const permStatus = await LocalNotifications.checkPermissions();
+        if (permStatus.display === 'prompt') {
+          setShowNotificationPromo(true);
+        }
+      } else {
+        if ('Notification' in window && Notification.permission === 'default') {
+          setShowNotificationPromo(true);
+        }
+      }
+    };
+    checkInitialNotifStatus();
+
     const isHiddenWelcome = localStorage.getItem('hideWelcomeInfo');
     if (isHiddenWelcome !== 'true') {
       setShowWelcome(true);
