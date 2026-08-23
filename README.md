@@ -61,3 +61,137 @@ Hızlıca herhangi bir şey için ulaşmak isterseniz; Instagram @merutou
 Selam vermek isterseniz de müsaitim!
 
 Keyifli kullanımlar!
+
+*Projenin Tree'si*
+│   App.tsx
+│   index.css
+│   main.tsx
+│   
+├───components
+│   ├───admin
+│   │       AdminHeader.tsx
+│   │       BroadcastTab.tsx
+│   │       MessagesTab.tsx
+│   │       PremiumTab.tsx
+│   │       StatsTab.tsx
+│   │       
+│   ├───calculations
+│   │       AnnualLeaveTab.tsx
+│   │       HourlyTab.tsx
+│   │       MaternityLeaveTab.tsx
+│   │       MonthlyToolsTab.tsx
+│   │       PayrollTab.tsx
+│   │       RaiseSimulatorTab.tsx
+│   │       ReportPayTab.tsx
+│   │       SeveranceTab.tsx
+│   │       ShortWorkTab.tsx
+│   │       UnemploymentTab.tsx
+│   │       
+│   ├───calendar
+│   │       CalendarGrid.tsx
+│   │       CalendarHeader.tsx
+│   │       CalendarPause.tsx
+│   │       CalendarStats.tsx
+│   │       DayActionModal.tsx
+│   │       
+│   ├───contact
+│   │       ContactForm.tsx
+│   │       ContactHeader.tsx
+│   │       ContactSidebar.tsx
+│   │       
+│   ├───current-shift
+│   │       DateSelectorCard.tsx
+│   │       GuestPromoCard.tsx
+│   │       NotificationPromo.tsx
+│   │       ReminderModal.tsx
+│   │       RemindersList.tsx
+│   │       ShiftDisplayCard.tsx
+│   │       WelcomeBanner.tsx
+│   │       
+│   ├───faq
+│   │       FaqTab.tsx
+│   │       RightsTab.tsx
+│   │       UsageTab.tsx
+│   │       
+│   ├───layout
+│   │       Footer.tsx
+│   │       MainLayout.tsx
+│   │       Navbar.tsx
+│   │       SidebarMobile.tsx
+│   │       
+│   ├───next-weeks
+│   │       WeekList.tsx
+│   │       
+│   ├───settings
+│   │       DateReferencesSection.tsx
+│   │       NotificationSection.tsx
+│   │       PayrollSection.tsx
+│   │       SettingsHeader.tsx
+│   │       ShiftSystemSection.tsx
+│   │       
+│   └───shared
+│           Alert.tsx
+│           ExportPanel.tsx
+│           Icon.tsx
+│           NotificationDropdown.tsx
+│           PremiumPaywallModal.tsx
+│           StatCard.tsx
+│           
+├───config
+│       features.ts
+│       
+├───constants
+│       faqData.ts
+│       holidays.ts
+│       taxRates.ts
+│       
+├───core
+│       hourlyEngine.ts
+│       payrollEngine.ts
+│       severanceEngine.ts
+│       
+├───hooks
+│       useCalendarLogic.tsx
+│       useShiftCalculator.ts
+│       
+├───lib
+│       pushNotifications.ts
+│       supabaseClient.ts
+│       
+├───pages
+│       admin.tsx
+│       calculations.tsx
+│       contact.tsx
+│       currentShift.tsx
+│       faq.tsx
+│       forgotPassword.tsx
+│       login.tsx
+│       nextWeeks.tsx
+│       register.tsx
+│       settings.tsx
+│       updatePassword.tsx
+│       worktimeCalendar.tsx
+│       
+├───services
+│       dbService.ts
+│       
+├───store
+│       useAppStore.ts
+│       
+├───types
+│       admin.ts
+│       calculations.ts
+│       calendar.ts
+│       common.ts
+│       currentShift.ts
+│       index.ts
+│       layout.ts
+│       settings.ts
+│       ui.ts
+│       user.ts
+│       weeklist.ts
+│       
+└───utils
+        dateUtils.ts
+        exportUtils.ts
+        isNative.ts
