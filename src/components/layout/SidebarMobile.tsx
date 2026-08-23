@@ -1,7 +1,40 @@
 import { Link } from 'react-router-dom';
 import type { SidebarProps } from '../../types';
+import { useEffect } from 'react';
 
 export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarProps) {
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const touchEndY = e.changedTouches[0].screenY;
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      if (touchStartX < 50 && deltaX > 60 && Math.abs(deltaY) < 50) {
+        const drawerCheckbox = document.getElementById('mobile-drawer') as HTMLInputElement | null;
+        if (drawerCheckbox && !drawerCheckbox.checked) {
+          drawerCheckbox.checked = true;
+        }
+      }
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
   return (
     <div className="drawer-side z-50">
       <label htmlFor="mobile-drawer" aria-label="close sidebar" className="drawer-overlay backdrop-blur-sm bg-black/40"></label>

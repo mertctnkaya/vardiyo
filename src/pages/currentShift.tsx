@@ -32,18 +32,6 @@ export default function CurrentShift() {
 
   const formattedDateValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
-  /* useEffect(() => {
-    if ('Notification' in window) {
-      const isDismissed = localStorage.getItem('hideNotificationPromo');
-      if (Notification.permission === 'default' && isDismissed !== 'true') {
-        setShowNotificationPromo(true);
-      }
-    }
-    const isHiddenWelcome = localStorage.getItem('hideWelcomeInfo');
-    if (isHiddenWelcome !== 'true') {
-      setShowWelcome(true);
-    }
-  }, []); */
   useEffect(() => {
     const checkInitialNotifStatus = async () => {
       const isDismissed = localStorage.getItem('hideNotificationPromo');

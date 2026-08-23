@@ -37,9 +37,6 @@ export default function Settings() {
   const [weekendMultiplier, setWeekendMultiplier] = useState('2');
   const [holidayMultiplier, _setHolidayMultiplier] = useState('2');
 
-  /* const [notificationStatus, setNotificationStatus] = useState<NotificationPermission>(
-    'Notification' in window ? Notification.permission : 'denied'
-  ); */
   const [notificationStatus, setNotificationStatus] = useState<string>('default');
 
   const [notifPrefs, setNotifPrefs] = useState({
@@ -48,29 +45,26 @@ export default function Settings() {
     night_shift_health: false, app_updates: false
   });
 
-  /* const handleRequestPermission = async () => {
-    if (!user) return;
-    
-    const newStatus = await registerAndSubscribeToPush(user.id);
-    
-    if (newStatus) {
-      setNotificationStatus(newStatus);
-    }
-  }; */
-
   const handleRequestPermission = async () => {
-    if (!user) return;
-    
-    if (isNative()) {
-      let permStatus = await LocalNotifications.requestPermissions();
-      const finalStatus = permStatus.display === 'prompt' ? 'default' : permStatus.display;
-      setNotificationStatus(finalStatus);
-      if (finalStatus === 'granted') {
-        alert('Mobil bildirim izni başarıyla alındı!');
+    if (!user) {
+      alert("Bildirim izni verebilmek için lütfen önce giriş yapın!");
+      return;
+    }
+
+    try {
+      if (isNative()) {
+        let permStatus = await LocalNotifications.requestPermissions();
+        const finalStatus = permStatus.display === 'prompt' ? 'default' : permStatus.display;
+        setNotificationStatus(finalStatus);
+        if (finalStatus === 'granted') {
+          alert('Mobil bildirim izni başarıyla alındı!');
+        }
+      } else {
+        const newStatus = await registerAndSubscribeToPush(user.id);
+        if (newStatus) setNotificationStatus(newStatus);
       }
-    } else {
-      const newStatus = await registerAndSubscribeToPush(user.id);
-      if (newStatus) setNotificationStatus(newStatus);
+    } catch (error) {
+      alert("İzin istenirken sistem hatası oluştu: " + String(error));
     }
   };
 
@@ -238,10 +232,10 @@ export default function Settings() {
             </button>
           </div>
 
-          <NotificationSection 
+          <NotificationSection
             notificationStatus={notificationStatus}
             onRequestPermission={handleRequestPermission}
-            prefs={notifPrefs}           
+            prefs={notifPrefs}
             onToggle={handleTogglePref}
           />
         </div>
