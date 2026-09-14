@@ -15,6 +15,8 @@ import Contact from './pages/contact';
 import Admin from './pages/admin';
 import ForgotPassword from './pages/forgotPassword';
 import UpdatePassword from './pages/updatePassword';
+import PrivacyPolicy from './pages/privacy';
+import TermsOfService from './pages/terms';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -36,6 +38,8 @@ export default function App() {
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="update-password" element={<UpdatePassword />} />
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

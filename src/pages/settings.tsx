@@ -11,6 +11,7 @@ import ShiftSystemSection from '../components/settings/ShiftSystemSection';
 import DateReferencesSection from '../components/settings/DateReferencesSection';
 import PayrollSection from '../components/settings/PayrollSection';
 import NotificationSection from '../components/settings/NotificationSection';
+import AccountSection from '../components/settings/AccountSection';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Settings() {
@@ -201,7 +202,7 @@ export default function Settings() {
           </div>
         )}
 
-        <SettingsHeader />
+        <SettingsHeader user={user} />
 
         <div className="p-6 sm:p-8 space-y-8 pt-0">
           {feedback?.type === 'success' && <Alert color="emerald" icon="check" title="İşlem Başarılı">{feedback.message}</Alert>}
@@ -240,6 +241,8 @@ export default function Settings() {
             prefs={notifPrefs}
             onToggle={handleTogglePref}
           />
+
+          <AccountSection />
         </div>
       </div>
     </div>

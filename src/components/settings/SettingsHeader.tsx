@@ -1,9 +1,19 @@
 import Alert from '../shared/Alert';
+import type { User } from '@supabase/supabase-js';
 
-export default function SettingsHeader() {
+interface SettingsHeaderProps {
+  user: User | null;
+}
+
+export default function SettingsHeader({ user }: SettingsHeaderProps) {
+  const userName = user?.user_metadata?.name;
+
   return (
     <>
       <div className="bg-base-200 border-b border-base-300 p-6">
+        {userName && (
+          <p className="text-sm text-indigo-400 font-medium mb-1">Merhaba, {userName} 👋</p>
+        )}
         <h2 className="text-2xl font-bold text-base-content">Sistem ve Bordro Ayarları</h2>
         <p className="text-sm text-base-content/60 mt-1">İşletmenizin kurallarına göre uygulamanın beynini yapılandırın.</p>
       </div>

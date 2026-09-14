@@ -7,6 +7,8 @@ import { useAppStore } from '../../store/useAppStore';
 import Navbar from './Navbar';
 import Sidebar from './SidebarMobile';
 import Footer from './Footer';
+import CookieBanner from '../shared/CookieBanner';
+import PWAInstallPrompt from '../shared/PWAInstallPrompt';
 
 export default function MainLayout() {
   const shiftContext = useShiftCalculator();
@@ -20,7 +22,7 @@ export default function MainLayout() {
         .select('*')
         .eq('user_id', userId)
         .single();
-      
+
       if (data) setSettings(data);
       else console.error("Ayarlar çekilemedi:", error);
     };
@@ -34,7 +36,7 @@ export default function MainLayout() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) fetchSettings(session.user.id);
       else setSettings(null);
     });
@@ -70,6 +72,9 @@ export default function MainLayout() {
       </div>
 
       <Sidebar user={user} isFounder={isFounder} onLogout={handleLogout} onClose={closeDrawer} />
+
+      <CookieBanner />
+      <PWAInstallPrompt />
     </div>
   );
 }

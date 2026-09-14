@@ -4,9 +4,13 @@ export default function Footer() {
   return (
     <footer className="w-full bg-[#16191d] border-t border-base-300 py-4 mt-auto z-10 print:hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        
-        <div className="flex-1 text-center sm:text-left order-3 sm:order-1">
+
+        <div className="flex-1 text-center sm:text-left order-3 sm:order-1 flex items-center justify-center sm:justify-start gap-4">
           <Link to="/contact" className="text-sm font-medium text-base-content/50 hover:text-indigo-400 transition-colors">İletişim</Link>
+          <span className="text-base-content/20">•</span>
+          <Link to="/privacy" className="text-sm font-medium text-base-content/50 hover:text-indigo-400 transition-colors">Gizlilik</Link>
+          <span className="text-base-content/20">•</span>
+          <Link to="/terms" className="text-sm font-medium text-base-content/50 hover:text-indigo-400 transition-colors">Şartlar</Link>
         </div>
 
         <div className="flex-1 text-center text-sm font-medium text-base-content/50 order-1 sm:order-2">
@@ -26,7 +30,7 @@ export default function Footer() {
             <span className="text-sm font-semibold tracking-wide">@merutou</span>
           </a>
         </div>
-        
+
       </div>
     </footer>
   );
