@@ -1,14 +1,16 @@
 import { useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { usePageTitle } from '../hooks/usePageTitle';
 import WeekList from '../components/next-weeks/WeekList';
 
 export default function NextWeeks() {
+  usePageTitle('Gelecek Haftalar');
   const { settings } = useAppStore();
 
   const upcomingWeeks = useMemo(() => {
     const list = [];
     const today = new Date();
-    
+
     const dayOfWeek = today.getDay();
     const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const currentMonday = new Date(today);

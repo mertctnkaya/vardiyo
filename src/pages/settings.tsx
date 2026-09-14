@@ -11,8 +11,10 @@ import ShiftSystemSection from '../components/settings/ShiftSystemSection';
 import DateReferencesSection from '../components/settings/DateReferencesSection';
 import PayrollSection from '../components/settings/PayrollSection';
 import NotificationSection from '../components/settings/NotificationSection';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Settings() {
+  usePageTitle('Ayarlar');
   const { user, setSettings } = useAppStore();
   const [_showAuthModal, setShowAuthModal] = useState(false);
 
@@ -226,8 +228,8 @@ export default function Settings() {
             nightBonus={nightBonus} setNightBonus={setNightBonus}
           />
 
-          <div className="mt-8 flex justify-end border-t border-base-300 pt-6">
-            <button onClick={handleSaveSettings} disabled={isSaving || isLoading} className="btn btn-wide bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/50">
+          <div className="sticky bottom-4 z-40 mt-8 flex justify-end pt-4 pb-2 sm:pt-6 sm:pb-0 border-t border-base-300 bg-[#16191d]/80 backdrop-blur-xl sm:bg-transparent sm:backdrop-blur-none rounded-2xl sm:rounded-none px-4 sm:px-0 -mx-4 sm:mx-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)] sm:shadow-none">
+            <button onClick={handleSaveSettings} disabled={isSaving || isLoading} className="btn w-full sm:btn-wide bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/50 h-14 sm:h-12 text-lg sm:text-base">
               {isSaving ? <span className="loading loading-spinner"></span> : 'Ayarları Kaydet'}
             </button>
           </div>

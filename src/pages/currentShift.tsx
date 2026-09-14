@@ -15,9 +15,12 @@ import RemindersList from '../components/current-shift/RemindersList';
 import ReminderModal from '../components/current-shift/ReminderModal';
 import GuestPromoCard from '../components/current-shift/GuestPromoCard';
 
+import { usePageTitle } from '../hooks/usePageTitle';
+
 type ShiftContextType = ReturnType<typeof import("../hooks/useShiftCalculator").useShiftCalculator>;
 
 export default function CurrentShift() {
+  usePageTitle('Güncel Vardiya');
   const { targetDate, setTargetDate, currentShift } = useOutletContext<ShiftContextType>();
   const { user, settings } = useAppStore();
   const navigate = useNavigate();
@@ -29,6 +32,7 @@ export default function CurrentShift() {
 
   const [isCalendarPaused, setIsCalendarPaused] = useState(false);
   const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const formattedDateValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
@@ -67,6 +71,13 @@ export default function CurrentShift() {
 
   useEffect(() => {
     if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    
+    setIsLoading(true);
+    
     const fetchPauseConfig = async () => {
       const { data, error } = await supabase
         .from('user_settings')
@@ -83,11 +94,15 @@ export default function CurrentShift() {
     };
     fetchPauseConfig();
     fetchReminders();
+    
+    Promise.all([fetchPauseConfig(), fetchReminders()]).then(() => {
+      setIsLoading(false);
+    });
   }, [user, fetchReminders]);
 
   const isDatePaused = useMemo(() => {
     if (!isCalendarPaused || !pausedDates?.start) return false;
-    
+
     if (pausedDates.end) {
       return formattedDateValue >= pausedDates.start && formattedDateValue <= pausedDates.end;
     }
@@ -135,7 +150,7 @@ export default function CurrentShift() {
 
   return (
     <div className="grid md:grid-cols-2 gap-8 animate-fade-in w-full pb-10">
-      <DateSelectorCard 
+      <DateSelectorCard
         targetDate={targetDate}
         formattedDateValue={formattedDateValue}
         onDateChange={handleDateChange}
@@ -143,31 +158,32 @@ export default function CurrentShift() {
         onSetToday={() => setTargetDate(new Date())}
       />
 
-      <ShiftDisplayCard 
+      <ShiftDisplayCard
         currentShift={currentShift}
         shiftHours={getShiftHours()}
-        isDatePaused={isDatePaused} 
+        isDatePaused={isDatePaused}
+        isLoading={isLoading}
       />
 
-      <WelcomeBanner 
-        showWelcome={showWelcome} 
-        onClose={() => { localStorage.setItem('hideWelcomeInfo', 'true'); setShowWelcome(false); }} 
-      />
-      
-      <NotificationPromo 
-        showPromo={showNotificationPromo} 
-        onRequest={() => navigate('/settings')} 
-        onDismiss={() => { localStorage.setItem('hideNotificationPromo', 'true'); setShowNotificationPromo(false); }} 
+      <WelcomeBanner
+        showWelcome={showWelcome}
+        onClose={() => { localStorage.setItem('hideWelcomeInfo', 'true'); setShowWelcome(false); }}
       />
 
-      <RemindersList 
+      <NotificationPromo
+        showPromo={showNotificationPromo}
+        onRequest={() => navigate('/settings')}
+        onDismiss={() => { localStorage.setItem('hideNotificationPromo', 'true'); setShowNotificationPromo(false); }}
+      />
+
+      <RemindersList
         reminders={reminders}
         onToggle={async (id, status) => { await supabase.from('reminders').update({ is_completed: !status }).eq('id', id); fetchReminders(); }}
         onDelete={async (id) => { await supabase.from('reminders').delete().eq('id', id); fetchReminders(); }}
         onOpenModal={() => setShowReminderModal(true)}
       />
 
-      <ReminderModal 
+      <ReminderModal
         isOpen={showReminderModal}
         onClose={() => setShowReminderModal(false)}
         defaultDate={formattedDateValue}

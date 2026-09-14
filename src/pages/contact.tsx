@@ -1,8 +1,10 @@
 import ContactForm from '../components/contact/ContactForm';
 import ContactSidebar from '../components/contact/ContactSidebar';
 import ContactHeader from '../components/contact/ContactHeader';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Contact() {
+  usePageTitle('İletişim & Destek');
   return (
     <div className="flex flex-col items-center animate-fade-in w-full pb-10">
       <ContactHeader />

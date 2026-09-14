@@ -2,9 +2,12 @@ import { useState } from 'react';
 import UsageTab from '../components/faq/UsageTab';
 import RightsTab from '../components/faq/RightsTab';
 import FaqTab from '../components/faq/FaqTab';
+import TerminationCodesTab from '../components/faq/TerminationCodesTab';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function FAQ() {
-    const [activeTab, setActiveTab] = useState<'usage' | 'rights' | 'faq'>('usage');
+    usePageTitle('S.S.S & Haklar');
+    const [activeTab, setActiveTab] = useState<'usage' | 'rights' | 'codes' | 'faq'>('usage');
 
     return (
         <div className="flex flex-col items-center animate-fade-in w-full pb-10">
@@ -18,6 +21,7 @@ export default function FAQ() {
                 <div className="tabs tabs-boxed bg-[#16191d] p-1 border border-base-300 flex-wrap justify-center sm:justify-start gap-1">
                     <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'usage' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('usage')}>Sistem Kullanımı</a>
                     <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'rights' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('rights')}>İşçi Hakları (Yasal)</a>
+                    <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'codes' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('codes')}>Çıkış Kodları</a>
                     <a className={`tab tab-lg rounded-lg transition-all ${activeTab === 'faq' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-base-content/60 hover:text-white hover:bg-white/5'}`} onClick={() => setActiveTab('faq')}>S.S.S.</a>
                 </div>
             </div>
@@ -25,6 +29,7 @@ export default function FAQ() {
             <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 p-6 sm:p-8 animate-fade-in">
                 {activeTab === 'usage' && <UsageTab />}
                 {activeTab === 'rights' && <RightsTab />}
+                {activeTab === 'codes' && <TerminationCodesTab />}
                 {activeTab === 'faq' && <FaqTab />}
             </div>
 

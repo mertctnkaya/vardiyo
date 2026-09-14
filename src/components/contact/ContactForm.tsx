@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabaseClient';
+import Alert from '../shared/Alert';
 
 export default function ContactForm() {
   const { user } = useAppStore();
@@ -48,9 +49,9 @@ export default function ContactForm() {
     <div className="md:col-span-2 bg-[#16191d] rounded-2xl shadow-2xl border border-base-300 p-6 sm:p-8">
       <form onSubmit={handleSubmit} className="space-y-5">
         {feedback && (
-          <div className={`p-4 rounded-xl text-sm font-bold flex items-center gap-3 animate-fade-in ${feedback.type === 'success' ? 'bg-emerald-900/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-900/20 text-red-400 border border-red-500/30'}`}>
-            {feedback.type === 'success' ? '🚀' : '⚠️'} {feedback.message}
-          </div>
+          <Alert color={feedback.type === 'success' ? 'emerald' : 'red'} icon={feedback.type === 'success' ? 'check' : 'warning'}>
+            {feedback.message}
+          </Alert>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

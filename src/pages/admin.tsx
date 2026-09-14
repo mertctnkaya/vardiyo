@@ -9,8 +9,10 @@ import PremiumTab from '../components/admin/PremiumTab';
 import MessagesTab from '../components/admin/MessagesTab';
 import StatsTab from '../components/admin/StatsTab';
 import BroadcastTab from '../components/admin/BroadcastTab';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function AdminPanel() {
+  usePageTitle('Yönetici Paneli');
   const { user, settings } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<'premium' | 'messages' | 'stats' | 'broadcast'>('premium');

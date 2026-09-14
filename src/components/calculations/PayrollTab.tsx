@@ -128,7 +128,20 @@ export default function PayrollTab() {
       </div>
 
       {isLoadingPayroll ? (
-        <div className="flex justify-center py-20"><span className="loading loading-spinner loading-lg text-indigo-500"></span></div>
+        <>
+          <div className="flex justify-center py-20"><span className="loading loading-spinner loading-lg text-indigo-500"></span></div>
+          <div className="animate-pulse space-y-6 w-full">
+            <div className="h-32 sm:h-40 bg-base-200/50 rounded-2xl w-full border border-base-300"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="h-48 sm:h-64 bg-base-200/50 rounded-xl border border-base-300"></div>
+              <div className="flex flex-col gap-6">
+                <div className="h-32 bg-base-200/50 rounded-xl border border-base-300"></div>
+                <div className="h-16 bg-base-200/50 rounded-xl border border-base-300"></div>
+              </div>
+              <div className="h-40 bg-base-200/50 rounded-xl border border-base-300 md:col-span-2"></div>
+            </div>
+          </div>
+        </>
       ) : (
         <>
           {/* ANA MAAŞ KARTI */}

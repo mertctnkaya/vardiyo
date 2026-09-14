@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAppStore } from '../store/useAppStore';
+import { usePageTitle } from '../hooks/usePageTitle';
+import Alert from '../components/shared/Alert';
 
 export default function UpdatePassword() {
+  usePageTitle('Şifreyi Güncelle');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -21,14 +24,14 @@ export default function UpdatePassword() {
       if (event === 'PASSWORD_RECOVERY') {
       }
     });
-    
+
     return () => authListener.subscription.unsubscribe();
   }, [user, navigate]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) return;
-    
+
     setLoading(true);
     setMessage(null);
 
@@ -56,18 +59,18 @@ export default function UpdatePassword() {
         </div>
 
         {message && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-3 animate-fade-in ${message.type === 'success' ? 'bg-emerald-900/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-900/20 text-red-400 border border-red-500/30'}`}>
-            {message.type === 'success' ? '✅' : '⚠️'} {message.text}
-          </div>
+          <Alert color={message.type === 'success' ? 'emerald' : 'red'} icon={message.type === 'success' ? 'check' : 'warning'} className="mb-6">
+            {message.text}
+          </Alert>
         )}
 
         <form onSubmit={handleUpdate} className="space-y-4">
           <div className="form-control w-full">
             <label className="label"><span className="label-text font-bold text-base-content/80">Yeni Şifre</span></label>
-            <input 
-              type="password" 
-              placeholder="En az 6 karakter" 
-              className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-indigo-500" 
+            <input
+              type="password"
+              placeholder="En az 6 karakter"
+              className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-indigo-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
@@ -75,8 +78,8 @@ export default function UpdatePassword() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="btn w-full bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-lg shadow-emerald-900/40 mt-4 h-12"
           >

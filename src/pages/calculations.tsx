@@ -9,10 +9,12 @@ import RaiseSimulatorTab from '../components/calculations/RaiseSimulatorTab';
 import ReportPayTab from '../components/calculations/ReportPayTab';
 import ShortWorkTab from '../components/calculations/ShortWorkTab';
 import MaternityLeaveTab from '../components/calculations/MaternityLeaveTab';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 type TabType = 'payroll' | 'annual_leave' | 'tazminat' | 'hourly' | 'tools' | 'unemployment' | 'raise' | 'report' | 'short_work' | 'maternity';
 
 export default function Calculations() {
+  usePageTitle('Hesaplamalar & İşlemler');
   const [activeTab, setActiveTab] = useState<TabType>('payroll');
 
   return (

@@ -15,6 +15,7 @@ import Contact from './pages/contact';
 import Admin from './pages/admin';
 import ForgotPassword from './pages/forgotPassword';
 import UpdatePassword from './pages/updatePassword';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="update-password" element={<UpdatePassword />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

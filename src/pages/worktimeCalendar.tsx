@@ -8,6 +8,7 @@ import { fetchMonthWorkLogs } from '../services/dbService';
 import { printDocumentAsPDF, downloadDataAsJSON, downloadCalendarAsCSV, generateFileName } from '../utils/exportUtils';
 import { supabase } from '../lib/supabaseClient';
 import ExportPanel from '../components/shared/ExportPanel';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 import CalendarHeader from '../components/calendar/CalendarHeader';
 import CalendarGrid from '../components/calendar/CalendarGrid';
@@ -16,6 +17,8 @@ import DayActionModal from '../components/calendar/DayActionModal';
 import CalendarPause from '../components/calendar/CalendarPause';
 
 export default function WorktimeCalendar() {
+  usePageTitle('Mesai Takvimim');
+
   const { user } = useAppStore();
 
   const {
@@ -35,6 +38,7 @@ export default function WorktimeCalendar() {
   const [selectedDay, setSelectedDay] = useState<DayDetail | null>(null);
 
   const [workLogs, setWorkLogs] = useState<Record<string, any>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isCalendarPaused, setIsCalendarPaused] = useState(false);
   const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
@@ -46,11 +50,16 @@ export default function WorktimeCalendar() {
   }, []);
 
   const fetchLogs = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
     const firstDay = getLocalDateString(new Date(currentYear, currentMonth, 1));
     const lastDay = getLocalDateString(new Date(currentYear, currentMonth + 1, 0));
     const data = await fetchMonthWorkLogs(user.id, firstDay, lastDay);
     if (data) setWorkLogs(data);
+    setIsLoading(false);
   }, [user, currentMonth, currentYear]);
 
   useEffect(() => {
@@ -285,16 +294,34 @@ export default function WorktimeCalendar() {
         onToday={handleGoToToday}
       />
 
-      <CalendarGrid
-        calendarDays={calendarDays}
-        getShiftForDate={getShiftForDate}
-        actualToday={actualToday}
-        employmentStartDate={employmentStartDate}
-        workLogs={workLogs}
-        onDayClick={handleDayClick}
-        isPaused={isCalendarPaused}
-        pausedDates={pausedDates}
-      />
+      {isLoading ? (
+        <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden animate-pulse">
+          <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
+            {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(day => (
+              <div key={day} className="py-3 text-center text-sm font-bold text-base-content/30">{day}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 auto-rows-fr">
+            {Array.from({ length: 35 }).map((_, i) => (
+              <div key={i} className="min-h-[5rem] sm:min-h-[7rem] p-2 border-r border-b border-base-300 flex flex-col justify-between">
+                <div className="h-4 sm:h-5 w-6 bg-base-content/10 rounded"></div>
+                <div className="h-3 sm:h-4 w-12 bg-base-content/10 rounded mt-auto"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <CalendarGrid
+          calendarDays={calendarDays}
+          getShiftForDate={getShiftForDate}
+          actualToday={actualToday}
+          employmentStartDate={employmentStartDate}
+          workLogs={workLogs}
+          onDayClick={handleDayClick}
+          isPaused={isCalendarPaused}
+          pausedDates={pausedDates}
+        />
+      )}
 
       <CalendarStats
         monthlyStats={monthlyStats}

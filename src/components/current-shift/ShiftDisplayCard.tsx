@@ -1,11 +1,12 @@
 import type { ShiftDisplayCardProps } from '../../types/currentShift';
 
-export default function ShiftDisplayCard({ 
-  currentShift, 
-  shiftHours, 
-  isDatePaused 
-}: ShiftDisplayCardProps & { isDatePaused?: boolean }) {
-  
+export default function ShiftDisplayCard({
+  currentShift,
+  shiftHours,
+  isDatePaused,
+  isLoading
+}: ShiftDisplayCardProps & { isDatePaused?: boolean; isLoading?: boolean }) {
+
   return (
     <div className="card bg-base-100 shadow-xl border border-base-200">
       <div className="card-body items-center justify-center text-center">
@@ -13,7 +14,12 @@ export default function ShiftDisplayCard({
           Güncel Vardiya
         </h2>
 
-        {isDatePaused ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-4 w-full animate-pulse space-y-4">
+            <div className="h-10 w-48 bg-base-content/10 rounded-lg"></div>
+            <div className="h-8 w-32 bg-base-content/10 rounded-md"></div>
+          </div>
+        ) : isDatePaused ? (
           <div className="flex flex-col items-center justify-center py-4 opacity-60 grayscale animate-fade-in">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-warning mb-2" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />

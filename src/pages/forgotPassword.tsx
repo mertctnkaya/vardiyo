@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import { usePageTitle } from '../hooks/usePageTitle';
+import Alert from '../components/shared/Alert';
 
 export default function ForgotPassword() {
+  usePageTitle('Şifremi Unuttum');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -10,10 +13,10 @@ export default function ForgotPassword() {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
+
     setLoading(true);
     setMessage(null);
-    
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/update-password`,
     });
@@ -35,26 +38,26 @@ export default function ForgotPassword() {
         </div>
 
         {message && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-3 animate-fade-in ${message.type === 'success' ? 'bg-emerald-900/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-900/20 text-red-400 border border-red-500/30'}`}>
-            {message.type === 'success' ? '📨' : '⚠️'} {message.text}
-          </div>
+          <Alert color={message.type === 'success' ? 'emerald' : 'red'} icon={message.type === 'success' ? 'check' : 'warning'} className="mb-6">
+            {message.text}
+          </Alert>
         )}
 
         <form onSubmit={handleReset} className="space-y-4">
           <div className="form-control w-full">
             <label className="label"><span className="label-text font-bold text-base-content/80">E-posta Adresi</span></label>
-            <input 
-              type="email" 
-              placeholder="ornek@mail.com" 
-              className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-indigo-500" 
+            <input
+              type="email"
+              placeholder="ornek@mail.com"
+              className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-indigo-500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/40 mt-4 h-12"
           >
