@@ -23,7 +23,7 @@ Uygulamanın kalbi burası. Sadece kabataslak "Aylık kazancın şu kadar" deyip
 - **Yevmiyeli (Günlük) Çalışma Modeli:** Sadece maaşlılar için değil; günlük yevmiye usulü çalışanlar için de özel kazanç takibi, haftalık/15 günlük ödeme periyotları ve saatlik taban hesapları sunar.
 - **Tüm Kalemler Tek Ekranda:** Fazla mesailer, bayram (resmi tatil) çalışmaları, hafta tatili farkları, devamsızlık ve BES kesintilerini toplayıp ay sonunda **hesabınıza net ne yatacağını** gösterir.
 
-### 📅 2. Akıllı Mesai Takvimi & Dinamik Vardiya Döngüsü
+### 2. Akıllı Mesai Takvimi & Dinamik Vardiya Döngüsü
 
 - _“Acaba 3 hafta sonraki Salı günü hangi vardiyadayım?”_ diye sormaya son. Vardiya türünüzü (3 Vardiya, 2 Vardiya, Sabit veya Yevmiye) ve döngü başlangıç tarihinizi bir kez tanımlayın; sistem sonsuz takviminizi otomatik örsün.
 - **Akıllı Yıllık İzin Girişi (Hak Koruma):** 4857 sayılı İş Kanunu gereği yıllık izin günleri hesaplanırken araya giren hafta tatilleri ve resmi bayramlar kanunen izin gününden **düşülemez**. Vardiyo'da takvime 10 gün yıllık izin girdiğinizde, sistem aradaki Pazar günlerini ve resmi tatilleri otomatik olarak atlar; izninizi ziyan etmez.
@@ -68,11 +68,11 @@ Uygulamanın kalbi burası. Sadece kabataslak "Aylık kazancın şu kadar" deyip
 
 Vardiyo basit bir web sayfası değil; modern bir hibrit mobil/web platformudur:
 
-- **Çekirdek:** React 18, TypeScript, Tailwind CSS, DaisyUI (Dark Mode).
-- **Mobil Katman (Capacitor):** Android ve iOS için yerel donanım entegrasyonu (fiziksel donanım geri tuşu hiyerarşisi, çentik / Dynamic Island safe area insets, klavye otomatik kaydırması, Haptic dokunsal geri bildirim).
+- **Çekirdek:** React 18, TypeScript, Tailwind CSS, DaisyUI.
+- **Mobil Katman (Capacitor):** Android ve iOS için yerel donanım entegrasyonu.
 - **Veritabanı & Güvenlik:** Supabase (PostgreSQL).
 - **Sıkıyönetim (Row Level Security - RLS):** Veritabanındaki tüm tablolarda `auth.uid() = user_id` kuralı zorunludur. Kimse bir başka çalışanın mesaisini, maaşını veya kişisel notlarını asla göremez.
-- **Tasarım İlkesi:** Gece çalışanlarının gözünü yormayan, endüstriyel standartta yüksek kontrastlı saf koyu tema (`#0f1115` & `#16191d`).
+- **Tasarım İlkesi:** Gece çalışanlarının gözünü yormayan, endüstriyel standartta yüksek kontrastlı saf koyu tema.
 
 ---
 
@@ -89,6 +89,7 @@ Vardiyo basit bir web sayfası değil; modern bir hibrit mobil/web platformudur:
 Kodlar temiz, mimari 5S standartlarında ve tasarım gece vardiyasında gözü dinlendirecek sadelikte tutuldu. Üretim bantlarında, nöbet kulübelerinde veya şantiye masalarında emeğinin hakkını kuruşu kuruşuna arayan tüm emekçilere faydalı olması dileğiyle.
 
 Aklınıza takılan bir şey, geri bildirim veya bir öneri olursa doğrudan yazabilirsiniz:
+Selam vermek isterseniz de her zaman müsaitim!
 📸 Instagram: **@merutou**
 
 Keyifli ve bol kazançlı mesailer!
