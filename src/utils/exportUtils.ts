@@ -1,6 +1,69 @@
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { isNative } from './isNative';
 import { getLocalDateString } from './dateUtils';
 
-// Sadece PDF yazdırma işlemi için sekme adını geçici değiştirir
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const base64 = dataUrl.split(',')[1];
+      resolve(base64);
+    };
+    reader.readAsDataURL(blob);
+  });
+};
+
+
+export const exportFile = async (fileName: string, content: string | Blob, mimeType: string) => {
+  if (isNative()) {
+    try {
+      let base64Data: string;
+      if (typeof content === 'string') {
+        const encoder = new TextEncoder();
+        const uint8Array = encoder.encode(content);
+        let binary = '';
+        const len = uint8Array.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(uint8Array[i]);
+        }
+        base64Data = btoa(binary);
+      } else {
+        base64Data = await blobToBase64(content);
+      }
+
+      const result = await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Cache,
+      });
+
+      await Share.share({
+        title: fileName,
+        url: result.uri,
+        dialogTitle: 'Raporu Kaydet veya Paylaş'
+      });
+      return;
+    } catch (err) {
+      console.error('Mobil dosya kaydetme/paylaşma hatası:', err);
+    }
+  }
+
+  // Web Tarayıcı İndirme Akışı
+  const blob = typeof content === 'string' ? new Blob([content], { type: mimeType }) : content;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+// Sadece masaüstü tarayıcılarda yazdırma için sekme adını geçici değiştirir
 export const printDocumentAsPDF = (documentTitle: string) => {
   const originalTitle = document.title;
   document.title = documentTitle;
@@ -9,14 +72,8 @@ export const printDocumentAsPDF = (documentTitle: string) => {
 };
 
 export const downloadDataAsJSON = (fileName: string, data: Record<string, any>) => {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const jsonContent = JSON.stringify(data, null, 2);
+  exportFile(fileName, jsonContent, 'application/json');
 };
 
 export const downloadCalendarAsCSV = (
@@ -55,14 +112,7 @@ export const downloadCalendarAsCSV = (
     csvContent += `${dateStr},${shift.name},${statusStr},${hours}\n`;
   });
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  exportFile(fileName, csvContent, 'text/csv;charset=utf-8;');
 };
 
 export const generateFileName = (prefix: string, date: Date, userName?: string, extension: string = '') => {

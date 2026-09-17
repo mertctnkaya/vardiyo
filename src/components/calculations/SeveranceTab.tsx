@@ -6,12 +6,12 @@ import ExportPanel from '../shared/ExportPanel';
 import Icon from '../shared/Icon';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
 import Alert from '../shared/Alert';
-import { downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
+import { downloadDataAsJSON, generateFileName, exportFile } from '../../utils/exportUtils';
 import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function SeveranceTab() {
   const { settings, user } = useAppStore();
-  
+
   const [terminationDate, setTerminationDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
@@ -46,17 +46,17 @@ export default function SeveranceTab() {
     csv += `Net Ihbar,${severanceResult.noticeNet.toFixed(2)}\n`;
     csv += `TOPLAM NET TAZMINAT,${severanceResult.totalNet.toFixed(2)}\n`;
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${generateFileName('Tazminat', new Date(), user?.user_metadata?.name || 'Kullanici', '')}.csv`;
-    link.click();
+    exportFile(
+      `${generateFileName('Tazminat', new Date(), user?.user_metadata?.name || 'Kullanici', '')}.csv`,
+      csv,
+      'text/csv;charset=utf-8;'
+    );
   };
 
   const exportTazminatJSON = () => {
     if (!severanceResult) return;
     downloadDataAsJSON(
-      `${generateFileName('Tazminat', new Date(), user?.user_metadata?.name || 'Kullanici', '')}.json`, 
+      `${generateFileName('Tazminat', new Date(), user?.user_metadata?.name || 'Kullanici', '')}.json`,
       severanceResult
     );
   };
@@ -71,7 +71,7 @@ export default function SeveranceTab() {
 
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
-      
+
       {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
         <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
           Detaylı Kıdem ve İhbar Tazminatı hesaplama aracı Premium kullanıcılara özeldir. Hesapla butonuna basarak yükseltme seçeneklerini görüntüleyebilirsiniz.
@@ -89,11 +89,11 @@ export default function SeveranceTab() {
             <label className="label">
               <span className="label-text font-bold text-base-content/80">İşe Başlama Tarihiniz</span>
             </label>
-            <input 
-              type="date" 
-              className="input input-bordered w-full bg-base-200 opacity-60" 
-              value={settings.employment_start_date} 
-              disabled 
+            <input
+              type="date"
+              className="input input-bordered w-full bg-base-200 opacity-60"
+              value={settings.employment_start_date}
+              disabled
             />
             <label className="label p-1">
               <span className="label-text-alt text-base-content/40">* Ayarlar sayfasından alınmıştır.</span>
@@ -104,11 +104,11 @@ export default function SeveranceTab() {
             <label className="label">
               <span className="label-text font-bold text-base-content/80">İşten Ayrılış / Çıkış Tarihi</span>
             </label>
-            <input 
-              type="date" 
-              className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-amber-500" 
-              value={terminationDate} 
-              onChange={(e) => setTerminationDate(e.target.value)} 
+            <input
+              type="date"
+              className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-amber-500"
+              value={terminationDate}
+              onChange={(e) => setTerminationDate(e.target.value)}
             />
           </div>
 
@@ -118,11 +118,11 @@ export default function SeveranceTab() {
                 <Icon name="info" className="w-5 h-5 text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
                 İhbar Süresi Kullandırılacak Mı? (Hemen mi çıkıyorsunuz?)
               </span>
-              <input 
-                type="checkbox" 
-                className="toggle bg-base-300 border-red-500 hover:bg-base-100 checked:bg-emerald-500 checked:border-emerald-500 hover:checked:bg-emerald-700 [--tglbg:white] shrink-0" 
-                checked={payNotice} 
-                onChange={(e) => setPayNotice(e.target.checked)} 
+              <input
+                type="checkbox"
+                className="toggle bg-base-300 border-red-500 hover:bg-base-100 checked:bg-emerald-500 checked:border-emerald-500 hover:checked:bg-emerald-700 [--tglbg:white] shrink-0"
+                checked={payNotice}
+                onChange={(e) => setPayNotice(e.target.checked)}
               />
             </label>
             <p className="text-xs text-base-content/50 mt-2 ml-1">
@@ -166,7 +166,7 @@ export default function SeveranceTab() {
             <p className="text-xs text-base-content/40 mt-3">* Tavan uygulaması hesaplamaya dahil edilmemiş olup, gelir vergisi sabit %15 kabul edilmiştir.</p>
           </div>
 
-          <ExportPanel 
+          <ExportPanel
             title="Raporu Dışa Aktar"
             description="Kıdem ve ihbar tazminatı dökümünüzü indirin veya yazdırın."
             onExportCSV={exportTazminatCSV}
@@ -187,10 +187,10 @@ export default function SeveranceTab() {
         </div>
       )}
 
-      <PremiumPaywallModal 
-        isOpen={showPaywall} 
-        onClose={() => setShowPaywall(false)} 
-        featureName="Tazminat Hesaplama Motoru" 
+      <PremiumPaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        featureName="Tazminat Hesaplama Motoru"
       />
     </div>
   );

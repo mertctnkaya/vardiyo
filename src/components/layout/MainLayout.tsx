@@ -78,7 +78,7 @@ export default function MainLayout() {
     <div className="drawer">
       <input id="mobile-drawer" type="checkbox" className="drawer-toggle" />
 
-      <div className="drawer-content flex flex-col min-h-screen bg-base-300 items-center">
+      <div className="drawer-content flex flex-col min-h-screen bg-base-300 items-center pt-safe pb-safe">
         <Navbar user={user} isFounder={isFounder} onLogout={handleLogout} />
 
         <div className="w-full max-w-5xl px-4 pb-12 flex flex-col items-center flex-grow">

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { fetchMonthWorkLogs } from '../../services/dbService';
 import { generatePayrollData } from '../../core/payrollEngine';
-import { downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
+import { downloadDataAsJSON, generateFileName, exportFile } from '../../utils/exportUtils';
 import ExportPanel from '../shared/ExportPanel';
 import YevmiyePayrollView from './YevmiyePayrollView';
 import type { LegacyPayrollData } from '../../types';
@@ -97,11 +97,7 @@ export default function PayrollTab() {
     csv += `Diger Kesintiler,-${payrollData.netKesintiler.other.toFixed(2)}\n`;
     csv += `NET MAAS,${payrollData.hesabaYatanNet.toFixed(2)}\n`;
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${getCalcExportName('Bordro')}.csv`;
-    link.click();
+    exportFile(`${getCalcExportName('Bordro')}.csv`, csv, 'text/csv;charset=utf-8;');
   };
 
   const exportPayrollJSON = () => {

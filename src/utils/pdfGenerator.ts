@@ -1,6 +1,17 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { LegacyPayrollData } from '../types';
+import { exportFile } from './exportUtils';
+import { isNative } from './isNative';
+
+export const savePdfDoc = async (doc: jsPDF, fileName: string) => {
+  if (isNative()) {
+    const blob = doc.output('blob');
+    await exportFile(fileName, blob, 'application/pdf');
+  } else {
+    doc.save(fileName);
+  }
+};
 
 // jsPDF varsayılan fontları Türkçe karakterleri (ş, ğ, ı vb.) desteklemez.
 // Hata oluşmaması ve dökümanın bozuk çıkmaması için metinleri İngilizce karakterlere çeviriyoruz.
@@ -166,7 +177,7 @@ export const generateAdvancedPayrollPDF = (
   doc.text(tr2en('Bu belge Vardiyo Uygulamasi tarafindan otomatik olusturulmustur.'), 14, finalSignatureY + 25);
   
   // Kaydet
-  doc.save(fileName);
+  savePdfDoc(doc, fileName);
 };
 
 export const generateAdvancedSeverancePDF = (
@@ -277,7 +288,7 @@ export const generateAdvancedSeverancePDF = (
   doc.text(tr2en('Bu belge Vardiyo Uygulamasi tarafindan otomatik olusturulmustur.'), 14, finalSignatureY + 25);
   
   // Kaydet
-  doc.save(fileName);
+  savePdfDoc(doc, fileName);
 };
 
 export const generateAdvancedCalendarPDF = (
@@ -416,5 +427,5 @@ export const generateAdvancedCalendarPDF = (
   doc.setTextColor(150, 150, 150);
   doc.text(tr2en('Bu belge Vardiyo Uygulamasi tarafindan otomatik olusturulmustur.'), 14, finalSignatureY + 25);
   
-  doc.save(fileName);
+  savePdfDoc(doc, fileName);
 };
