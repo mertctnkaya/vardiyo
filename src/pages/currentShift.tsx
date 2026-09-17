@@ -67,9 +67,11 @@ export default function CurrentShift() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
     if (!user) {
       setIsLoading(false);
+      setIsCalendarPaused(false);
+      setPausedDates(null);
+      setReminders([]);
       return;
     }
 
@@ -126,15 +128,15 @@ export default function CurrentShift() {
   };
 
   const getShiftHours = () => {
-    if (!settings || currentShift.id === -1) return null;
-    const start = settings.shift_start_time || '08:00';
-    const type = settings.work_type || '3-shift';
+    if (currentShift.id === -1) return null;
+    const start = settings?.shift_start_time || '08:00';
+    const type = settings?.work_type || '3-shift';
     let duration = 8, offset = 0;
 
-    if (type === 'fixed') return `${start} - ${settings.shift_end_time || '18:00'}`;
-    if (type === 'yevmiye') return `${settings.yevmiye_base_hours || 12} Saatlik Mesai (Yevmiye)`;
+    if (type === 'fixed') return `${start} - ${settings?.shift_end_time || '18:00'}`;
+    if (type === 'yevmiye') return `${settings?.yevmiye_base_hours || 12} Saatlik Mesai (Yevmiye)`;
     if (type === '2-shift') {
-      duration = Number(settings.shift_duration) || 12;
+      duration = Number(settings?.shift_duration) || 12;
       if (currentShift.id === 1) offset = duration;
     } else {
       duration = 8;
