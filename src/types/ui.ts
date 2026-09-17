@@ -2,7 +2,7 @@ import React from 'react';
 
 export type IconName = 
   | 'crown' | 'users' | 'calendar' | 'bell' | 'trash' 
-  | 'close' | 'check' | 'warning' | 'info' | 'mail' | 'premium';
+  | 'close' | 'check' | 'warning' | 'info' | 'mail' | 'premium' | 'wallet' | 'clock';
 
 export interface IconProps {
   name: IconName;
@@ -36,4 +36,15 @@ export interface ExportPanelProps {
   onExportCSV: () => void;
   onPrintPDF: () => void;
   onExportJSON: () => void;
+}
+
+export interface PremiumPaywallModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  featureName: string;
+}
+
+export interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }

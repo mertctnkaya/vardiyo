@@ -1,9 +1,6 @@
 import Alert from '../shared/Alert';
-import type { User } from '@supabase/supabase-js';
 
-interface SettingsHeaderProps {
-  user: User | null;
-}
+import type { SettingsHeaderProps } from '../../types';
 
 export default function SettingsHeader({ user }: SettingsHeaderProps) {
   const userName = user?.user_metadata?.name;

@@ -15,6 +15,7 @@ import CalendarGrid from '../components/calendar/CalendarGrid';
 import CalendarStats from '../components/calendar/CalendarStats';
 import DayActionModal from '../components/calendar/DayActionModal';
 import CalendarPause from '../components/calendar/CalendarPause';
+import { DAYS_OF_WEEK } from '../constants/calendar';
 
 export default function WorktimeCalendar() {
   usePageTitle('Mesai Takvimim');
@@ -296,9 +297,9 @@ export default function WorktimeCalendar() {
 
       {isLoading ? (
         <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden animate-pulse">
-          <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
-            {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(day => (
-              <div key={day} className="py-3 text-center text-sm font-bold text-base-content/30">{day}</div>
+          <div className="grid grid-cols-7 bg-[#1e2329] border-b border-base-300">
+            {DAYS_OF_WEEK.map(day => (
+              <div key={day} className="py-2 sm:py-3 text-center text-xs sm:text-sm font-bold text-base-content/70">{day}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 auto-rows-fr">

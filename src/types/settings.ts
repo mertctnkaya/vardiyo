@@ -14,6 +14,7 @@ export interface ShiftSystemSectionProps {
 }
 
 export interface PayrollSectionProps {
+  workType: string;
   monthlyGross: string;
   setMonthlyGross: (val: string) => void;
   displayOvertime: string;
@@ -21,6 +22,17 @@ export interface PayrollSectionProps {
   setBaseWorkHours: (val: string) => void;
   nightBonus: string;
   setNightBonus: (val: string) => void;
+}
+
+export interface YevmiyeSectionProps {
+  dailyYevmiye: string;
+  setDailyYevmiye: (val: string) => void;
+  yevmiyeBaseHours: string;
+  setYevmiyeBaseHours: (val: string) => void;
+  paymentFrequency: string;
+  setPaymentFrequency: (val: string) => void;
+  paymentDayOfWeek: string;
+  setPaymentDayOfWeek: (val: string) => void;
 }
 
 export interface NotificationSectionProps {
@@ -36,4 +48,8 @@ export interface DateReferencesSectionProps {
   setEmploymentStartDate: (val: string) => void;
   shiftEpochDate: string;
   setShiftEpochDate: (val: string) => void;
+}
+
+export interface SettingsHeaderProps {
+  user: import('@supabase/supabase-js').User | null;
 }

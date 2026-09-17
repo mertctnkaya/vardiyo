@@ -29,6 +29,12 @@ export interface UserSettings {
   shift_end_time: string;
   shift_duration: number;
   notification_preferences?: NotificationPreferences;
+  
+  // Yevmiye özel alanlar
+  daily_yevmiye?: number;
+  yevmiye_base_hours?: number;
+  payment_frequency?: 'weekly' | 'biweekly' | 'daily';
+  payment_day_of_week?: number;
 }
 
 export interface Reminder {

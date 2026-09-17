@@ -1,9 +1,12 @@
 export type DayStatus = 'normal' | 'overtime' | 'leave' | 'annual_leave' | 'holiday_work' | 'absent' | 'late' | 'partial_leave';
 
 export interface WorkLog {
+  log_date?: string;
   status: DayStatus;
   hours?: string | number;
   note?: string;
+  custom_yevmiye?: number | null;
+  worked_hours?: number | null;
 }
 
 export interface DayDetail {
@@ -69,4 +72,14 @@ export interface DayActionModalProps {
   user: any;
   onUpdateLog: (dateKey: string, data: any) => void;
   onDeleteLog: (dateKey: string) => void;
+}
+
+export interface CalendarPauseProps {
+  isPaused: boolean;
+  pausedDates?: { start: string; end: string | null } | null;
+  onPauseRange: (start: string, end: string | null) => void;
+  onPauseCurrentMonth: () => void;
+  onResume: () => void;
+  onSaveAnnualLeave: (start: string, end: string) => void;
+  onClearRange: (start: string, end: string) => void;
 }

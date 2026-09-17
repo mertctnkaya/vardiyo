@@ -1,6 +1,7 @@
 import type { CalendarGridProps } from '../../types';
 import { getLocalDateString } from '../../utils/dateUtils';
 import { TURKISH_HOLIDAYS_2026 } from '../../constants/holidays';
+import { DAYS_OF_WEEK } from '../../constants/calendar';
 
 export default function CalendarGrid({
     calendarDays,
@@ -23,9 +24,9 @@ export default function CalendarGrid({
     };
     return (
         <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden">
-            <div className="grid grid-cols-7 bg-base-200 border-b border-base-300">
-                {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(day => (
-                    <div key={day} className="py-3 text-center text-sm font-bold text-base-content/60">{day}</div>
+            <div className="grid grid-cols-7 bg-[#1e2329] border-b border-base-300">
+                {DAYS_OF_WEEK.map(day => (
+                    <div key={day} className="py-2 sm:py-3 text-center text-xs sm:text-sm font-bold text-base-content/70">{day}</div>
                 ))}
             </div>
 
@@ -100,9 +101,16 @@ export default function CalendarGrid({
                             )}
 
                             <div className="flex justify-between items-start">
-                                <span className={`text-sm sm:text-lg font-bold ${textColor} ${isToday ? 'border-b-2 border-primary' : ''}`}>
-                                    {item.date.getDate()}
-                                </span>
+                                <div className="flex items-center gap-1">
+                                    <span className={`text-sm sm:text-lg font-bold ${textColor} ${isToday ? 'border-b-2 border-primary' : ''}`}>
+                                        {item.date.getDate()}
+                                    </span>
+                                    {workLogs[dateKeyStr]?.custom_yevmiye != null && !isBeforeEmployment && (
+                                        <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1 rounded font-bold border border-emerald-500/30" title={`Özel Yevmiye: ${workLogs[dateKeyStr].custom_yevmiye}₺`}>
+                                            ₺
+                                        </span>
+                                    )}
+                                </div>
 
                                 {workLogs[dateKeyStr]?.note && !isBeforeEmployment && (
                                     <span className="text-white/50">

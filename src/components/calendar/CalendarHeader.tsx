@@ -1,6 +1,14 @@
 import type { CalendarHeaderProps } from '../../types/calendar';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function CalendarHeader({ baseDate, onPrev, onNext, onToday }: CalendarHeaderProps) {
+  const { settings } = useAppStore();
+
+  let workTypeLabel = '3 Vardiya';
+  if (settings?.work_type === '2-shift') workTypeLabel = '2 Vardiya';
+  else if (settings?.work_type === 'fixed') workTypeLabel = 'Sabit Vardiya';
+  else if (settings?.work_type === 'yevmiye') workTypeLabel = 'Yevmiye (Günlük)';
+
   return (
     <div className="w-full max-w-4xl flex flex-col sm:flex-row justify-between items-center mb-6 px-2 gap-4">
       <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
@@ -14,7 +22,7 @@ export default function CalendarHeader({ baseDate, onPrev, onNext, onToday }: Ca
         </div>
       </div>
       <div className="badge badge-primary badge-outline font-semibold whitespace-nowrap hidden sm:inline-flex">
-        Bordro Dönemi
+        {workTypeLabel}
       </div>
     </div>
   );

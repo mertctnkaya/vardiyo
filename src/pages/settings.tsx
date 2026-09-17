@@ -10,6 +10,7 @@ import SettingsHeader from '../components/settings/SettingsHeader';
 import ShiftSystemSection from '../components/settings/ShiftSystemSection';
 import DateReferencesSection from '../components/settings/DateReferencesSection';
 import PayrollSection from '../components/settings/PayrollSection';
+import YevmiyeSection from '../components/settings/YevmiyeSection';
 import NotificationSection from '../components/settings/NotificationSection';
 import AccountSection from '../components/settings/AccountSection';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -39,6 +40,11 @@ export default function Settings() {
   const [saturdayMultiplier, setSaturdayMultiplier] = useState('1.5');
   const [weekendMultiplier, setWeekendMultiplier] = useState('2');
   const [holidayMultiplier, _setHolidayMultiplier] = useState('2');
+
+  const [dailyYevmiye, setDailyYevmiye] = useState('0');
+  const [yevmiyeBaseHours, setYevmiyeBaseHours] = useState('12');
+  const [paymentFrequency, setPaymentFrequency] = useState('weekly');
+  const [paymentDayOfWeek, setPaymentDayOfWeek] = useState('3');
 
   const [notificationStatus, setNotificationStatus] = useState<string>('default');
 
@@ -106,6 +112,10 @@ export default function Settings() {
         if (data.saturday_multiplier) setSaturdayMultiplier(data.saturday_multiplier.toString());
         if (data.weekend_multiplier) setWeekendMultiplier(data.weekend_multiplier.toString());
         if (data.daily_wage) setMonthlyGross((data.daily_wage * 30).toFixed(2).replace(/\.00$/, ''));
+        if (data.daily_yevmiye) setDailyYevmiye(data.daily_yevmiye.toString());
+        if (data.yevmiye_base_hours) setYevmiyeBaseHours(data.yevmiye_base_hours.toString());
+        if (data.payment_frequency) setPaymentFrequency(data.payment_frequency);
+        if (data.payment_day_of_week) setPaymentDayOfWeek(data.payment_day_of_week.toString());
         if (data.notification_preferences) {
           setNotifPrefs(data.notification_preferences);
         }
@@ -175,6 +185,10 @@ export default function Settings() {
       saturday_multiplier: Number(saturdayMultiplier) || 1.5,
       weekend_multiplier: Number(weekendMultiplier) || 2,
       holiday_multiplier: Number(holidayMultiplier) || 2,
+      daily_yevmiye: Number(dailyYevmiye) || 0,
+      yevmiye_base_hours: Number(yevmiyeBaseHours) || 12,
+      payment_frequency: paymentFrequency,
+      payment_day_of_week: Number(paymentDayOfWeek) || 3,
       updated_at: new Date().toISOString()
     };
 
@@ -222,12 +236,22 @@ export default function Settings() {
             shiftEpochDate={shiftEpochDate} setShiftEpochDate={setShiftEpochDate}
           />
 
-          <PayrollSection
-            monthlyGross={monthlyGross} setMonthlyGross={setMonthlyGross}
-            displayOvertime={displayOvertime}
-            baseWorkHours={baseWorkHours} setBaseWorkHours={setBaseWorkHours}
-            nightBonus={nightBonus} setNightBonus={setNightBonus}
-          />
+          {workType === 'yevmiye' ? (
+            <YevmiyeSection
+              dailyYevmiye={dailyYevmiye} setDailyYevmiye={setDailyYevmiye}
+              yevmiyeBaseHours={yevmiyeBaseHours} setYevmiyeBaseHours={setYevmiyeBaseHours}
+              paymentFrequency={paymentFrequency} setPaymentFrequency={setPaymentFrequency}
+              paymentDayOfWeek={paymentDayOfWeek} setPaymentDayOfWeek={setPaymentDayOfWeek}
+            />
+          ) : (
+            <PayrollSection
+              workType={workType}
+              monthlyGross={monthlyGross} setMonthlyGross={setMonthlyGross}
+              displayOvertime={displayOvertime}
+              baseWorkHours={baseWorkHours} setBaseWorkHours={setBaseWorkHours}
+              nightBonus={nightBonus} setNightBonus={setNightBonus}
+            />
+          )}
 
           <div className="sticky bottom-4 z-40 mt-8 flex justify-end pt-4 pb-2 sm:pt-6 sm:pb-0 border-t border-base-300 bg-[#16191d]/80 backdrop-blur-xl sm:bg-transparent sm:backdrop-blur-none rounded-2xl sm:rounded-none px-4 sm:px-0 -mx-4 sm:mx-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)] sm:shadow-none">
             <button onClick={handleSaveSettings} disabled={isSaving || isLoading} className="btn w-full sm:btn-wide bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/50 h-14 sm:h-12 text-lg sm:text-base">

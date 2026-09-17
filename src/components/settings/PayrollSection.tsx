@@ -3,8 +3,11 @@ import Icon from '../shared/Icon';
 import type { PayrollSectionProps } from '../../types';
 
 export default function PayrollSection({
-  monthlyGross, setMonthlyGross, displayOvertime, baseWorkHours, setBaseWorkHours, nightBonus, setNightBonus
+  workType, monthlyGross, setMonthlyGross, displayOvertime, baseWorkHours, setBaseWorkHours, nightBonus, setNightBonus
 }: PayrollSectionProps) {
+
+  if (workType === 'yevmiye') return null;
+
   return (
     <div>
       <h3 className="text-lg font-bold text-indigo-400 mb-4 border-b border-base-300 pb-2">3. Bordro ve Ek Ödemeler</h3>

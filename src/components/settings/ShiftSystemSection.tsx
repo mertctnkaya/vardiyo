@@ -15,6 +15,7 @@ export default function ShiftSystemSection({
             <option value="fixed">Sabit Gündüz (Örn: 08:00 - 18:00)</option>
             <option value="2-shift">2'li Vardiya (Örn: 12 Saatlik Döngü)</option>
             <option value="3-shift">3'lü Vardiya (Örn: 8 Saatlik Döngü)</option>
+            <option value="yevmiye">Yevmiye (Günlük Ücret)</option>
           </select>
         </div>
 
@@ -37,11 +38,11 @@ export default function ShiftSystemSection({
                 <Icon name="calendar" className="w-5 h-5 text-indigo-400 shrink-0" />
                 Cumartesi günleri çalışma var mı?
               </span>
-              <input 
-                type="checkbox" 
-                className="toggle bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600 checked:bg-emerald-500 checked:border-emerald-500 checked:hover:bg-emerald-600 checked:hover:border-emerald-600 [--tglbg:white] shrink-0" 
-                checked={isSaturdayWorkday} 
-                onChange={(e) => setIsSaturdayWorkday(e.target.checked)} 
+              <input
+                type="checkbox"
+                className="toggle bg-red-500 border-red-500 hover:bg-red-600 hover:border-red-600 checked:bg-emerald-500 checked:border-emerald-500 checked:hover:bg-emerald-600 checked:hover:border-emerald-600 [--tglbg:white] shrink-0"
+                checked={isSaturdayWorkday}
+                onChange={(e) => setIsSaturdayWorkday(e.target.checked)}
               />
             </label>
           </div>

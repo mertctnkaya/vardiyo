@@ -8,3 +8,4 @@ export * from './weeklist';
 export * from './currentShift';
 export * from './layout';
 export * from './admin';
+export * from './yevmiye';

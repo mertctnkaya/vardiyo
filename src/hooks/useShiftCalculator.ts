@@ -27,7 +27,12 @@ export function useShiftCalculator() {
     const workType = settings?.work_type || '3-shift';
     const isSaturdayWork = settings?.is_saturday_workday || false;
 
-    const isOffDay = workType === 'fixed' ? (isSunday || (!isSaturdayWork && isSaturday)) : isSunday;
+    let isOffDay = isSunday;
+    if (workType === 'fixed') {
+      isOffDay = isSunday || (!isSaturdayWork && isSaturday);
+    } else if (workType === 'yevmiye') {
+      isOffDay = isSunday;
+    }
 
     const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const mondayDate = new Date(targetDate);
@@ -42,7 +47,7 @@ export function useShiftCalculator() {
         shiftIndex = ((deltaWeeks % 3) + 3) % 3;
     } else if (workType === '2-shift') {
         shiftIndex = ((deltaWeeks % 2) + 2) % 2;
-    } else if (workType === 'fixed') {
+    } else if (workType === 'fixed' || workType === 'yevmiye') {
         shiftIndex = 0;
     }
 
@@ -50,6 +55,8 @@ export function useShiftCalculator() {
 
     if (workType === 'fixed') {
         shift.name = 'Sabit Gündüz';
+    } else if (workType === 'yevmiye') {
+        shift.name = 'Yevmiye (Günlük)';
     }
 
     if (isOffDay) {
@@ -62,7 +69,7 @@ export function useShiftCalculator() {
       
       const nextShift = SHIFTS[nextWeekIndex];
       
-      if (nextShift.id === 1 && workType !== 'fixed') {
+      if (nextShift.id === 1 && (workType === '3-shift' || workType === '2-shift')) {
         shift.note = 'DİKKAT: Bu gece akşamından servise biniş!';
       } else {
         shift.note = ''; 
@@ -98,10 +105,11 @@ export function useShiftCalculator() {
       let shiftIndex = 0;
       if (workType === '3-shift') shiftIndex = ((deltaWeeks % 3) + 3) % 3;
       else if (workType === '2-shift') shiftIndex = ((deltaWeeks % 2) + 2) % 2;
-      else if (workType === 'fixed') shiftIndex = 0;
+      else if (workType === 'fixed' || workType === 'yevmiye') shiftIndex = 0;
       
       const s = { ...SHIFTS[shiftIndex] };
       if (workType === 'fixed') s.name = 'Sabit Gündüz';
+      else if (workType === 'yevmiye') s.name = 'Yevmiye (Günlük)';
 
       list.push({ weekStart, weekEnd, shift: s });
     }

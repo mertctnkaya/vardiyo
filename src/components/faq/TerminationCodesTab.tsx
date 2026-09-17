@@ -1,20 +1,5 @@
 import Alert from '../shared/Alert';
-
-const codes = [
-  { code: '3', reason: 'İstifa (kendi isteğiyle)', severance: false, unemployment: false, notice: false },
-  { code: '3', reason: 'Şahsi/Ailevi nedenler, tayin', severance: false, unemployment: false, notice: false },
-  { code: '4', reason: 'Haksız işten çıkarılan', severance: true, unemployment: true, notice: true },
-  { code: '25', reason: 'Görülen lüzum üzerine çıkan', severance: true, unemployment: true, notice: false },
-  { code: '25', reason: 'Haklı Ayrılan (mobbing v.s.)', severance: true, unemployment: true, notice: false },
-  { code: '12', reason: 'Askerlik nedeniyle (erkekler)', severance: true, unemployment: true, notice: false },
-  { code: '13', reason: 'Evlilik nedeniyle (kadınlar)', severance: true, unemployment: false, notice: false },
-  { code: '14', reason: '08.09.1999 öncesi (15 yıl / 3600 prim)', severance: true, unemployment: false, notice: false },
-  { code: '14', reason: '09.09.1999 - 30.04.2008 (25 yıl / 4500 prim)', severance: true, unemployment: false, notice: false },
-  { code: '14', reason: '01.05.2008 sonrası (4600 - 5400 prim)', severance: true, unemployment: false, notice: false },
-  { code: '16', reason: 'Başka bir işyerine nakil', severance: false, unemployment: false, notice: false },
-  { code: '17', reason: 'İşyeri kapandığı için', severance: true, unemployment: true, notice: true },
-  { code: '18', reason: 'Sağlık nedenlerinden dolayı', severance: true, unemployment: true, notice: false },
-];
+import { TERMINATION_CODES } from '../../constants/faqData';
 
 export default function TerminationCodesTab() {
   const getBadge = (status: boolean) => {
@@ -45,7 +30,7 @@ export default function TerminationCodesTab() {
               </tr>
             </thead>
             <tbody>
-              {codes.map((item, index) => (
+              {TERMINATION_CODES.map((item, index) => (
                 <tr key={index} className="hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
                   <td className="text-center py-4">
                     <span className="inline-block px-3 py-1.5 bg-indigo-950/50 text-indigo-200 rounded-lg font-mono text-sm font-bold border border-indigo-500/30 shadow-inner">

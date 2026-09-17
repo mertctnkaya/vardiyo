@@ -17,8 +17,7 @@ import GuestPromoCard from '../components/current-shift/GuestPromoCard';
 
 import { usePageTitle } from '../hooks/usePageTitle';
 
-type ShiftContextType = ReturnType<typeof import("../hooks/useShiftCalculator").useShiftCalculator>;
-
+import type { ShiftContextType } from '../types';
 export default function CurrentShift() {
   usePageTitle('Güncel Vardiya');
   const { targetDate, setTargetDate, currentShift } = useOutletContext<ShiftContextType>();
@@ -75,9 +74,9 @@ export default function CurrentShift() {
       setIsLoading(false);
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     const fetchPauseConfig = async () => {
       const { data, error } = await supabase
         .from('user_settings')
@@ -94,7 +93,7 @@ export default function CurrentShift() {
     };
     fetchPauseConfig();
     fetchReminders();
-    
+
     Promise.all([fetchPauseConfig(), fetchReminders()]).then(() => {
       setIsLoading(false);
     });
@@ -135,6 +134,7 @@ export default function CurrentShift() {
     let duration = 8, offset = 0;
 
     if (type === 'fixed') return `${start} - ${settings.shift_end_time || '18:00'}`;
+    if (type === 'yevmiye') return `${settings.yevmiye_base_hours || 12} Saatlik Mesai (Yevmiye)`;
     if (type === '2-shift') {
       duration = Number(settings.shift_duration) || 12;
       if (currentShift.id === 1) offset = duration;

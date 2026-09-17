@@ -42,3 +42,5 @@ export interface WelcomeBannerProps {
   showWelcome: boolean;
   onClose: () => void;
 }
+
+export type ShiftContextType = ReturnType<typeof import("../hooks/useShiftCalculator").useShiftCalculator>;

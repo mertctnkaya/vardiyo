@@ -1,14 +1,6 @@
 import { useState } from 'react';
 
-export interface CalendarPauseProps {
-  isPaused: boolean;
-  pausedDates?: { start: string; end: string | null } | null;
-  onPauseRange: (start: string, end: string | null) => void;
-  onPauseCurrentMonth: () => void;
-  onResume: () => void;
-  onSaveAnnualLeave: (start: string, end: string) => void;
-  onClearRange: (start: string, end: string) => void; // YENİ EKLENDİ
-}
+import type { CalendarPauseProps } from '../../types';
 
 export default function CalendarPause({
   isPaused,
@@ -44,9 +36,9 @@ export default function CalendarPause({
           <div className="grid grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label pt-0"><span className="label-text font-bold text-base-content/80">Başlangıç</span></label>
-              <input 
-                type="date" 
-                className="input input-bordered input-sm sm:input-md bg-base-200 focus:border-indigo-500 transition-colors" 
+              <input
+                type="date"
+                className="input input-bordered input-sm sm:input-md bg-base-200 focus:border-indigo-500 transition-colors"
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -56,9 +48,9 @@ export default function CalendarPause({
             </div>
             <div className="form-control">
               <label className="label pt-0"><span className="label-text font-bold text-base-content/80">Bitiş</span></label>
-              <input 
-                type="date" 
-                className="input input-bordered input-sm sm:input-md bg-base-200 focus:border-indigo-500 transition-colors" 
+              <input
+                type="date"
+                className="input input-bordered input-sm sm:input-md bg-base-200 focus:border-indigo-500 transition-colors"
                 value={endDate}
                 min={startDate}
                 disabled={!startDate}
@@ -66,7 +58,7 @@ export default function CalendarPause({
               />
             </div>
           </div>
-          
+
           <div className="bg-[#1e1b4b]/40 border border-indigo-500/30 rounded-xl p-4 flex gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -100,16 +92,16 @@ export default function CalendarPause({
             </div>
           ) : (
             <div className="flex flex-col justify-center gap-3 h-full animate-fade-in">
-              
+
               <div className="grid grid-cols-2 gap-3">
-                <button 
+                <button
                   disabled={!isValidForLeave}
                   onClick={() => onSaveAnnualLeave(startDate, endDate)}
                   className="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-md shadow-emerald-900/20 disabled:opacity-40 transition-all text-xs sm:text-sm"
                 >
                   Yıllık İzin Gir
                 </button>
-                <button 
+                <button
                   disabled={!isValidForLeave}
                   onClick={() => onClearRange(startDate, endDate)}
                   className="btn bg-red-900/30 text-red-400 hover:bg-red-600 hover:text-white border-none disabled:opacity-40 transition-all text-xs sm:text-sm"
@@ -121,14 +113,14 @@ export default function CalendarPause({
               <div className="divider my-0 text-xs text-base-content/30 font-medium">VEYA</div>
 
               <div className="grid grid-cols-2 gap-3">
-                <button 
+                <button
                   disabled={!isValidForPause}
                   onClick={() => onPauseRange(startDate, endDate || null)}
                   className="btn bg-base-200 text-base-content hover:bg-warning/20 hover:text-warning hover:border-warning/50 border border-base-300 disabled:opacity-40 transition-all text-xs sm:text-sm"
                 >
                   Aralığı Duraklat
                 </button>
-                <button 
+                <button
                   onClick={onPauseCurrentMonth}
                   className="btn bg-base-200 text-base-content hover:bg-warning/20 hover:text-warning hover:border-warning/50 border border-base-300 transition-all text-xs sm:text-sm"
                 >
