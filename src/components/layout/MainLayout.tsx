@@ -3,6 +3,8 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useShiftCalculator } from '../../hooks/useShiftCalculator';
 import { supabase } from '../../lib/supabaseClient';
 import { useAppStore } from '../../store/useAppStore';
+import { fetchUserSettings } from '../../services/dbService';
+import { processSyncQueue } from '../../services/syncService';
 
 import Navbar from './Navbar';
 import Sidebar from './SidebarMobile';
@@ -10,35 +12,49 @@ import Footer from './Footer';
 import CookieBanner from '../shared/CookieBanner';
 import PWAInstallPrompt from '../shared/PWAInstallPrompt';
 import InAppReviewPrompt from '../shared/InAppReviewPrompt';
+import { useMobileBackHandler } from '../../hooks/useMobileBackHandler';
 
 export default function MainLayout() {
+  useMobileBackHandler();
+
   const shiftContext = useShiftCalculator();
   const { user, setUser, setSession, setSettings } = useAppStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSettings = async (userId: string) => {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    };
 
-      if (data) setSettings(data);
-      else console.error("Ayarlar çekilemedi:", error);
+    window.addEventListener('focusin', handleFocusIn);
+    return () => window.removeEventListener('focusin', handleFocusIn);
+  }, []);
+
+  useEffect(() => {
+    const loadSettings = async (userId: string) => {
+      const settingsData = await fetchUserSettings(userId);
+      if (settingsData) {
+        setSettings(settingsData);
+      }
+      processSyncQueue(userId);
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchSettings(session.user.id);
+      if (session?.user) loadSettings(session.user.id);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
 
-      if (session?.user) fetchSettings(session.user.id);
+      if (session?.user) loadSettings(session.user.id);
       else setSettings(null);
     });
 

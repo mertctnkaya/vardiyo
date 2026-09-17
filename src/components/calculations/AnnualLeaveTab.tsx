@@ -5,10 +5,11 @@ import { supabase } from '../../lib/supabaseClient';
 import Alert from '../shared/Alert';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
 import { IS_PAYWALL_ACTIVE } from '../../config/features';
+import { getCachedWorkLogs } from '../../services/offlineStorage';
 
 export default function AnnualLeaveTab() {
   const { settings, user, setSettings } = useAppStore();
-  
+
   const [knownLeaveBalance, setKnownLeaveBalance] = useState('');
   const [isSavingLeave, setIsSavingLeave] = useState(false);
   const [leaveFeedback, setLeaveFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -21,8 +22,27 @@ export default function AnnualLeaveTab() {
   useEffect(() => {
     const fetchCalendarLeaves = async () => {
       if (!user) return;
-      const { count, error } = await supabase.from('work_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'annual_leave');
-      if (!error && count !== null) setCalendarUsedLeave(count);
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const logs = getCachedWorkLogs(user.id);
+        const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave').length;
+        setCalendarUsedLeave(localCount);
+        return;
+      }
+
+      try {
+        const { count, error } = await supabase.from('work_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'annual_leave');
+        if (!error && count !== null) {
+          setCalendarUsedLeave(count);
+        } else {
+          const logs = getCachedWorkLogs(user.id);
+          const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave').length;
+          setCalendarUsedLeave(localCount);
+        }
+      } catch {
+        const logs = getCachedWorkLogs(user.id);
+        const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave').length;
+        setCalendarUsedLeave(localCount);
+      }
     };
     fetchCalendarLeaves();
   }, [user]);
@@ -51,7 +71,7 @@ export default function AnnualLeaveTab() {
   const nextLeaveDays = (yearsWorked + 1) <= 5 ? 14 : ((yearsWorked + 1) < 15 ? 20 : 26);
 
   const pastUsed = settings.past_used_leave || 0;
-  const totalUsedLeave = pastUsed + calendarUsedLeave; 
+  const totalUsedLeave = pastUsed + calendarUsedLeave;
   const remainingLeave = earnedLeave - totalUsedLeave;
 
   const saveLeaveBalance = async () => {
@@ -136,7 +156,7 @@ export default function AnnualLeaveTab() {
         <div className="flex-1 w-full flex flex-col gap-2">
           <div className="flex gap-2 w-full">
             <input type="number" min="0" className="input p-2 input-bordered bg-base-200 flex-1 focus:ring-2 focus:ring-pink-500" placeholder="Gerçek bakiyem (Gün)" value={knownLeaveBalance} onChange={(e) => setKnownLeaveBalance(e.target.value)} />
-            
+
             <button className="btn p-4 bg-pink-600 hover:bg-pink-700 text-white border-none shadow-lg shadow-pink-900/40" onClick={saveLeaveBalance} disabled={isSavingLeave || knownLeaveBalance === ''}>
               {isSavingLeave ? <span className="loading loading-spinner"></span> : 'Eşitle'}
               {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-1 text-[10px] bg-pink-900/40 px-1 rounded text-pink-200">PRO</span>}
@@ -150,7 +170,7 @@ export default function AnnualLeaveTab() {
           {leaveFeedback && <div className={`p-2 rounded-lg text-xs font-bold text-center animate-fade-in ${leaveFeedback.type === 'success' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>{leaveFeedback.message}</div>}
         </div>
       </div>
-      
+
       <PremiumPaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} featureName="İzin Bakiyesi Eşitleme" />
     </div>
   );

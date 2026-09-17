@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { saveUserReminder } from '../../services/dbService';
 import type { ReminderModalProps } from '../../types/currentShift';
 
 export default function ReminderModal({ isOpen, onClose, defaultDate, user, onSuccess }: ReminderModalProps) {
@@ -21,7 +21,7 @@ export default function ReminderModal({ isOpen, onClose, defaultDate, user, onSu
     if (!user || !reminderText.trim()) return;
     setIsSavingReminder(true);
 
-    const { error } = await supabase.from('reminders').insert({
+    const { error } = await saveUserReminder(user.id, {
       user_id: user.id,
       date: reminderStartDate,
       end_date: reminderEndDate || null,
@@ -46,7 +46,7 @@ export default function ReminderModal({ isOpen, onClose, defaultDate, user, onSu
           <h3 className="font-bold text-lg text-indigo-400">Yeni Hatırlatma</h3>
           <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
         </div>
-        
+
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="form-control w-full">

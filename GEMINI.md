@@ -47,7 +47,7 @@ Every modification, refactor, or addition must adhere to the 5S software methodo
 - **Routing:** React Router DOM (v6)
 - **Database & Backend:** Supabase (PostgreSQL, Row Level Security, Auth, Edge Functions)
 - **Mobile Container:** Capacitor (Android & iOS wrapper)
-- **Native Plugins:** `@capacitor/core`, `@capacitor/local-notifications`, `@capacitor/assets`
+- **Native Plugins:** `@capacitor/core`, `@capacitor/app`, `@capacitor/haptics`, `@capacitor/local-notifications`, `@capacitor/assets`
 
 ---
 
@@ -141,6 +141,10 @@ Modal dialog blocking access to PRO/Advanced features when `IS_PAYWALL_ACTIVE` i
 
 In-app bell notification tray for shifts, reminders, and broadcast messages.
 
+### 4.7 `OfflineSyncIndicator.tsx`
+
+In-app real-time connection status and pending mutations queue badge in Navbar. Automatically handles offline warning, pending queue counts, and syncing states.
+
 ---
 
 ## 5. HYBRID ARCHITECTURE PROTOCOL (WEB VS. MOBILE RUNTIME)
@@ -164,6 +168,12 @@ The codebase serves two environments from a single source:
 Target Platform Notification Engine Mechanism / Library
 Web Browser Web Push API navigator.serviceWorker.register('/sw.js') + VAPID key + Supabase Edge Function (send-push)
 Mobile App (Android/iOS) Native Local Notifications @capacitor/local-notifications via LocalNotifications.requestPermissions()
+
+### 5.3 Offline-First Protocol & Sync Queue
+
+- Database mutations (`work_logs`, `user_settings`, `reminders`) must route through `src/services/dbService.ts`.
+- When offline or network fails, mutations are optimistically applied to user-isolated `localStorage` (`src/services/offlineStorage.ts`) and enqueued in a FIFO `sync_queue`.
+- When connection returns, `src/services/syncService.ts` drains the queue to Supabase automatically.
 
 ### 6. CALCULATION ENGINES (src/core/)
 
@@ -214,6 +224,13 @@ Phase 4: Legal, Compliance & Store Readiness
 [x] Privacy Policy & Terms of Service: Add legal pages required by Google Play Store & KVKK regulations.
 [x] Cookie Consent Banner: Add non-intrusive cookie / local storage disclosure banner.
 [x] Analytics Setup: Integrate privacy-friendly analytics (PostHog or Google Analytics).
+
+Phase 5: Mobile Native Hardening & Offline-First Protocol
+[x] Android Hardware Back Button: Integrated @capacitor/app with hierarchical close (drawer -> modal -> history -> exit).
+[x] Safe Area Insets: Configured viewport-fit=cover and CSS environment variables for notch, Dynamic Island, and home bar protection.
+[x] Virtual Keyboard Auto-Scroll: Automated focusin scrolling for all input/textarea/select elements.
+[x] Offline Storage & FIFO Sync Queue: Implemented user-isolated cache and automatic sync engine (offlineStorage.ts & syncService.ts).
+[x] Live Sync Status Badge: Implemented dynamic Navbar indicator showing offline warnings, queue counts, and sync states.
 
 ### 9. INSTRUCTIONS FOR THE CODE AGENT
 

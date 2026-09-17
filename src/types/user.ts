@@ -30,6 +30,17 @@ export interface UserSettings {
   shift_duration: number;
   notification_preferences?: NotificationPreferences;
   
+  // Pause fields
+  is_paused?: boolean;
+  pause_start_date?: string | null;
+  pause_end_date?: string | null;
+
+  // Multipliers
+  night_bonus_percent?: number | string;
+  saturday_multiplier?: number | string;
+  weekend_multiplier?: number | string;
+  holiday_multiplier?: number | string;
+
   // Yevmiye özel alanlar
   daily_yevmiye?: number;
   yevmiye_base_hours?: number;

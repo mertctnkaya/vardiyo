@@ -4,36 +4,45 @@ Bu doküman, Vardiyo projesinin gelecekteki geliştirmeleri, mobil iyileştirmel
 
 ## 🚀 SON EKLENEN ÖZELLİKLER (COMPLETED)
 
-- **[Yevmiye (Günlük) Sistemi Entegrasyonu]**
-  - Standart aylık bordrolu sisteme ek olarak "Yevmiyeci" çalışanlar için tam destek eklendi.
-  - Pazar günleri otomatik tatil, Cumartesi günleri normal gün olarak ayarlandı.
-  - Ödeme periyotlarına (Haftalık, 15 Günlük, Günlük) göre otomatik kazanç kartları, tam ay çalışma projeksiyonu eklendi.
-  - Yevmiye sistemi seçildiğinde kullanılamayacak yasal haklar/hesaplamalar (Kıdem, İşsizlik, vs.) UI üzerinden otomatik devre dışı bırakıldı.
-- **[UX İyileştirmeleri]**
-  - Mesai girme menüsündeki kafa karıştırıcı "Normal Mesai" butonu devre dışı bırakılıp sadece not/hatalı kayıt temizleme amacına yönlendirildi.
-  - Yevmiyeciler için "Özel Yevmiye / Mesai" butonu ile günlük farklı yevmiye girişi hızlıca sağlandı.
+- **[Offline-First & Senkronizasyon (Sync Queue) Mimarisi]**
+  - Fabrika, şantiye ve internetsiz ortamlarda mesai takvimi, ayarlar, katsayılar ve hatırlatıcılar için tam çevrimdışı çalışma desteği.
+  - İnternet geldiğinde otomatik çalışan arka plan senkronizasyon motoru (`syncService`).
+  - Navbar'da canlı çevrimdışı ve kuyrukta bekleyen kayıt sayacı (`OfflineSyncIndicator`).
+- **[Mobil (Capacitor) Native Hardening]**
+  - Android Donanım Geri Tuşu (`@capacitor/app` entegrasyonu ile çekmece, modal ve sayfa geri hiyerarşisi).
+  - Güvenli Alanlar (Safe Area Insets) ve çentik / Dinamik Ada (`viewport-fit=cover`, CSS env değişkenleri).
+  - Sanal klavye açıldığında input alanının ekran ortasına otomatik kaydırılması (`scrollIntoView`).
+  - Haptic Feedback (`@capacitor/haptics`) ile titreşimli geri bildirimler.
+- **[Yevmiye (Günlük) Sistemi & Takvim Geliştirmeleri]**
+  - Yevmiyeciler için tam kazanç ve çalışma modeli.
+  - Yıllık izin girişinde hafta sonu ve resmi tatilleri atlayarak kanuni izin hakkını koruma.
+  - Mesai takviminde tek tıkla "Bu Ayın Tüm Kayıtlarını Temizle" butonu.
+  - Mesai takviminde vardiya türünün (3 Vardiya, 2 Vardiya, Sabit, Yevmiye) her ekranda görünür kılınması.
+- **[Gelişmiş PDF & Veri Görselleştirme]**
+  - Bordro, Tazminat ve Mesai Takvimi için tek sayfaya sığan resmi antetli, tablolu PDF çıktısı.
+  - Recharts ile son 6 aylık kazanç, mesai ve devamsızlık trend grafikleri.
 
 ## 1. MOBİL (CAPACITOR) İYİLEŞTİRMELERİ (NATIVE FEEL)
 
-- [ ] **Haptic Feedback (Titreşimli Geri Bildirim):**
-  - `@capacitor/haptics` eklentisi ile kullanıcı etkileşimlerini (mesai kaydetme, vardiya silme, hata alma) fiziksel olarak hissettirmek.
-- [ ] **Offline-First (İnternetsiz Kullanım) Mimarisi:**
-  - Fabrika ve depo gibi internetin çekmediği alanlarda çalışanlar için mesai girişlerini cihazda (IndexedDB / Zustand Persist) kuyruğa alıp (Queue), internet bağlantısı sağlandığında arka planda Supabase'e eşitleme (Optimistic UI).
-- [ ] **In-App Review (Uygulama İçi Değerlendirme):**
-  - `@capacitor-community/app-review` entegrasyonu. Kullanıcı yüksek bir tazminat hesapladığında veya ilk PDF çıktısını aldığında (Aha! Moment) otomatik olarak Play Store / App Store için 5 yıldız isteme.
+- [x] **Haptic Feedback (Titreşimli Geri Bildirim):**
+  - `@capacitor/haptics` eklentisi ile kullanıcı etkileşimlerini fiziksel hissettirme.
+- [x] **Offline-First (İnternetsiz Kullanım & Sync Queue) Mimarisi:**
+  - Fabrika ve depo gibi internetin çekmediği alanlarda çalışanlar için mesai, takvim, ayar ve hatırlatıcı girişlerini yerelde kuyruğa alıp bağlantı sağlandığında arka planda otomatik eşitleme (Optimistic UI & Canlı Navbar Rozeti).
+- [x] **In-App Review (Uygulama İçi Değerlendirme):**
+  - Kullanıcı kritik bir işlem yaptığında (Aha! Moment) mağaza değerlendirme uyarısı.
+- [x] **Android Donanım Geri Tuşu & Safe Area:**
+  - Çekmece/modal kapatma hiyerarşisi ve çentik koruması.
 - [ ] **Gelişmiş Push Notification & Alarmlar:**
   - Gece vardiyasına veya servise binme saatine özel, lokasyon/saat bazlı dinamik native alarmların eklenmesi.
 
 ## 2. ÜRÜN & UI GELİŞTİRMELERİ (ENTERPRISE SAAS VİZYONU)
 
-- [ ] **Veri Görselleştirme (Grafikler & Analitik Tablosu):**
-  - Recharts veya Chart.js kullanarak "İstatistikler" sekmesi oluşturma.
-  - Son 6 aylık çalışma saati trendleri, fazla mesai yoğunluğu haritası, tahmini ve gerçekleşen kazanç karşılaştırmaları.
+- [x] **Veri Görselleştirme (Grafikler & Analitik Tablosu):**
+  - Recharts kütüphanesi ile son 6 aylık kazanç, fazla mesai ve devamsızlık trendleri.
 - [ ] **Oyunlaştırma (Gamification) ve Streak Sistemi:**
   - Kullanıcıyı uygulamaya her gün girmeye teşvik edecek "Seri" mekaniği.
-  - Örn: _"Tebrikler! 15 gündür takvimini eksiksiz dolduruyorsun."_
-- [ ] **Gelişmiş PDF İhracatı (Resmi Evrak Formatı):**
-  - Çıktıların avukata veya İK departmanına doğrudan verilebilecek profesyonellikte antetli, tablolu ve imza sirkülerine uygun `jspdf-autotable` formatlarına yükseltilmesi.
+- [x] **Gelişmiş PDF İhracatı (Resmi Evrak Formatı):**
+  - Bordro, Tazminat ve Mesai Takvimi için tek sayfaya sığan, logolu, resmi tablolu ve kaşe/imza alanlı `jspdf-autotable` çıktısı.
 - [ ] **Çoklu Tema Seçenekleri (Dark Mode Varyasyonları):**
   - Şu anki profesyonel indigo/emerald konseptine ek olarak, kişiselleştirilebilir premium renk paketleri (Neon Blue, Corporate Slate, Gold).
 

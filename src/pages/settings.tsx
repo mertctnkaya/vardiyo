@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
-import { supabase } from '../lib/supabaseClient';
+import { fetchUserSettings, updateUserSettings } from '../services/dbService';
 import { registerAndSubscribeToPush } from '../lib/pushNotifications';
 import { LocalNotifications } from '@capacitor/local-notifications'; // NATIVE API
 import { isNative } from "../utils/isNative";
@@ -98,7 +98,7 @@ export default function Settings() {
     async function loadSettings() {
       if (!user) return;
       setIsLoading(true);
-      const { data } = await supabase.from('user_settings').select('*').eq('user_id', user.id).single();
+      const data = await fetchUserSettings(user.id);
 
       if (data) {
         setWorkType(data.work_type || '3-shift');
@@ -147,9 +147,7 @@ export default function Settings() {
     const newPrefs = { ...notifPrefs, [key]: !notifPrefs[key] };
     setNotifPrefs(newPrefs);
 
-    await supabase.from('user_settings')
-      .update({ notification_preferences: newPrefs })
-      .eq('user_id', user.id);
+    await updateUserSettings(user.id, { notification_preferences: newPrefs });
   };
 
   const handleSaveSettings = async () => {
@@ -168,22 +166,21 @@ export default function Settings() {
 
     triggerHaptic('medium');
     setIsSaving(true);
-    let finalEndTime = shiftEndTime;
-    if (workType === '3-shift') finalEndTime = calculateEndTime(shiftStartTime, 8);
-    else if (workType === '2-shift') finalEndTime = calculateEndTime(shiftStartTime, Number(shiftDuration) || 12);
+
+    const calculatedDaily = grossNum / 30;
+    const finalEndTime = calculateEndTime(shiftStartTime, Number(shiftDuration) || 8);
 
     const payload = {
-      user_id: user.id,
       work_type: workType,
       is_saturday_workday: isSaturdayWorkday,
       employment_start_date: employmentStartDate,
       shift_epoch_date: shiftEpochDate,
       shift_start_time: shiftStartTime,
       shift_end_time: finalEndTime,
-      shift_duration: workType === '2-shift' ? Number(shiftDuration) : (workType === '3-shift' ? 8 : 0),
-      daily_wage: Number(monthlyGross) / 30,
-      hourly_overtime: overtimeHourly,
-      base_work_hours: Number(baseWorkHours),
+      shift_duration: Number(shiftDuration) || 8,
+      base_work_hours: Number(baseWorkHours) || 7.5,
+      daily_wage: calculatedDaily,
+      hourly_overtime: Number(displayOvertime),
       night_bonus_percent: Number(nightBonus) || 0,
       saturday_multiplier: Number(saturdayMultiplier) || 1.5,
       weekend_multiplier: Number(weekendMultiplier) || 2,
@@ -195,17 +192,20 @@ export default function Settings() {
       updated_at: new Date().toISOString()
     };
 
-    const { error, data } = await supabase.from('user_settings').upsert(payload, { onConflict: 'user_id' }).select().single();
+    const { error, data } = await updateUserSettings(user.id, payload);
 
     if (error) {
       triggerHaptic('error');
       setFeedback({ type: 'error', message: 'Hata: ' + error.message });
     } else {
       triggerHaptic('success');
-      setFeedback({ type: 'success', message: 'Ayarlarınız başarıyla kaydedildi.' });
-      setSettings(data);
+      const msg = typeof navigator !== 'undefined' && !navigator.onLine
+        ? 'Ayarlarınız cihaza kaydedildi. İnternet bağlantısı sağlandığında sunucuya aktarılacaktır.'
+        : 'Ayarlarınız başarıyla kaydedildi.';
+      setFeedback({ type: 'success', message: msg });
+      if (data) setSettings(data);
       setShiftEndTime(finalEndTime);
-      setTimeout(() => setFeedback(null), 3000);
+      setTimeout(() => setFeedback(null), 3500);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsSaving(false);

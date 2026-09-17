@@ -12,6 +12,14 @@ export default defineConfig({
         short_name: 'vardiyo',
         description: 'Akıllı Vardiya ve Bordro Takip Sistemi',
         theme_color: '#4f46e5', // indigo-600
+        icons: [
+          {
+            src: '/vardiyo.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
       }
     })
   ],

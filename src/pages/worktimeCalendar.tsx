@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { useCalendarLogic } from '../hooks/useCalendarLogic';
 import { getLocalDateString } from '../utils/dateUtils';
-import { fetchMonthWorkLogs } from '../services/dbService';
+import { fetchMonthWorkLogs, updateUserSettings, saveAnnualLeaveBatch, clearMonthWorkLogs, fetchUserSettings } from '../services/dbService';
 import { downloadDataAsJSON, downloadCalendarAsCSV, generateFileName } from '../utils/exportUtils';
-import { supabase } from '../lib/supabaseClient';
 import ExportPanel from '../components/shared/ExportPanel';
 import { usePageTitle } from '../hooks/usePageTitle';
 
@@ -16,6 +15,7 @@ import CalendarStats from '../components/calendar/CalendarStats';
 import DayActionModal from '../components/calendar/DayActionModal';
 import CalendarPause from '../components/calendar/CalendarPause';
 import { DAYS_OF_WEEK } from '../constants/calendar';
+import { TURKISH_HOLIDAYS_2026 } from '../constants/holidays';
 
 export default function WorktimeCalendar() {
   usePageTitle('Mesai Takvimim');
@@ -71,18 +71,14 @@ export default function WorktimeCalendar() {
     if (!user) return;
 
     const fetchPauseConfig = async () => {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('is_paused, pause_start_date, pause_end_date')
-        .eq('user_id', user.id)
-        .single();
+      const data = await fetchUserSettings(user.id);
 
-      if (data && !error) {
+      if (data) {
         setIsCalendarPaused(data.is_paused || false);
         if (data.is_paused && data.pause_start_date) {
           setPausedDates({
             start: data.pause_start_date,
-            end: data.pause_end_date
+            end: data.pause_end_date || null
           });
         }
       }
@@ -117,18 +113,13 @@ export default function WorktimeCalendar() {
     if (!user) return;
     if (!window.confirm(`${start} ile ${end} tarihleri arasındaki tüm kayıtlar silinecek. Onaylıyor musunuz?`)) return;
 
-    const { error } = await supabase
-      .from('work_logs')
-      .delete()
-      .eq('user_id', user.id)
-      .gte('log_date', start)
-      .lte('log_date', end);
+    const { error } = await clearMonthWorkLogs(user.id, start, end);
 
     if (!error) {
       alert('Seçili aralıktaki tüm kayıtlar başarıyla temizlendi.');
       fetchLogs();
     } else {
-      alert('Hata oluştu: ' + error.message);
+      alert('Hata oluştu: ' + error?.message);
     }
   };
 
@@ -208,21 +199,18 @@ export default function WorktimeCalendar() {
   const handlePauseRange = async (start: string, end: string | null) => {
     if (!user) return;
 
-    const { error } = await supabase
-      .from('user_settings')
-      .update({
-        is_paused: true,
-        pause_start_date: start,
-        pause_end_date: end
-      })
-      .eq('user_id', user.id);
+    const { error } = await updateUserSettings(user.id, {
+      is_paused: true,
+      pause_start_date: start,
+      pause_end_date: end
+    });
 
     if (!error) {
       setIsCalendarPaused(true);
       setPausedDates({ start, end });
       alert('Takvim belirlediğiniz tarihler arasında başarıyla duraklatıldı.');
     } else {
-      alert('Hata oluştu: ' + error.message);
+      alert('Hata oluştu: ' + error?.message);
     }
   };
 
@@ -237,14 +225,11 @@ export default function WorktimeCalendar() {
   const handleResume = async () => {
     if (!user) return;
 
-    const { error } = await supabase
-      .from('user_settings')
-      .update({
-        is_paused: false,
-        pause_start_date: null,
-        pause_end_date: null
-      })
-      .eq('user_id', user.id);
+    const { error } = await updateUserSettings(user.id, {
+      is_paused: false,
+      pause_start_date: null,
+      pause_end_date: null
+    });
 
     if (!error) {
       setIsCalendarPaused(false);
@@ -258,10 +243,6 @@ export default function WorktimeCalendar() {
     const datesToInsert = [];
     let currentDate = new Date(`${start}T00:00:00`);
     const finalDate = new Date(`${end}T00:00:00`);
-
-    // Gerekli importları modül seviyesinde olmasa da lazy veya statik alabiliriz, 
-    // ama TURKISH_HOLIDAYS_2026'yı almak için import etmemiz lazım.
-    const { TURKISH_HOLIDAYS_2026 } = await import('../constants/holidays');
 
     while (currentDate <= finalDate) {
       const dateStr = getLocalDateString(currentDate);
@@ -284,13 +265,13 @@ export default function WorktimeCalendar() {
       return;
     }
 
-    const { error } = await supabase.from('work_logs').upsert(datesToInsert, { onConflict: 'user_id, log_date' });
+    const { error } = await saveAnnualLeaveBatch(user.id, datesToInsert);
 
     if (!error) {
       alert(`${datesToInsert.length} günlük Yıllık İzin takvime başarıyla işlendi.`);
       fetchLogs();
     } else {
-      alert('Yıllık izin kaydedilirken hata oluştu: ' + error.message);
+      alert('Yıllık izin kaydedilirken hata oluştu: ' + error?.message);
     }
   };
 
@@ -302,18 +283,13 @@ export default function WorktimeCalendar() {
     const firstDay = getLocalDateString(new Date(currentYear, currentMonth, 1));
     const lastDay = getLocalDateString(new Date(currentYear, currentMonth + 1, 0));
 
-    const { error } = await supabase
-      .from('work_logs')
-      .delete()
-      .eq('user_id', user.id)
-      .gte('log_date', firstDay)
-      .lte('log_date', lastDay);
+    const { error } = await clearMonthWorkLogs(user.id, firstDay, lastDay);
 
     if (!error) {
       alert('Bu aya ait tüm kayıtlar başarıyla temizlendi.');
       fetchLogs();
     } else {
-      alert('Kayıtlar silinirken hata oluştu: ' + error.message);
+      alert('Kayıtlar silinirken hata oluştu: ' + error?.message);
     }
   };
 

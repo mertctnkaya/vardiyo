@@ -2,6 +2,7 @@ import { useOutletContext } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { fetchUserReminders, toggleUserReminder, deleteUserReminder } from "../services/dbService";
 import { useNavigate } from "react-router-dom";
 import { isNative } from "../utils/isNative";
 import { LocalNotifications } from "@capacitor/local-notifications"; // NATIVE API
@@ -24,6 +25,7 @@ export default function CurrentShift() {
   const { user, settings } = useAppStore();
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -31,7 +33,6 @@ export default function CurrentShift() {
 
   const [isCalendarPaused, setIsCalendarPaused] = useState(false);
   const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const formattedDateValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
 
@@ -61,10 +62,7 @@ export default function CurrentShift() {
 
   const fetchReminders = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase.from('reminders')
-      .select('*').eq('user_id', user.id)
-      .order('is_completed', { ascending: true })
-      .order('date', { ascending: true });
+    const data = await fetchUserReminders(user.id);
     if (data) setReminders(data);
   }, [user]);
 
@@ -178,8 +176,8 @@ export default function CurrentShift() {
 
       <RemindersList
         reminders={reminders}
-        onToggle={async (id, status) => { await supabase.from('reminders').update({ is_completed: !status }).eq('id', id); fetchReminders(); }}
-        onDelete={async (id) => { await supabase.from('reminders').delete().eq('id', id); fetchReminders(); }}
+        onToggle={async (id, status) => { if (user) { await toggleUserReminder(user.id, id, status); fetchReminders(); } }}
+        onDelete={async (id) => { if (user) { await deleteUserReminder(user.id, id); fetchReminders(); } }}
         onOpenModal={() => setShowReminderModal(true)}
       />
 
