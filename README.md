@@ -12,7 +12,7 @@ Alt tarafı bir vardiya ve mesai uygulaması gibi durabilir; ama arkasında deli
 
 ---
 
-## 🚀 Neler Yapabiliyor? (Özellikler & Güncel Cephanelik)
+## 🚀 Neler Yapabiliyor? (Özellikler)
 
 ### 💰 1. Gerçekçi Bordro & Kazanç Motoru (Aylık & Yevmiye)
 
@@ -41,7 +41,7 @@ Uygulamanın kalbi burası. Sadece kabataslak "Aylık kazancın şu kadar" deyip
 
 - **Kıdem ve İhbar Tazminatı:** İşe giriş ve çıkış tarihinizi girin. 1 tam yılı doldurma şartını, devletin belirlediği güncel Kıdem Tazminatı Tavanını ve damga vergisi kesintisini dikkate alarak elinize geçecek net parayı hesaplar.
 - **SGK Rapor Parası (İş Göremezlik):** 2 günden uzun süren istirahat raporlarında SGK'nın ödeyeceği tutarı (yatarak tedavide yarısı, ayakta tedavide 2/3'ü kuralına göre) son 12 aylık prime esas kazancınız üzerinden anında bulur.
-- **İşsizlik Maaşı:** Son 3 yıldaki prim gün sayınıza göre (600 gün = 6 ay, 900 gün = 8 ay, 1080 gün = 10 ay) kaç ay boyunca ve yasal tavanı aşmayacak şekilde kaç TL maaş alacağınızı gösterir.
+- **İşsizlik Maaşı:** Son 3 yıldaki prim gün sayınıza göre (600 gün= 6 ay, 900 gün = 8 ay, 1080 gün = 10 ay) kaç ay boyunca ve yasal tavanı aşmayacak şekilde kaç TL maaş alacağınızı gösterir.
 - **Doğum & Analık İzni:** Doğum öncesi ve sonrası 8'er haftalık (çoğul gebelikte 10 hafta) istirahat sürelerini, çalışılabilir raporu aktarımlarını ve SGK analık ödeneğini hesaplar.
 - **Zam & Enflasyon Simülatörü:** Patron _"Yılbaşında %25 zam yapacağız"_ dediğinde; mevcut saatliğinizin, brüt maaşınızın ve net kazancınızın tam olarak nereye geleceğini simüle eder.
 
