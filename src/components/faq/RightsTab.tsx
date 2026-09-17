@@ -17,6 +17,12 @@ export default function RightsTab() {
         <Alert color="indigo" title="Raporlu Günler" borderStyle="colored" bgStyle="colored" icon="none">İşçinin raporlu olduğu günlerde işveren ücret ödemek zorunda değildir. 3 gün ve üzeri raporlarda işçi parasını PTT veya Banka üzerinden SGK'dan alır. İlk 2 günün parasını kimse ödemez.</Alert>
         <Alert color="violet" title="Süt İzni" borderStyle="colored" bgStyle="colored" icon="none">Kadın işçilere 1 yaşından küçük çocuklarını emzirmeleri için günde toplam 1.5 saat süt izni verilir. Bu sürenin hangi saatlerde kullanılacağını işçi kendi belirler ve bu süre çalışılmış sayılır.</Alert>
       </div>
+
+      <div className="mt-8">
+        <Alert color="sky" title="Yevmiyeci Çalışanların Hakları" borderStyle="colored" bgStyle="colored" icon="info">
+          Yukarıdaki haklar temel olarak aylık ücretli iş sözleşmeleri (beyaz/mavi yaka) içindir. Eğer taşeron veya yevmiyeli olarak çalışıyorsanız haklarınız (Kıdem, Resmi Tatil vb.) çalışma sürenize ve sözleşmenize göre özel durumlar barındırır. Yevmiyeci haklarıyla ilgili detaylı soruları <strong>S.S.S.</strong> sekmesindeki özel bölümde bulabilirsiniz.
+        </Alert>
+      </div>
     </div>
   );
 }

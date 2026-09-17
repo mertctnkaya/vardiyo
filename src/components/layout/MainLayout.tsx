@@ -9,6 +9,7 @@ import Sidebar from './SidebarMobile';
 import Footer from './Footer';
 import CookieBanner from '../shared/CookieBanner';
 import PWAInstallPrompt from '../shared/PWAInstallPrompt';
+import InAppReviewPrompt from '../shared/InAppReviewPrompt';
 
 export default function MainLayout() {
   const shiftContext = useShiftCalculator();
@@ -75,6 +76,7 @@ export default function MainLayout() {
 
       <CookieBanner />
       <PWAInstallPrompt />
+      <InAppReviewPrompt />
     </div>
   );
 }

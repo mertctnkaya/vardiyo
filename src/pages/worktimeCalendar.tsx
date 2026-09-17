@@ -5,7 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import { useCalendarLogic } from '../hooks/useCalendarLogic';
 import { getLocalDateString } from '../utils/dateUtils';
 import { fetchMonthWorkLogs } from '../services/dbService';
-import { printDocumentAsPDF, downloadDataAsJSON, downloadCalendarAsCSV, generateFileName } from '../utils/exportUtils';
+import { downloadDataAsJSON, downloadCalendarAsCSV, generateFileName } from '../utils/exportUtils';
 import { supabase } from '../lib/supabaseClient';
 import ExportPanel from '../components/shared/ExportPanel';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -20,7 +20,7 @@ import { DAYS_OF_WEEK } from '../constants/calendar';
 export default function WorktimeCalendar() {
   usePageTitle('Mesai Takvimim');
 
-  const { user } = useAppStore();
+  const { user, settings } = useAppStore();
 
   const {
     baseDate,
@@ -191,7 +191,18 @@ export default function WorktimeCalendar() {
   };
 
   const handlePrintPDF = () => {
-    printDocumentAsPDF(generateFileName('Vardiyo', baseDate, user?.user_metadata?.name, ''));
+    import('../utils/pdfGenerator').then(({ generateAdvancedCalendarPDF }) => {
+      generateAdvancedCalendarPDF(
+        calendarDays,
+        workLogs,
+        getShiftForDate,
+        employmentStartDate,
+        baseDate,
+        user?.user_metadata?.name || 'Kullanici',
+        generateFileName('Vardiyo', baseDate, user?.user_metadata?.name, '.pdf'),
+        settings?.work_type || 'aylik'
+      );
+    });
   };
 
   const handlePauseRange = async (start: string, end: string | null) => {
@@ -248,13 +259,29 @@ export default function WorktimeCalendar() {
     let currentDate = new Date(`${start}T00:00:00`);
     const finalDate = new Date(`${end}T00:00:00`);
 
+    // Gerekli importları modül seviyesinde olmasa da lazy veya statik alabiliriz, 
+    // ama TURKISH_HOLIDAYS_2026'yı almak için import etmemiz lazım.
+    const { TURKISH_HOLIDAYS_2026 } = await import('../constants/holidays');
+
     while (currentDate <= finalDate) {
-      datesToInsert.push({
-        user_id: user.id,
-        log_date: getLocalDateString(currentDate),
-        status: 'annual_leave',
-      });
+      const dateStr = getLocalDateString(currentDate);
+      const isPublicHoliday = !!TURKISH_HOLIDAYS_2026[dateStr];
+      const shift = getShiftForDate(currentDate);
+
+      // Sadece çalışılması gereken normal günlere yıllık izin yazılır
+      if (!shift.isOffDay && !isPublicHoliday) {
+        datesToInsert.push({
+          user_id: user.id,
+          log_date: dateStr,
+          status: 'annual_leave',
+        });
+      }
       currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    if (datesToInsert.length === 0) {
+      alert('Seçilen aralıkta izin düşülecek normal mesai günü bulunamadı (Hafta sonu veya resmi tatile denk gelmiş olabilir).');
+      return;
     }
 
     const { error } = await supabase.from('work_logs').upsert(datesToInsert, { onConflict: 'user_id, log_date' });
@@ -264,6 +291,29 @@ export default function WorktimeCalendar() {
       fetchLogs();
     } else {
       alert('Yıllık izin kaydedilirken hata oluştu: ' + error.message);
+    }
+  };
+
+  const handleClearMonthLogs = async () => {
+    if (!user) return;
+    const confirmMessage = `${new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric' }).format(baseDate)} dönemindeki tüm özel kayıtlarınız (mesai, izin, devamsızlık vb.) silinecek. Emin misiniz?`;
+    if (!window.confirm(confirmMessage)) return;
+
+    const firstDay = getLocalDateString(new Date(currentYear, currentMonth, 1));
+    const lastDay = getLocalDateString(new Date(currentYear, currentMonth + 1, 0));
+
+    const { error } = await supabase
+      .from('work_logs')
+      .delete()
+      .eq('user_id', user.id)
+      .gte('log_date', firstDay)
+      .lte('log_date', lastDay);
+
+    if (!error) {
+      alert('Bu aya ait tüm kayıtlar başarıyla temizlendi.');
+      fetchLogs();
+    } else {
+      alert('Kayıtlar silinirken hata oluştu: ' + error.message);
     }
   };
 
@@ -323,6 +373,16 @@ export default function WorktimeCalendar() {
           pausedDates={pausedDates}
         />
       )}
+
+      <div className="w-full max-w-4xl mt-6 px-4 sm:px-0 flex justify-end">
+        <button
+          onClick={handleClearMonthLogs}
+          className="btn btn-sm p-6 bg-red-900/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/50 shadow-sm transition-all"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          Bu Ayın Tüm Kayıtlarını Temizle
+        </button>
+      </div>
 
       <CalendarStats
         monthlyStats={monthlyStats}

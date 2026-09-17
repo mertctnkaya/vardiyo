@@ -16,6 +16,13 @@ export default function YevmiyePayrollView({ settings, fetchedLogs, payrollDate 
       }
     });
     setStats(calculateMonthlyYevmiyeStats(logsMap, settings, payrollDate.getFullYear(), payrollDate.getMonth()));
+
+    if (fetchedLogs.length > 0) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new Event('trigger-inapp-review'));
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
   }, [settings, fetchedLogs, payrollDate]);
 
   const frequency = settings.payment_frequency as 'weekly' | 'biweekly' | 'daily' || 'weekly';

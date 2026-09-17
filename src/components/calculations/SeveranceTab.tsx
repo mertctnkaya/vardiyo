@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { calculateSeverance } from '../../core/severanceEngine';
 import type { SeveranceResult } from '../../types';
-import Alert from '../shared/Alert';
-import Icon from '../shared/Icon';
 import ExportPanel from '../shared/ExportPanel';
+import Icon from '../shared/Icon';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { printDocumentAsPDF, downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
+import Alert from '../shared/Alert';
+import { downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
 import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function SeveranceTab() {
@@ -170,7 +170,18 @@ export default function SeveranceTab() {
             title="Raporu Dışa Aktar"
             description="Kıdem ve ihbar tazminatı dökümünüzü indirin veya yazdırın."
             onExportCSV={exportTazminatCSV}
-            onPrintPDF={() => printDocumentAsPDF(generateFileName('Tazminat', new Date(), user?.user_metadata?.name || 'Kullanici', ''))}
+            onPrintPDF={() => {
+              import('../../utils/pdfGenerator').then(({ generateAdvancedSeverancePDF }) => {
+                generateAdvancedSeverancePDF(
+                  severanceResult,
+                  generateFileName('Tazminat', new Date(), user?.user_metadata?.name || 'Kullanici', '.pdf'),
+                  user?.user_metadata?.name || 'Kullanici',
+                  settings?.employment_start_date || '',
+                  terminationDate,
+                  (settings?.daily_wage || 0) * 30
+                );
+              });
+            }}
             onExportJSON={exportTazminatJSON}
           />
         </div>

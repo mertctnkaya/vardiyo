@@ -14,6 +14,7 @@ import YevmiyeSection from '../components/settings/YevmiyeSection';
 import NotificationSection from '../components/settings/NotificationSection';
 import AccountSection from '../components/settings/AccountSection';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { triggerHaptic } from '../utils/haptics';
 
 export default function Settings() {
   usePageTitle('Ayarlar');
@@ -159,11 +160,13 @@ export default function Settings() {
     setFeedback(null);
 
     if (monthlyGross === '' || Number(monthlyGross) <= 0 || baseWorkHours === '') {
+      triggerHaptic('error');
       setFeedback({ type: 'error', message: 'Lütfen geçerli bir aylık brüt maaş ve çalışma süresi girin.' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
+    triggerHaptic('medium');
     setIsSaving(true);
     let finalEndTime = shiftEndTime;
     if (workType === '3-shift') finalEndTime = calculateEndTime(shiftStartTime, 8);
@@ -195,8 +198,10 @@ export default function Settings() {
     const { error, data } = await supabase.from('user_settings').upsert(payload, { onConflict: 'user_id' }).select().single();
 
     if (error) {
+      triggerHaptic('error');
       setFeedback({ type: 'error', message: 'Hata: ' + error.message });
     } else {
+      triggerHaptic('success');
       setFeedback({ type: 'success', message: 'Ayarlarınız başarıyla kaydedildi.' });
       setSettings(data);
       setShiftEndTime(finalEndTime);

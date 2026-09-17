@@ -59,6 +59,15 @@ export const FAQ_DATA = [
             { q: "E-Devlet üzerinden sendikadan istifa edersem ne olur?", a: "İstifa ettiğiniz an sendikanın sağladığı TİS haklarından (İkramiyeler, zam oranları vs.) yararlanmanız sona erer. Ancak 'Dayanışma Aidatı' ödeyerek sendikaya üye olmadan da bu haklardan faydalanmaya devam edebilirsiniz." },
             { q: "İşçi sendikasına nasıl üye olunur?", a: "Günümüzde sendika üyelikleri e-Devlet kapısı üzerinden 'İşçi Sendikaları Üyelik İşlemleri' menüsünden noter şartı aranmaksızın saniyeler içinde tamamen dijital olarak yapılmaktadır." }
         ]
+    },
+    {
+        category: "Yevmiyeci Çalışan Hakları (Taşeron vb.)",
+        faqs: [
+            { q: "Yevmiyeli çalışıyorum, resmi tatillerde çalışırsam ek ücret alır mıyım?", a: "Yevmiyeli çalışsanız dahi Ulusal Bayram ve Genel Tatillerde (1 Mayıs, Dini Bayramlar vb.) çalıştığınız takdirde normal yevmiyenize ek olarak bir günlük yevmiye daha almanız yasal bir haktır." },
+            { q: "Yevmiyeli çalışanda Kıdem ve İhbar Tazminatı olur mu?", a: "Genelde yevmiyeli çalışanlar 'belirli süreli' veya 'çağrı üzerine' çalışsa da, aynı işverene bağlı 1 yılı dolduran ve sürekli çağrılan taşeron/yevmiyeli işçiler Yargıtay kararlarına göre 'Belirsiz Süreli' kabul edilip kıdem tazminatına hak kazanabilmektedir. Ancak SGK çıkışınızın her ay yapılıp yapılmadığı önemlidir." },
+            { q: "Pazar günü (Hafta Tatili) çalışmazsam yevmiye alır mıyım?", a: "Eğer haftanın 6 günü tam çalışmışsanız, İş Kanununa göre Pazar günü çalışmasanız dahi o günün ücretini (1 yevmiye) yasal olarak alma hakkınız vardır. Ancak fiiliyatta çoğu taşeron firma çalışılmayan günler için ödeme yapmamaktadır. İşçi bu ödenmeyen pazar yevmiyelerini sonradan dava yoluyla talep edebilir." },
+            { q: "Günlük sigortam yapılıyor mu nasıl takip edebilirim?", a: "E-Devlet üzerinden 'SGK Hizmet Dökümü' sorgulaması yaparak ay içinde adınıza kaç gün prim yattığını kontrol edebilirsiniz. Çalıştığınız her gün için 1 günlük prim yatırılması yasal zorunluluktur." }
+        ]
     }
 ];
 

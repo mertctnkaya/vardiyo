@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { fetchMonthWorkLogs } from '../../services/dbService';
 import { generatePayrollData } from '../../core/payrollEngine';
-import { printDocumentAsPDF, downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
+import { downloadDataAsJSON, generateFileName } from '../../utils/exportUtils';
 import ExportPanel from '../shared/ExportPanel';
 import YevmiyePayrollView from './YevmiyePayrollView';
 import type { LegacyPayrollData } from '../../types';
@@ -52,8 +52,15 @@ export default function PayrollTab() {
   useEffect(() => {
     if (!settings) return;
     const computedData = generatePayrollData(settings, fetchedLogs, payrollDate, besDeduction, otherDeductions);
-    // Tipleri uydurmak için any cast yapıyoruz (eski sistemden miras kalan objeler için)
     setPayrollData(computedData as unknown as LegacyPayrollData);
+
+    // AHA! Moment: They just saw their payroll. Wait 3 seconds and trigger review prompt
+    if (fetchedLogs.length > 0) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new Event('trigger-inapp-review'));
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
   }, [fetchedLogs, settings, besDeduction, otherDeductions, payrollDate]);
 
   const getCalcExportName = (prefix: string) => {
@@ -61,7 +68,14 @@ export default function PayrollTab() {
   };
 
   const printCalcToPDF = (prefix: string) => {
-    printDocumentAsPDF(getCalcExportName(prefix));
+    import('../../utils/pdfGenerator').then(({ generateAdvancedPayrollPDF }) => {
+      generateAdvancedPayrollPDF(
+        payrollData,
+        `${getCalcExportName(prefix)}.pdf`,
+        user?.user_metadata?.name || 'Personel',
+        payrollDate
+      );
+    });
   };
 
   const exportPayrollCSV = () => {

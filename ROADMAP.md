@@ -2,6 +2,17 @@
 
 Bu doküman, Vardiyo projesinin gelecekteki geliştirmeleri, mobil iyileştirmeleri ve vizyon fikirlerini kayıt altında tutmak için "Zihin Haritası" (Mind Map) olarak oluşturulmuştur.
 
+## 🚀 SON EKLENEN ÖZELLİKLER (COMPLETED)
+
+- **[Yevmiye (Günlük) Sistemi Entegrasyonu]**
+  - Standart aylık bordrolu sisteme ek olarak "Yevmiyeci" çalışanlar için tam destek eklendi.
+  - Pazar günleri otomatik tatil, Cumartesi günleri normal gün olarak ayarlandı.
+  - Ödeme periyotlarına (Haftalık, 15 Günlük, Günlük) göre otomatik kazanç kartları, tam ay çalışma projeksiyonu eklendi.
+  - Yevmiye sistemi seçildiğinde kullanılamayacak yasal haklar/hesaplamalar (Kıdem, İşsizlik, vs.) UI üzerinden otomatik devre dışı bırakıldı.
+- **[UX İyileştirmeleri]**
+  - Mesai girme menüsündeki kafa karıştırıcı "Normal Mesai" butonu devre dışı bırakılıp sadece not/hatalı kayıt temizleme amacına yönlendirildi.
+  - Yevmiyeciler için "Özel Yevmiye / Mesai" butonu ile günlük farklı yevmiye girişi hızlıca sağlandı.
+
 ## 1. MOBİL (CAPACITOR) İYİLEŞTİRMELERİ (NATIVE FEEL)
 
 - [ ] **Haptic Feedback (Titreşimli Geri Bildirim):**

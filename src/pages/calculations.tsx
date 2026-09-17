@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PayrollTab from '../components/calculations/PayrollTab';
+import DataVisualizerTab from '../components/calculations/DataVisualizerTab';
 import AnnualLeaveTab from '../components/calculations/AnnualLeaveTab';
 import SeveranceTab from '../components/calculations/SeveranceTab';
 import HourlyTab from '../components/calculations/HourlyTab';
@@ -13,7 +14,7 @@ import Alert from '../components/shared/Alert';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useAppStore } from '../store/useAppStore';
 
-type TabType = 'payroll' | 'annual_leave' | 'tazminat' | 'hourly' | 'tools' | 'unemployment' | 'raise' | 'report' | 'short_work' | 'maternity';
+type TabType = 'payroll' | 'charts' | 'annual_leave' | 'tazminat' | 'hourly' | 'tools' | 'unemployment' | 'raise' | 'report' | 'short_work' | 'maternity';
 
 /** Yevmiye modunda kullanılamayacak sekmeler */
 const YEVMIYE_DISABLED_TABS: TabType[] = ['annual_leave', 'tazminat', 'hourly', 'tools', 'unemployment', 'report', 'short_work', 'maternity'];
@@ -66,6 +67,7 @@ export default function Calculations() {
       <div className="w-full max-w-5xl px-2 mb-6 print:hidden">
         <div className="tabs tabs-boxed bg-[#16191d] p-1 border border-base-300 flex-wrap justify-center sm:justify-start gap-1">
           <a className={getTabClass('payroll')} onClick={() => handleTabClick('payroll')}>Aylık Bordro</a>
+          <a className={getTabClass('charts')} onClick={() => handleTabClick('charts')}>Grafikler</a>
           <a className={getTabClass('annual_leave')} onClick={() => handleTabClick('annual_leave')}>Yıllık İzin</a>
           <a className={getTabClass('tazminat')} onClick={() => handleTabClick('tazminat')}>Tazminat Hesapla</a>
           <a className={getTabClass('hourly')} onClick={() => handleTabClick('hourly')}>Saatlikten Bul</a>
@@ -88,6 +90,7 @@ export default function Calculations() {
 
       <div className="w-full max-w-5xl">
         {activeTab === 'payroll' && <PayrollTab />}
+        {activeTab === 'charts' && <DataVisualizerTab />}
         {activeTab === 'annual_leave' && <AnnualLeaveTab />}
         {activeTab === 'tazminat' && <SeveranceTab />}
         {activeTab === 'hourly' && <HourlyTab />}

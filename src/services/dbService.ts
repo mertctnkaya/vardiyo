@@ -40,6 +40,21 @@ export const fetchMonthWorkLogs = async (userId: string, firstDay: string, lastD
   return logsMap;
 };
 
+export const fetchWorkLogsRange = async (userId: string, firstDay: string, lastDay: string) => {
+  const { data, error } = await supabase
+    .from('work_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('log_date', firstDay)
+    .lte('log_date', lastDay);
+
+  if (error) {
+    console.error("Veri çekme hatası:", error);
+    return [];
+  }
+  return data || [];
+};
+
 export const deleteUserWorkLog = async (userId: string, dateKey: string) => {
   const { error } = await supabase
     .from('work_logs')

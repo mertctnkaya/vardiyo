@@ -5,6 +5,7 @@ import { TURKISH_HOLIDAYS_2026 } from '../../constants/holidays';
 import { saveUserWorkLog, deleteUserWorkLog } from '../../services/dbService';
 import Alert from '../shared/Alert';
 import { useAppStore } from '../../store/useAppStore';
+import { triggerHaptic } from '../../utils/haptics';
 
 export default function DayActionModal({
   isOpen, onClose, selectedDay, existingLog, actualToday, user, onUpdateLog, onDeleteLog
@@ -33,6 +34,7 @@ export default function DayActionModal({
   if (!isOpen) return null;
 
   const handleStatusChange = (status: string) => {
+    triggerHaptic('light');
     setDayStatus(status);
     if (status === 'overtime') setLogHours('3');
     else if (status === 'late') setLogHours('1');
@@ -43,9 +45,11 @@ export default function DayActionModal({
   const handleSaveLog = async () => {
     if (!user || !selectedDay) return;
     if (!dayStatus) {
+      triggerHaptic('error');
       alert("Lütfen kaydetmeden önce bir 'Günlük Durum' seçin.");
       return;
     }
+    triggerHaptic('medium');
     setIsSaving(true);
 
     const dateKey = getLocalDateString(selectedDay.date);
@@ -68,9 +72,11 @@ export default function DayActionModal({
     const { data, error } = await saveUserWorkLog(payload);
 
     if (!error && data) {
+      triggerHaptic('success');
       onUpdateLog(dateKey, data);
       onClose();
     } else {
+      triggerHaptic('error');
       alert("Kaydedilirken hata oluştu: " + error?.message);
     }
     setIsSaving(false);
@@ -78,15 +84,18 @@ export default function DayActionModal({
 
   const handleDeleteLog = async () => {
     if (!user || !selectedDay) return;
+    triggerHaptic('medium');
     setIsSaving(true);
     const dateKey = getLocalDateString(selectedDay.date);
 
     const { error } = await deleteUserWorkLog(user.id, dateKey);
 
     if (!error) {
+      triggerHaptic('success');
       onDeleteLog(dateKey);
       onClose();
     } else {
+      triggerHaptic('error');
       alert("Silinirken hata oluştu: " + error.message);
     }
     setIsSaving(false);
