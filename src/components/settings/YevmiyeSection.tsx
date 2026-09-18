@@ -2,7 +2,7 @@ import Alert from '../shared/Alert';
 import type { YevmiyeSectionProps } from '../../types';
 
 export default function YevmiyeSection({
-  dailyYevmiye, setDailyYevmiye, yevmiyeBaseHours, setYevmiyeBaseHours, paymentFrequency, setPaymentFrequency, paymentDayOfWeek, setPaymentDayOfWeek
+  dailyYevmiye, setDailyYevmiye, paymentFrequency, setPaymentFrequency, paymentDayOfWeek, setPaymentDayOfWeek
 }: YevmiyeSectionProps) {
   return (
     <div className="animate-fade-in">

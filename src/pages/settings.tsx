@@ -253,7 +253,6 @@ export default function Settings() {
           {workType === 'yevmiye' ? (
             <YevmiyeSection
               dailyYevmiye={dailyYevmiye} setDailyYevmiye={setDailyYevmiye}
-              yevmiyeBaseHours={yevmiyeBaseHours} setYevmiyeBaseHours={setYevmiyeBaseHours}
               paymentFrequency={paymentFrequency} setPaymentFrequency={setPaymentFrequency}
               paymentDayOfWeek={paymentDayOfWeek} setPaymentDayOfWeek={setPaymentDayOfWeek}
             />

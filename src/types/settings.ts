@@ -28,8 +28,6 @@ export interface PayrollSectionProps {
 export interface YevmiyeSectionProps {
   dailyYevmiye: string;
   setDailyYevmiye: (val: string) => void;
-  yevmiyeBaseHours: string;
-  setYevmiyeBaseHours: (val: string) => void;
   paymentFrequency: string;
   setPaymentFrequency: (val: string) => void;
   paymentDayOfWeek: string;
