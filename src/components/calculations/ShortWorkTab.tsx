@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useAppStore } from '../../store/useAppStore';
 
 export default function ShortWorkTab() {
-  const { settings } = useAppStore();
   const [grossSalary, setGrossSalary] = useState<string>('');
   const [workType, setWorkType] = useState<'kisa' | 'yarim'>('kisa');
 

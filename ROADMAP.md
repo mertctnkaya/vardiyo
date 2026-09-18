@@ -48,9 +48,10 @@ Kullanıcının ilk kurulumunu saniyelere indiren ve viral yayılmayı tetikleye
   - Mavi yakaya özel soru-cevap sihirbazı (kullandığı makineler, SRC, Forklift, Kaynakçı sertifikaları, vardiya tecrübesi).
   - Sıfır İŞKUR riskiyle doğrudan kullanıcının cihazında antetli, koyu/profesyonel 1 sayfalık PDF CV üretimi.
   - İşçinin WhatsApp'tan fabrikaya gönderebileceği veya elden teslim edebileceği temiz çıktı.
-- [ ] **WhatsApp Vardiya Paylaşım Kartı (Viral Büyüme Motoru):**
-  - Takvimden tek tıkla "Haftalık Vardiya Çizelgem" görseli üretme.
-  - İşçinin arkadaşlarına, ailesine veya WhatsApp grubuna atabileceği şık, altında _"Vardiyo ile planlandı"_ imzalı paylaşım kartı.
+- [x] **WhatsApp Vardiya Paylaşım Kartı (Viral Büyüme Motoru):**
+  - Takvimden tek tıkla "Haftalık Vardiya Çizelgem" görseli üretme (html-to-image altyapısıyla hatasız render).
+  - İşçinin arkadaşlarına, ailesine veya WhatsApp grubuna atabileceği şık, altında _"Vardiyo ile planlandı"_ imzalı HD paylaşım kartı.
+  - Akıllı "Sonraki Vardiya" dedektörü ile önümüzdeki 7 gün içerisindeki ilk çalışma gününün tarihini ve vardiyasını otomatik hesaplama.
 
 ---
 

@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useAppStore } from '../../store/useAppStore';
 
 export default function UnemploymentTab() {
-  const { settings } = useAppStore();
   const [salary, setSalary] = useState<string>('');
   const [salaryType, setSalaryType] = useState<'net' | 'gross'>('net');
   const [premiumDays, setPremiumDays] = useState<string>('600');

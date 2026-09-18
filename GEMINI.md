@@ -236,8 +236,12 @@ Phase 6: Viral Growth & User Retention
 [x] Paywall Strategic Shift: Free essential calculators (unemployment, maternity, report, short work) and shifted paywall constraint to bulk clear actions.
 [x] Collapsible Technical FAQ: Rebuilt FAQ with 16 technical items explaining complex system mechanics with themed color categories.
 [ ] Smart Worker CV Generator: Build a blue-collar specific CV wizard creating professional, dark-themed PDF resumes.
-[ ] WhatsApp Shift Share Card: Build a viral 'Haftalık Vardiya Çizelgem' shareable card generator for organic growth.
+[x] WhatsApp Shift Share Card: Build a viral 'Haftalık Vardiya Çizelgem' shareable card generator for organic growth.
 
 ### 9. INSTRUCTIONS FOR THE CODE AGENT
 
-When instructed to add or modify a feature, review Section 4 (Shared Components) and Section 3 (Color Tokens) first.Never replace an existing Tailwind palette class with raw arbitrary hex codes unless modifying root configuration.Every file created or edited must be clean, typed, modular, and directly executable without manual placeholder replacement.
+1. When instructed to add or modify a feature, review Section 4 (Shared Components) and Section 3 (Color Tokens) first.
+2. Never replace an existing Tailwind palette class with raw arbitrary hex codes unless modifying root configuration.
+3. Every file created or edited must be clean, typed, modular, and directly executable without manual placeholder replacement.
+4. **CRITICAL SYSTEM RULE:** DO NOT use terminal scripts (like PowerShell `Get-Content`, `Set-Content`, `regex`, `fd`, or bash `grep/sed/cat`) to read, edit, or search files. You MUST EXCLUSIVELY use your built-in tools: `view_file` (to read), `replace_file_content` (to edit), `write_to_file` (to create), `find_by_name` (to find), and `grep_search` (to search contents). Never attempt to use terminal scripts for file operations.
+5. **CONTINUOUS DOCUMENTATION RULE:** After any feature completion, plan change, or new technical decision, you MUST explicitly update `GEMINI.md`, `ROADMAP.md`, and `README.md` (and any related doc files like FAQ) to reflect the latest state. Never leave the documentation lagging behind the codebase. Add newly discovered rules, user preferences, or system mechanics to `GEMINI.md` immediately.

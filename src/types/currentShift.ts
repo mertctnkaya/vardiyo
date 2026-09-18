@@ -6,6 +6,7 @@ export interface DateSelectorCardProps {
   onDateChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onShiftDate: (days: number) => void;
   onSetToday: () => void;
+  onShareClick?: () => void;
 }
 
 export interface GuestPromoCardProps {

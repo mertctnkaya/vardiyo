@@ -17,6 +17,7 @@ import ReminderModal from '../components/current-shift/ReminderModal';
 import GuestPromoCard from '../components/current-shift/GuestPromoCard';
 
 import { usePageTitle } from '../hooks/usePageTitle';
+import ShareCardModal from '../components/shared/ShareCardModal';
 
 import type { ShiftContextType } from '../types';
 export default function CurrentShift() {
@@ -30,6 +31,7 @@ export default function CurrentShift() {
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showNotificationPromo, setShowNotificationPromo] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const [isCalendarPaused, setIsCalendarPaused] = useState(false);
   const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
@@ -150,13 +152,16 @@ export default function CurrentShift() {
 
   return (
     <div className="grid md:grid-cols-2 gap-8 animate-fade-in w-full pb-10">
-      <DateSelectorCard
-        targetDate={targetDate}
-        formattedDateValue={formattedDateValue}
-        onDateChange={handleDateChange}
-        onShiftDate={shiftDate}
-        onSetToday={() => setTargetDate(new Date())}
-      />
+      <div className="flex flex-col gap-4">
+        <DateSelectorCard
+          targetDate={targetDate}
+          formattedDateValue={formattedDateValue}
+          onDateChange={handleDateChange}
+          onShiftDate={shiftDate}
+          onSetToday={() => setTargetDate(new Date())}
+          onShareClick={() => setShowShareModal(true)}
+        />
+      </div>
 
       <ShiftDisplayCard
         currentShift={currentShift}
@@ -192,6 +197,12 @@ export default function CurrentShift() {
       />
 
       <GuestPromoCard user={user} />
+
+      <ShareCardModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        targetDate={targetDate}
+      />
     </div>
   );
 }

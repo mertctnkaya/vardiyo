@@ -62,6 +62,12 @@ Uygulamanın kalbi burası. Sadece kabataslak "Aylık kazancın şu kadar" deyip
 - Son 6 ayda ne kadar fazla mesai yaptınız? Geliriniz aylara göre nasıl değişti? Hangi ay kaç gün devamsızlık veya rapor göründü?
 - İnteraktif grafiklerle gelir ve çalışma trendinizi görsel olarak takip edin.
 
+### 📱 8. WhatsApp Vardiya Paylaşım Kartı (Haftalık Çizelge)
+
+- Vardiyalı çalışanların "Bu hafta hangi vardiyadasın?", "Hafta sonu boş musun?" gibi sorulara tek bir fotoğrafla cevap verebilmesi için tasarlandı.
+- Uygulama içinden tek tıkla **"Haftalık Vardiya Çizelgem"** görseli (HD çözünürlükte) oluşturulur.
+- Kartın üzerinde bulunduğunuz 7 günlük periyottaki vardiyalarınız ve **"Sonraki Vardiya"** akıllı hesaplayıcısı yer alır. İşçinin arkadaşlarına, ailesine veya çalışma grubuna doğrudan WhatsApp'tan gönderebileceği şık bir özelliktir.
+
 ---
 
 ## 🔒 Güvenlik & Teknoloji Mimarisi
@@ -81,7 +87,6 @@ Vardiyo basit bir web sayfası değil; modern bir hibrit mobil/web platformudur:
 - [ ] **Yapay Zeka Destekli Vardiyo Hukuk & Vardiya Asistanı (AI Chatbot):** İş Kanunu ve kullanıcının takvim verilerini bilerek soruları cevaplayan akıllı danışman.
 - [ ] **İşyeri & Sektör Şablonları (Presets):** MESS Metal Sanayi, Özel Güvenlik (12/36), Sağlık Nöbeti (24/48) için tek tıkla ayar doldurma.
 - [ ] **Mavi Yaka Akıllı CV Oluşturucu:** Soru-cevap mantığıyla 2 dakikada telefondan indirilebilir tek sayfalık şık PDF CV üretimi.
-- [ ] **WhatsApp Vardiya Paylaşım Kartı:** Haftalık vardiya çizelgesini tek tıkla arkadaş grubuna görsel olarak atabilme.
 
 ---
 

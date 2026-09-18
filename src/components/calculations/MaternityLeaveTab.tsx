@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { useAppStore } from '../../store/useAppStore';
 
 export default function MaternityLeaveTab() {
-  const { settings } = useAppStore();
-
   const [grossSalary, setGrossSalary] = useState<string>('');
   const [birthDate, setBirthDate] = useState<string>('');
 
