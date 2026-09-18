@@ -72,7 +72,7 @@ const executeSyncItem = async (item: SyncQueueItem): Promise<boolean> => {
         return !error;
       }
 
-      case 'SAVE_ANNUAL_LEAVE_BATCH': {
+      case 'SAVE_WORK_LOG_BATCH': {
         const { error } = await supabase
           .from('work_logs')
           .upsert(item.payload.dates, { onConflict: 'user_id,log_date' });

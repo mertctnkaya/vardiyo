@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { useShiftCalculator } from './useShiftCalculator';
 
 export function useCalendarLogic() {
   const { settings } = useAppStore();
@@ -14,45 +15,19 @@ export function useCalendarLogic() {
       : new Date('2026-06-09T00:00:00');
   }, [settings]);
 
-  const epochDate = useMemo(() => {
-    return settings?.shift_epoch_date
-      ? new Date(settings.shift_epoch_date + 'T00:00:00')
-      : new Date('2026-07-06T00:00:00');
-  }, [settings]);
-
-  const workType = settings?.work_type || '3-shift';
-  const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
+  const { getShiftForDate: getShiftEngineDate } = useShiftCalculator();
 
   const handlePrevMonth = () => setBaseDate(new Date(currentYear, currentMonth - 1, 1));
   const handleNextMonth = () => setBaseDate(new Date(currentYear, currentMonth + 1, 1));
   const handleGoToToday = () => setBaseDate(new Date());
 
-  const getShiftForDate = (date: Date) => {
-    const dayOfWeek = date.getDay();
-    const isSunday = dayOfWeek === 0;
-    const isSaturday = dayOfWeek === 6;
-
-    const isOffDay = workType === 'fixed'
-      ? (isSunday || (!settings?.is_saturday_workday && isSaturday))
-      : isSunday;
-
-    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const monday = new Date(date);
-    monday.setDate(date.getDate() + diffToMonday);
-    monday.setHours(0, 0, 0, 0);
-
-    const diffMs = monday.getTime() - epochDate.getTime();
-    const deltaWeeks = Math.floor(diffMs / MS_PER_WEEK);
-
-    let shiftIndex = 0;
-    if (workType === '3-shift') shiftIndex = ((deltaWeeks % 3) + 3) % 3;
-    else if (workType === '2-shift') shiftIndex = ((deltaWeeks % 2) + 2) % 2;
-
+  const getShiftForDate = (date: Date, workLogsMap?: Record<string, any>) => {
+    const shift = getShiftEngineDate(date, workLogsMap);
     return {
-      id: shiftIndex,
-      name: isOffDay ? 'Tatil' : (workType === 'fixed' ? 'Sabit Gündüz' : (shiftIndex === 0 ? 'Gündüz' : shiftIndex === 1 ? 'Gece' : 'Akşam')),
-      isNight: shiftIndex === 1 && workType !== 'fixed',
-      isOffDay: isOffDay
+      id: shift.id,
+      name: shift.name === 'Hafta Tatili' ? 'Tatil' : shift.name,
+      isNight: shift.isNight,
+      isOffDay: shift.isOffDay
     };
   };
 

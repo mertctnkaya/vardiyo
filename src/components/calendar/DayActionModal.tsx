@@ -24,7 +24,8 @@ export default function DayActionModal({
   useEffect(() => {
     if (isOpen && selectedDay) {
       setDayStatus(existingLog?.status || '');
-      setNoteText(existingLog?.note || '');
+      const initialNote = existingLog?.note || '';
+      setNoteText(['SYSTEM_AUTO_OFF', 'SYSTEM_AUTO_NORMAL'].includes(initialNote) ? '' : initialNote);
       setLogHours(existingLog?.hours ? existingLog.hours.toString() : '');
       setCustomYevmiye(existingLog?.custom_yevmiye != null ? existingLog.custom_yevmiye.toString() : '');
       setWorkedHours(existingLog?.worked_hours != null ? existingLog.worked_hours.toString() : '');
@@ -58,7 +59,8 @@ export default function DayActionModal({
       log_date: dateKey,
       status: dayStatus,
       note: noteText,
-      hours: Number(logHours) || 0
+      hours: Number(logHours) || 0,
+      frozen_shift_name: selectedDay.shiftName
     };
 
     if (isYevmiye) {
@@ -145,22 +147,18 @@ export default function DayActionModal({
           <label className="label pb-2"><span className="label-text font-bold text-base-content/80">Günlük Durum</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-base-100 p-4 rounded-xl border border-base-300 w-full">
 
-            {/* Yevmiye için Özel Seçenek */}
-            {isYevmiye && (
-              <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${isFutureDay ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-base-200'}`}>
-                <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#818cf8' }} disabled={isFutureDay ?? false} checked={dayStatus === 'normal'} onChange={() => handleStatusChange('normal')} />
-                <span className="label-text font-bold text-indigo-400">Özel Yevmiye / Mesai</span>
+            {isYevmiye ? (
+              <label className={`label justify-start gap-3 p-2 rounded-lg transition-colors md:col-span-2 ${(isFutureDay ?? false) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-base-200'}`}>
+                <input type="radio" name="status" className="radio radio-md" style={{ accentColor: '#4ade80' }} disabled={isFutureDay ?? false} checked={dayStatus === 'normal'} onChange={() => handleStatusChange('normal')} />
+                <span className="label-text font-bold text-emerald-400 text-lg">Bugün Çalıştım</span>
               </label>
-            )}
-
-            {/* Eski Normal Mesai - Artık Kullanım Dışı (Temizlemek için Kaydı Temizle butonu kullanılıyor) */}
-            <label className="label justify-start gap-3 p-1 rounded-lg transition-colors opacity-50 cursor-not-allowed grayscale" title="Normal günlere kayıt girmeye gerek yoktur. Hatalı kaydı silmek için 'Kaydı Temizle' butonunu kullanın.">
-              <input type="radio" name="status" className="radio radio-sm" disabled={true} checked={!isYevmiye && dayStatus === 'normal'} readOnly />
-              <span className="label-text font-medium text-base-content/90 line-through">Normal Mesai</span>
-            </label>
-
-            {!isYevmiye && (
+            ) : (
               <>
+                <label className="label justify-start gap-3 p-1 rounded-lg transition-colors opacity-50 cursor-not-allowed grayscale" title="Normal günlere kayıt girmeye gerek yoktur. Hatalı kaydı silmek için 'Kaydı Temizle' butonunu kullanın.">
+                  <input type="radio" name="status" className="radio radio-sm" disabled={true} checked={dayStatus === 'normal'} readOnly />
+                  <span className="label-text font-medium text-base-content/90 line-through">Normal Mesai</span>
+                </label>
+
                 <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${isSelectedHoliday ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
                   <input type="radio" name="status" className="radio radio-sm" disabled={isSelectedHoliday} checked={dayStatus === 'leave'} onChange={() => handleStatusChange('leave')} />
                   <span className="label-text text-purple-400 font-bold">Ücretli İzinli/Raporlu</span>
@@ -170,37 +168,33 @@ export default function DayActionModal({
                   <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#ec4899' }} disabled={isSelectedHoliday} checked={dayStatus === 'annual_leave'} onChange={() => handleStatusChange('annual_leave')} />
                   <span className="label-text text-pink-400 font-bold">Yıllık İzin</span>
                 </label>
-              </>
-            )}
 
-            <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${!isSelectedHoliday ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
-              <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#fde047' }} disabled={!isSelectedHoliday} checked={dayStatus === 'holiday_work'} onChange={() => handleStatusChange('holiday_work')} />
-              <span className="label-text text-yellow-300 font-bold">Resmi Tatil Mesaisi</span>
-            </label>
+                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${!isSelectedHoliday ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
+                  <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#fde047' }} disabled={!isSelectedHoliday} checked={dayStatus === 'holiday_work'} onChange={() => handleStatusChange('holiday_work')} />
+                  <span className="label-text text-yellow-300 font-bold">Resmi Tatil Mesaisi</span>
+                </label>
 
-            {!isYevmiye && (
-              <>
                 <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay || isSelectedHoliday) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
                   <input type="radio" name="status" className="radio radio-sm" disabled={(isFutureDay ?? false) || isSelectedHoliday} checked={dayStatus === 'absent'} onChange={() => handleStatusChange('absent')} />
                   <span className="label-text text-error font-bold">Devamsız / Ücretsiz</span>
                 </label>
 
-                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${isFutureDay ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-base-200'}`}>
+                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay ?? false) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-base-200'}`}>
                   <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#10b981' }} disabled={isFutureDay ?? false} checked={dayStatus === 'overtime'} onChange={() => handleStatusChange('overtime')} />
                   <span className="label-text text-emerald-500 font-bold">Fazla Mesai (+Ekstra)</span>
                 </label>
+
+                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay || isSelectedHoliday) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
+                  <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#f97316' }} disabled={(isFutureDay ?? false) || isSelectedHoliday} checked={dayStatus === 'late'} onChange={() => handleStatusChange('late')} />
+                  <span className="label-text text-orange-500 font-bold">Geç Kaldım (Kesinti)</span>
+                </label>
+
+                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay || isSelectedHoliday) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
+                  <input type="radio" name="status" className="radio radio-sm" disabled={(isFutureDay ?? false) || isSelectedHoliday} checked={dayStatus === 'partial_leave'} onChange={() => handleStatusChange('partial_leave')} />
+                  <span className="label-text text-sky-400 font-bold">Saatlik İzin / Erken Çıkma</span>
+                </label>
               </>
             )}
-
-            <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay || isSelectedHoliday) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
-              <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#f97316' }} disabled={(isFutureDay ?? false) || isSelectedHoliday} checked={dayStatus === 'late'} onChange={() => handleStatusChange('late')} />
-              <span className="label-text text-orange-500 font-bold">Geç Kaldım (Kesinti)</span>
-            </label>
-
-            <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay || isSelectedHoliday) ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer hover:bg-base-200'}`}>
-              <input type="radio" name="status" className="radio radio-sm" disabled={(isFutureDay ?? false) || isSelectedHoliday} checked={dayStatus === 'partial_leave'} onChange={() => handleStatusChange('partial_leave')} />
-              <span className="label-text text-sky-400 font-bold">Saatlik İzin / Erken Çıkma</span>
-            </label>
           </div>
         </div>
 
@@ -220,30 +214,21 @@ export default function DayActionModal({
           </div>
         )}
 
-        {isYevmiye && dayStatus && ['normal', 'late', 'partial_leave', 'holiday_work'].includes(dayStatus) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 animate-fade-in">
+        {isYevmiye && dayStatus === 'normal' && (
+          <div className="grid grid-cols-1 gap-4 mb-4 animate-fade-in">
             <div className="form-control w-full bg-base-100 p-3 rounded-lg border border-base-300">
               <label className="label pb-1">
-                <span className="label-text font-bold text-base-content/90">Bu Günün Yevmiyesi (₺)</span>
+                <span className="label-text font-bold text-base-content/90">Özel Yevmiye Tutarı (₺)</span>
               </label>
               <label className="input input-bordered flex items-center gap-2 bg-base-200 focus-within:ring-2 focus-within:ring-primary">
                 <span className="text-indigo-400 font-bold">₺</span>
                 <input type="number" step="0.01" min="0" className="grow" placeholder={settings?.daily_yevmiye?.toString() || '0'} value={customYevmiye} onChange={(e) => setCustomYevmiye(e.target.value)} />
               </label>
-              <label className="label p-1"><span className="label-text-alt text-base-content/50">Farklıysa değiştirin.</span></label>
-            </div>
-
-            <div className="form-control w-full bg-base-100 p-3 rounded-lg border border-base-300">
-              <label className="label pb-1">
-                <span className="label-text font-bold text-base-content/90">
-                  Çalışılan Saat {(dayStatus === 'late' || dayStatus === 'partial_leave') && <span className="text-error">*</span>}
+              <div className="p-1 mt-1">
+                <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
+                  Ayarlardaki tutardan farklıysa (örn. yarım yevmiye, mesaili gün) girin. Yoksa boş bırakın.
                 </span>
-              </label>
-              <label className="input input-bordered flex items-center gap-2 bg-base-200 focus-within:ring-2 focus-within:ring-primary">
-                <input type="number" step="0.5" min="0" className="grow" placeholder={settings?.yevmiye_base_hours?.toString() || '12'} value={workedHours} onChange={(e) => setWorkedHours(e.target.value)} />
-                <span className="text-base-content/50 font-bold">Saat</span>
-              </label>
-              <label className="label p-1"><span className="label-text-alt text-base-content/50">Kesinti hesabı için.</span></label>
+              </div>
             </div>
           </div>
         )}

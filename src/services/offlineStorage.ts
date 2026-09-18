@@ -3,7 +3,7 @@ import type { UserSettings, WorkLog, Reminder } from '../types';
 export type SyncActionType = 
   | 'SAVE_WORK_LOG' 
   | 'DELETE_WORK_LOG' 
-  | 'SAVE_ANNUAL_LEAVE_BATCH' 
+  | 'SAVE_WORK_LOG_BATCH'  
   | 'CLEAR_MONTH_LOGS' 
   | 'UPDATE_SETTINGS'
   | 'ADD_REMINDER'
@@ -133,5 +133,11 @@ export const removeFromSyncQueue = (userId: string, id: string): void => {
 export const getSyncQueueCount = (userId?: string): number => {
   if (!userId) return 0;
   return getSyncQueue(userId).length;
+};
+
+export const clearSyncQueue = (userId: string): void => {
+  const key = `${STORAGE_PREFIX}sync_queue_${userId}`;
+  safeSet(key, []);
+  window.dispatchEvent(new CustomEvent('vardiyo-sync-queue-updated', { detail: { count: 0 } }));
 };
 

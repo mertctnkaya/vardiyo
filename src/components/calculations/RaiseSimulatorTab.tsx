@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import Alert from '../shared/Alert';
-import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function RaiseSimulatorTab() {
   const { settings } = useAppStore();
@@ -11,22 +8,16 @@ export default function RaiseSimulatorTab() {
   const [raiseValue, setRaiseValue] = useState<string>('');
 
   const [result, setResult] = useState<any>(null);
-  const [showPaywall, setShowPaywall] = useState(false);
 
-  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    if (!hasAccess) {
-      setShowPaywall(true);
-      return;
-    }
+
 
     if (!currentSalary || isNaN(Number(currentSalary)) || !raiseValue || isNaN(Number(raiseValue))) return;
 
     const base = Number(currentSalary);
     const value = Number(raiseValue);
-    
+
     let newSalary = 0;
     let raiseAmount = 0;
 
@@ -50,19 +41,15 @@ export default function RaiseSimulatorTab() {
 
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
-      
-      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
-        <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
-          Gelişmiş Zam Simülatörü sadece Premium üyelere açıktır.
-        </Alert>
-      )}
+
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-[#1e2329] p-4 sm:p-6 rounded-2xl border border-base-300 shadow-xl flex flex-col justify-between">
           <div>
             <h3 className="text-xl font-bold text-base-content mb-2">Zam Simülatörü</h3>
             <p className="text-sm text-base-content/60 mb-6">Maaşınıza yapılacak zammın cebinize nasıl yansıyacağını anında görün.</p>
-            
+
             <div className="space-y-6">
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Mevcut Maaşınız (TL)</span></label>
@@ -89,7 +76,7 @@ export default function RaiseSimulatorTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Zammı Hesapla
-            {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-2 text-xs bg-indigo-900/40 px-2 py-1 rounded text-indigo-200">PRO</span>}
+
           </button>
         </div>
 
@@ -120,8 +107,9 @@ export default function RaiseSimulatorTab() {
           )}
         </div>
       </div>
-
-      <PremiumPaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} featureName="Gelişmiş Zam Simülatörü" />
     </div>
   );
 }
+
+
+

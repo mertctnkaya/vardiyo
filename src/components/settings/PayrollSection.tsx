@@ -36,16 +36,26 @@ export default function PayrollSection({
         </div>
 
         <div className="form-control w-full">
-          <label className="label"><span className="label-text font-bold text-base-content/80">Normal Çalışma (Saat/Gün)</span></label>
+          <label className="label pb-1"><span className="label-text font-bold text-base-content/80">Normal Çalışma (Saat/Gün)</span></label>
           <input type="number" step="0.5" className="input input-bordered w-full bg-base-200" value={baseWorkHours} onChange={(e) => setBaseWorkHours(e.target.value)} />
+          <div className="p-1 mt-1">
+            <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
+              Günlük yasal çalışma süreniz (Örn: 7.5 veya 8 saat). Saatlik ücretiniz hesaplanırken aylık maaşınız buna göre bölünür.
+            </span>
+          </div>
         </div>
 
         <div className="form-control w-full">
-          <label className="label"><span className="label-text font-bold text-base-content/80">Gece Zammı Oranı (%)</span></label>
+          <label className="label pb-1"><span className="label-text font-bold text-base-content/80">Gece Zammı Oranı (%)</span></label>
           <label className="input input-bordered flex items-center gap-2 bg-base-200">
             <span className="text-base-content/50">%</span>
             <input type="number" className="grow" value={nightBonus} onChange={(e) => setNightBonus(e.target.value)} />
           </label>
+          <div className="p-1 mt-1">
+            <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
+              Sadece gece vardiyalarına (20:00 - 06:00 arası) işveren tarafından ödenen ekstra ücretin yüzdesi (Varsa 10, 20 gibi girin).
+            </span>
+          </div>
         </div>
 
       </div>

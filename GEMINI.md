@@ -232,6 +232,12 @@ Phase 5: Mobile Native Hardening & Offline-First Protocol
 [x] Offline Storage & FIFO Sync Queue: Implemented user-isolated cache and automatic sync engine (offlineStorage.ts & syncService.ts).
 [x] Live Sync Status Badge: Implemented dynamic Navbar indicator showing offline warnings, queue counts, and sync states.
 
+Phase 6: Viral Growth & User Retention
+[x] Paywall Strategic Shift: Free essential calculators (unemployment, maternity, report, short work) and shifted paywall constraint to bulk clear actions.
+[x] Collapsible Technical FAQ: Rebuilt FAQ with 16 technical items explaining complex system mechanics with themed color categories.
+[ ] Smart Worker CV Generator: Build a blue-collar specific CV wizard creating professional, dark-themed PDF resumes.
+[ ] WhatsApp Shift Share Card: Build a viral 'Haftalık Vardiya Çizelgem' shareable card generator for organic growth.
+
 ### 9. INSTRUCTIONS FOR THE CODE AGENT
 
 When instructed to add or modify a feature, review Section 4 (Shared Components) and Section 3 (Color Tokens) first.Never replace an existing Tailwind palette class with raw arbitrary hex codes unless modifying root configuration.Every file created or edited must be clean, typed, modular, and directly executable without manual placeholder replacement.

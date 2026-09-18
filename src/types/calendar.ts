@@ -1,4 +1,4 @@
-export type DayStatus = 'normal' | 'overtime' | 'leave' | 'annual_leave' | 'holiday_work' | 'absent' | 'late' | 'partial_leave';
+export type DayStatus = 'normal' | 'overtime' | 'leave' | 'annual_leave' | 'holiday_work' | 'absent' | 'late' | 'partial_leave' | 'off_day' | 'unlogged_normal';
 
 export interface WorkLog {
   log_date?: string;
@@ -7,6 +7,7 @@ export interface WorkLog {
   note?: string;
   custom_yevmiye?: number | null;
   worked_hours?: number | null;
+  frozen_shift_name?: string;
 }
 
 export interface DayDetail {
@@ -38,7 +39,7 @@ export interface CalendarHeaderProps {
 
 export interface CalendarGridProps {
   calendarDays: any[];
-  getShiftForDate: (date: Date) => any;
+  getShiftForDate: (date: Date, workLogsMap?: Record<string, any>) => any;
   actualToday: Date;
   employmentStartDate: Date;
   workLogs: Record<string, any>;

@@ -8,6 +8,9 @@ export default function CalendarHeader({ baseDate, onPrev, onNext, onToday }: Ca
   if (settings?.work_type === '2-shift') workTypeLabel = '2 Vardiya';
   else if (settings?.work_type === 'fixed') workTypeLabel = 'Sabit Vardiya';
   else if (settings?.work_type === 'yevmiye') workTypeLabel = 'Yevmiye (Günlük)';
+  else if (settings?.work_type === '4-shift-222') workTypeLabel = '4\'lü Vardiya (2+2+2)';
+  else if (settings?.work_type === '12-36') workTypeLabel = '12/36 Sistemi';
+  else if (settings?.work_type === '24-48') workTypeLabel = '24/48 Sistemi';
 
   return (
     <div className="w-full max-w-4xl flex flex-col sm:flex-row justify-between items-center mb-6 px-2 gap-4">

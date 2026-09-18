@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { useCalendarLogic } from '../hooks/useCalendarLogic';
 import { getLocalDateString } from '../utils/dateUtils';
-import { fetchMonthWorkLogs, updateUserSettings, saveAnnualLeaveBatch, clearMonthWorkLogs, fetchUserSettings } from '../services/dbService';
+import { fetchMonthWorkLogs, updateUserSettings, saveWorkLogBatch, clearMonthWorkLogs, fetchUserSettings, toggleMonthFreeze, deleteUserWorkLog } from '../services/dbService';
 import { downloadDataAsJSON, downloadCalendarAsCSV, generateFileName } from '../utils/exportUtils';
 import ExportPanel from '../components/shared/ExportPanel';
+import PremiumPaywallModal from '../components/shared/PremiumPaywallModal';
+import { IS_PAYWALL_ACTIVE } from '../config/features';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 import CalendarHeader from '../components/calendar/CalendarHeader';
@@ -20,7 +22,7 @@ import { TURKISH_HOLIDAYS_2026 } from '../constants/holidays';
 export default function WorktimeCalendar() {
   usePageTitle('Mesai Takvimim');
 
-  const { user, settings } = useAppStore();
+  const { user, settings, setSettings } = useAppStore();
 
   const {
     baseDate,
@@ -43,6 +45,10 @@ export default function WorktimeCalendar() {
 
   const [isCalendarPaused, setIsCalendarPaused] = useState(false);
   const [pausedDates, setPausedDates] = useState<{ start: string; end: string | null } | null>(null);
+
+  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
+  const hasAccessToFreeze = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const actualToday = useMemo(() => {
     const d = new Date();
@@ -133,11 +139,11 @@ export default function WorktimeCalendar() {
 
       const dateKey = getLocalDateString(item.date);
       const log = workLogs[dateKey];
-      const shift = getShiftForDate(item.date);
+      const shift = getShiftForDate(item.date, workLogs);
       const isPast = item.date < actualToday;
       const isToday = item.date.toDateString() === actualToday.toDateString();
 
-      if (log) {
+      if (log && log.status !== 'unlogged_normal' && log.status !== 'off_day' && log.note !== 'SYSTEM_AUTO_OFF' && log.note !== 'SYSTEM_AUTO_NORMAL') {
         if (log.status === 'normal') normal++;
         if (log.status === 'overtime') { normal++; overtimeHours += (Number(log.hours) || 0); }
         if (log.status === 'late' || log.status === 'partial_leave') { normal++; lateHours += (Number(log.hours) || 0); }
@@ -146,8 +152,11 @@ export default function WorktimeCalendar() {
         if (log.status === 'annual_leave') annualLeave++;
         if (log.status === 'holiday_work') holidayWork++;
       } else if (isPast || isToday) {
-        if (!shift.isOffDay) normal++;
-        else weekendPaid++;
+        if (shift.isOffDay) {
+          weekendPaid++;
+        } else if (shift.id !== -2) {
+          normal++;
+        }
       }
 
       if (log && log.status === 'absent') {
@@ -265,18 +274,119 @@ export default function WorktimeCalendar() {
       return;
     }
 
-    const { error } = await saveAnnualLeaveBatch(user.id, datesToInsert);
+    const { error } = await saveWorkLogBatch(user.id, datesToInsert);
 
     if (!error) {
       alert(`${datesToInsert.length} günlük Yıllık İzin takvime başarıyla işlendi.`);
       fetchLogs();
     } else {
-      alert('Yıllık izin kaydedilirken hata oluştu: ' + error?.message);
+      alert('Hata oluştu: ' + error?.message);
+    }
+  };
+
+  const currentMonthKey = `${baseDate.getFullYear()}-${String(baseDate.getMonth() + 1).padStart(2, '0')}`;
+  const isMonthFrozen = settings?.frozen_months?.includes(currentMonthKey) || false;
+
+  const handleToggleMonthFreeze = async () => {
+    if (!user) return;
+    if (!hasAccessToFreeze) {
+      setShowPaywall(true);
+      return;
+    }
+    const newFrozenStatus = !isMonthFrozen;
+
+    if (newFrozenStatus) {
+      if (!window.confirm('Bu ayı kesinleştirmek/kapatmak üzeresiniz. Bu işlem geçmiş günleri kilitler ve vardiya sistemini değiştirseniz bile bu ayın maaşı/vardiyaları etkilenmez. Onaylıyor musunuz?')) return;
+
+      const datesToInsert: any[] = [];
+      calendarDays.forEach(item => {
+        if (!item.isCurrentMonth || item.date < employmentStartDate) return;
+
+        const dateStr = getLocalDateString(item.date);
+        const shift = getShiftForDate(item.date); // calculate dynamically for this snapshot
+
+        const basePayload = {
+          user_id: user.id,
+          log_date: dateStr,
+          frozen_shift_name: shift.name
+        };
+
+        if (workLogs[dateStr]) {
+          datesToInsert.push({
+            ...basePayload,
+            status: workLogs[dateStr].status,
+            note: workLogs[dateStr].note || null,
+            hours: workLogs[dateStr].hours || 0,
+            custom_yevmiye: workLogs[dateStr].custom_yevmiye || null,
+            worked_hours: workLogs[dateStr].worked_hours || null
+          });
+        } else {
+          datesToInsert.push({
+            ...basePayload,
+            status: 'normal',
+            note: shift.isOffDay ? 'SYSTEM_AUTO_OFF' : 'SYSTEM_AUTO_NORMAL',
+            hours: 0,
+            custom_yevmiye: null,
+            worked_hours: null
+          });
+        }
+      });
+
+      if (datesToInsert.length > 0) {
+        await saveWorkLogBatch(user.id, datesToInsert);
+      }
+    } else {
+      if (!window.confirm('Kilitli ayı açmak üzeresiniz. Otomatik dondurulan boş günler silinecek ve tüm geçmiş günlerin vardiyaları güncel ayarlarınıza göre hesaplanacaktır. Onaylıyor musunuz?')) return;
+
+      // Kilidi açarken otomatik oluşturulmuş kayıtları sil
+      const logsToDelete = Object.values(workLogs).filter((log: any) =>
+        log.log_date?.startsWith(currentMonthKey) &&
+        (log.status === 'off_day' || log.status === 'unlogged_normal' || log.note === 'SYSTEM_AUTO_OFF' || log.note === 'SYSTEM_AUTO_NORMAL')
+      );
+
+      const logsToUpdate = Object.values(workLogs).filter((log: any) =>
+        log.log_date?.startsWith(currentMonthKey) &&
+        !(log.status === 'off_day' || log.status === 'unlogged_normal' || log.note === 'SYSTEM_AUTO_OFF' || log.note === 'SYSTEM_AUTO_NORMAL') &&
+        log.frozen_shift_name
+      );
+
+      // Temizleme işlemini offline cache dahil yap
+      for (const log of logsToDelete) {
+        if (log.log_date) {
+          await deleteUserWorkLog(user.id, log.log_date);
+        }
+      }
+
+      if (logsToUpdate.length > 0) {
+        const updatePayload = logsToUpdate.map((log: any) => ({
+          user_id: user.id,
+          log_date: log.log_date,
+          status: log.status,
+          note: log.note || null,
+          hours: log.hours || 0,
+          custom_yevmiye: log.custom_yevmiye || null,
+          worked_hours: log.worked_hours || null,
+          frozen_shift_name: null
+        }));
+        await saveWorkLogBatch(user.id, updatePayload);
+      }
+    }
+
+    const { error, data } = await toggleMonthFreeze(user.id, currentMonthKey, newFrozenStatus);
+    if (!error && data) {
+      setSettings(data);
+      fetchLogs();
+    } else {
+      alert('İşlem başarısız: ' + error?.message);
     }
   };
 
   const handleClearMonthLogs = async () => {
     if (!user) return;
+    if (!hasAccessToFreeze) {
+      setShowPaywall(true);
+      return;
+    }
     const confirmMessage = `${new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric' }).format(baseDate)} dönemindeki tüm özel kayıtlarınız (mesai, izin, devamsızlık vb.) silinecek. Emin misiniz?`;
     if (!window.confirm(confirmMessage)) return;
 
@@ -321,6 +431,24 @@ export default function WorktimeCalendar() {
         onToday={handleGoToToday}
       />
 
+      <div className="w-full max-w-4xl px-2 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-sm font-medium text-base-content/80">
+            Bordro dönemini kapatmak ve geçmişi vardiya değişimlerinden korumak için ayı dondurun.
+          </h2>
+          <span className="text-xs text-base-content/50">
+            Günlere tıklayarak özel kayıt girebilirsiniz. Manuel girdiğiniz kayıtlar otomatik dondurulur.
+          </span>
+        </div>
+        <button
+          onClick={handleToggleMonthFreeze}
+          className={`btn btn-sm shrink-0 shadow-lg flex items-center gap-1 ${isMonthFrozen ? 'bg-amber-900/20 text-amber-400 border-amber-500/50 hover:bg-amber-900/40' : 'bg-indigo-900/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-900/40'}`}
+        >
+          {isMonthFrozen ? '🔒 Ay Donduruldu (Kilidi Aç)' : '🧊 Bu Ayı Dondur (Bordroyu Kilitle)'}
+          {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-1 text-[10px] bg-amber-500 text-black px-1 rounded font-bold">PRO</span>}
+        </button>
+      </div>
+
       {isLoading ? (
         <div className="w-full max-w-4xl bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden animate-pulse">
           <div className="grid grid-cols-7 bg-[#1e2329] border-b border-base-300">
@@ -353,10 +481,11 @@ export default function WorktimeCalendar() {
       <div className="w-full max-w-4xl mt-6 px-4 sm:px-0 flex justify-end">
         <button
           onClick={handleClearMonthLogs}
-          className="btn btn-sm p-6 bg-red-900/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/50 shadow-sm transition-all"
+          className="btn btn-sm p-6 bg-red-900/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/50 shadow-sm transition-all flex items-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
           Bu Ayın Tüm Kayıtlarını Temizle
+          {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="text-[10px] bg-amber-500 text-black px-1 rounded font-bold">PRO</span>}
         </button>
       </div>
 
@@ -408,6 +537,13 @@ export default function WorktimeCalendar() {
         </div>
       )}
 
+      {showPaywall && (
+        <PremiumPaywallModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          featureName="Bordro Dönemini Kilitleme"
+        />
+      )}
     </div>
   );
 }

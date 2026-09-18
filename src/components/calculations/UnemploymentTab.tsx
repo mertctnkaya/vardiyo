@@ -1,29 +1,17 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import Alert from '../shared/Alert';
-import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function UnemploymentTab() {
   const { settings } = useAppStore();
   const [salary, setSalary] = useState<string>('');
   const [salaryType, setSalaryType] = useState<'net' | 'gross'>('net');
   const [premiumDays, setPremiumDays] = useState<string>('600');
-  
+
   const [result, setResult] = useState<any>(null);
-  const [showPaywall, setShowPaywall] = useState(false);
 
-  const CURRENT_GROSS_MIN_WAGE = 20002.50; 
-
-  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
+  const CURRENT_GROSS_MIN_WAGE = 20002.50;
 
   const handleCalculate = () => {
-    if (!hasAccess) {
-      setShowPaywall(true);
-      return;
-    }
-
     if (!salary || isNaN(Number(salary))) return;
 
     let gross = Number(salary);
@@ -31,12 +19,12 @@ export default function UnemploymentTab() {
       gross = gross / 0.7149;
     }
 
-    let calculatedAllowance = gross * 0.40; 
-    const maxLimit = CURRENT_GROSS_MIN_WAGE * 0.80; 
+    let calculatedAllowance = gross * 0.40;
+    const maxLimit = CURRENT_GROSS_MIN_WAGE * 0.80;
 
     if (calculatedAllowance > maxLimit) calculatedAllowance = maxLimit;
 
-    const stampDuty = calculatedAllowance * 0.00759; 
+    const stampDuty = calculatedAllowance * 0.00759;
     const netAllowance = calculatedAllowance - stampDuty;
 
     let duration = 0;
@@ -56,18 +44,13 @@ export default function UnemploymentTab() {
 
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
-      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
-        <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
-          Detaylı İşsizlik Maaşı hesaplayıcısı Premium üyelere özeldir.
-        </Alert>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-[#1e2329] p-4 sm:p-6 rounded-2xl border border-base-300 shadow-xl flex flex-col justify-between">
           <div>
             <h3 className="text-xl font-bold text-base-content mb-2">İşsizlik Maaşı Hesaplama</h3>
             <p className="text-sm text-base-content/60 mb-6">Mevcut maaşınıza göre ne kadar süreyle ve kaç TL işsizlik ödeneği alacağınızı öğrenin.</p>
-            
+
             <div className="space-y-6">
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Maaş Türü</span></label>
@@ -95,7 +78,6 @@ export default function UnemploymentTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Hesapla
-            {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-2 text-xs bg-indigo-900/40 px-2 py-1 rounded text-indigo-200">PRO</span>}
           </button>
         </div>
 
@@ -103,7 +85,7 @@ export default function UnemploymentTab() {
           {result ? (
             <div className="animate-fade-in">
               <h4 className="text-lg font-bold text-base-content mb-4 sm:mb-6 pb-2 border-b border-base-300">Ödenek Detayları</h4>
-              
+
               <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
                 <div className="bg-[#1e2329] p-3 sm:p-4 rounded-xl border border-base-300">
                   <p className="text-[10px] sm:text-xs font-bold text-base-content/60 uppercase">Aylık Net Ödenek</p>
@@ -146,8 +128,9 @@ export default function UnemploymentTab() {
           )}
         </div>
       </div>
-      
-      <PremiumPaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} featureName="İşsizlik Maaşı Hesaplama" />
     </div>
   );
 }
+
+
+

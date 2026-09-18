@@ -15,21 +15,16 @@ export default function YevmiyeSection({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
         <div className="form-control w-full">
-          <label className="label"><span className="label-text font-bold text-base-content/80">Günlük Yevmiye (₺)</span></label>
+          <label className="label pb-1"><span className="label-text font-bold text-base-content/80">Günlük Yevmiye (₺)</span></label>
           <label className="input input-bordered flex items-center gap-2 bg-base-200 border-indigo-500/50 focus-within:ring-2 focus-within:ring-indigo-500">
             <span className="text-indigo-400 font-bold">₺</span>
             <input type="number" className="grow font-bold text-white" placeholder="Örn: 1300" value={dailyYevmiye} onChange={(e) => setDailyYevmiye(e.target.value)} onClick={(e) => (e.target as HTMLInputElement).select()} />
           </label>
-          <label className="label p-1"><span className="label-text-alt text-base-content/50">Net olarak ele geçen tutar (Vergi yok).</span></label>
-        </div>
-
-        <div className="form-control w-full">
-          <label className="label"><span className="label-text font-bold text-base-content/80">Tam Yevmiye Saat Karşılığı</span></label>
-          <label className="input input-bordered flex items-center gap-2 bg-base-200 focus-within:ring-2 focus-within:ring-indigo-500">
-            <input type="number" step="0.5" className="grow text-base-content" placeholder="Örn: 12" value={yevmiyeBaseHours} onChange={(e) => setYevmiyeBaseHours(e.target.value)} />
-            <span className="text-base-content/50 font-bold">Saat</span>
-          </label>
-          <label className="label p-1"><span className="label-text-alt text-base-content/50">Eksik çalıştığınız günlerde kesinti hesabı için.</span></label>
+          <div className="p-1 mt-1">
+            <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
+              Günlük standart yevmiyeniz. Takvimde "Çalıştım" dediğiniz her gün için bu tutar birikir.
+            </span>
+          </div>
         </div>
 
         <div className="form-control w-full">

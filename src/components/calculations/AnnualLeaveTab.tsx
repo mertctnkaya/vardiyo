@@ -17,7 +17,7 @@ export default function AnnualLeaveTab() {
 
   const [showPaywall, setShowPaywall] = useState(false);
   const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
+  const hasAccess = true;
 
   useEffect(() => {
     const fetchCalendarLeaves = async () => {

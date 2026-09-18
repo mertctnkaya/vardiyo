@@ -79,6 +79,22 @@ export const fetchUserSettings = async (userId: string): Promise<UserSettings | 
   }
 };
 
+export const toggleMonthFreeze = async (userId: string, monthKey: string, isFrozen: boolean): Promise<DbResult<UserSettings>> => {
+  const currentSettings = await fetchUserSettings(userId) || ({} as UserSettings);
+  let frozenMonths = currentSettings.frozen_months || [];
+
+  if (isFrozen) {
+    if (!frozenMonths.includes(monthKey)) {
+      frozenMonths.push(monthKey);
+    }
+  } else {
+    frozenMonths = frozenMonths.filter(m => m !== monthKey);
+  }
+
+  const payload = { frozen_months: frozenMonths };
+  return updateUserSettings(userId, payload);
+};
+
 // --- WORK LOGS ---
 export const fetchMonthWorkLogs = async (userId: string, firstDay: string, lastDay: string) => {
   const getOfflineLogs = () => {
@@ -113,7 +129,7 @@ export const fetchMonthWorkLogs = async (userId: string, firstDay: string, lastD
       });
       mergeCachedWorkLogs(userId, logsMap);
     }
-    return logsMap;
+    return getOfflineLogs();
   } catch (err) {
     console.warn('[dbService] Network failure in fetchMonthWorkLogs, fallback to cache:', err);
     return getOfflineLogs();
@@ -199,13 +215,13 @@ export const deleteUserWorkLog = async (userId: string, dateKey: string): Promis
   }
 };
 
-export const saveAnnualLeaveBatch = async (userId: string, dates: any[]): Promise<DbVoidResult> => {
+export const saveWorkLogBatch = async (userId: string, dates: any[]): Promise<DbVoidResult> => {
   const cacheMap: Record<string, any> = {};
   dates.forEach(d => { cacheMap[d.log_date] = d; });
 
   if (isNetworkOffline()) {
     mergeCachedWorkLogs(userId, cacheMap);
-    addToSyncQueue(userId, 'SAVE_ANNUAL_LEAVE_BATCH', { dates });
+    addToSyncQueue(userId, 'SAVE_WORK_LOG_BATCH', { dates });
     return { error: null };
   }
 
@@ -218,9 +234,10 @@ export const saveAnnualLeaveBatch = async (userId: string, dates: any[]): Promis
     mergeCachedWorkLogs(userId, cacheMap);
     return { error: null };
   } catch (err: any) {
-    console.warn('[dbService] Network failure in saveAnnualLeaveBatch, fallback to offline:', err);
+    alert(`[Sistem Notu] Veritabanı Hatası: ${err.message || JSON.stringify(err)}`);
+    console.warn('[dbService] Network failure in saveWorkLogBatch, fallback to offline:', err);
     mergeCachedWorkLogs(userId, cacheMap);
-    addToSyncQueue(userId, 'SAVE_ANNUAL_LEAVE_BATCH', { dates });
+    addToSyncQueue(userId, 'SAVE_WORK_LOG_BATCH', { dates });
     return { error: null };
   }
 };

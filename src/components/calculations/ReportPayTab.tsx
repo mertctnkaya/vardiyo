@@ -1,27 +1,18 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import Alert from '../shared/Alert';
-import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function ReportPayTab() {
   const { settings } = useAppStore();
-  
+
   const [grossSalary, setGrossSalary] = useState<string>('');
   const [reportDays, setReportDays] = useState<string>('');
   const [treatmentType, setTreatmentType] = useState<'ayakta' | 'yatarak'>('ayakta');
-  
+
   const [result, setResult] = useState<any>(null);
 
-  const [showPaywall, setShowPaywall] = useState(false);
-  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    if (!hasAccess) {
-      setShowPaywall(true);
-      return;
-    }
+
 
     if (!grossSalary || isNaN(Number(grossSalary)) || !reportDays || isNaN(Number(reportDays))) return;
 
@@ -49,26 +40,22 @@ export default function ReportPayTab() {
 
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
-      
-      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
-        <Alert color="amber" title="Premium Özellik" icon="warning">
-          SGK İş Göremezlik (Rapor Parası) hesaplama modülü Premium üyelere özel bir özelliktir.
-        </Alert>
-      )}
+
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-[#1e2329] p-4 sm:p-6 rounded-2xl border border-base-300 shadow-xl flex flex-col justify-between">
           <div>
             <h3 className="text-xl font-bold text-base-content mb-2">SGK Rapor Parası (İş Göremezlik)</h3>
             <p className="text-sm text-base-content/60 mb-6">3 gün ve üzeri istirahat raporlarında devletin size PTT veya Banka üzerinden yatıracağı tutarı hesaplayın.</p>
-            
+
             <div className="space-y-6">
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Aylık Brüt Maaşınız (TL)</span></label>
-                <input 
-                  type="number" 
-                  placeholder="Örn: 30000" 
-                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium" 
+                <input
+                  type="number"
+                  placeholder="Örn: 30000"
+                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium"
                   value={grossSalary}
                   onChange={(e) => setGrossSalary(e.target.value)}
                 />
@@ -76,10 +63,10 @@ export default function ReportPayTab() {
 
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Toplam Rapor Gün Sayısı</span></label>
-                <input 
-                  type="number" 
-                  placeholder="Örn: 5" 
-                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium" 
+                <input
+                  type="number"
+                  placeholder="Örn: 5"
+                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium"
                   value={reportDays}
                   onChange={(e) => setReportDays(e.target.value)}
                 />
@@ -88,14 +75,14 @@ export default function ReportPayTab() {
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Tedavi Türü</span></label>
                 <div className="flex bg-base-200 p-1 rounded-lg">
-                  <button 
-                    onClick={() => setTreatmentType('ayakta')} 
+                  <button
+                    onClick={() => setTreatmentType('ayakta')}
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-md transition-all ${treatmentType === 'ayakta' ? 'bg-indigo-600 text-white shadow-md' : 'text-base-content/60 hover:text-base-content'}`}
                   >
                     Ayakta Tedavi
                   </button>
-                  <button 
-                    onClick={() => setTreatmentType('yatarak')} 
+                  <button
+                    onClick={() => setTreatmentType('yatarak')}
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-md transition-all ${treatmentType === 'yatarak' ? 'bg-indigo-600 text-white shadow-md' : 'text-base-content/60 hover:text-base-content'}`}
                   >
                     Yatarak Tedavi
@@ -110,7 +97,7 @@ export default function ReportPayTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Hesapla
-            {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-2 text-xs bg-indigo-900/40 px-2 py-1 rounded text-indigo-200">PRO</span>}
+
           </button>
         </div>
 
@@ -148,12 +135,9 @@ export default function ReportPayTab() {
           )}
         </div>
       </div>
-
-      <PremiumPaywallModal 
-        isOpen={showPaywall} 
-        onClose={() => setShowPaywall(false)} 
-        featureName="Rapor Parası Hesaplama" 
-      />
     </div>
   );
 }
+
+
+

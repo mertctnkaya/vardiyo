@@ -26,6 +26,8 @@ export default function Settings() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   const [workType, setWorkType] = useState('3-shift');
+  const [shiftPattern, setShiftPattern] = useState<number[]>([]);
+  const [restDays, setRestDays] = useState<number[]>([0]);
   const [isSaturdayWorkday, setIsSaturdayWorkday] = useState(false);
   const [employmentStartDate, setEmploymentStartDate] = useState('2026-06-09');
   const [shiftEpochDate, setShiftEpochDate] = useState('2026-07-06');
@@ -102,6 +104,8 @@ export default function Settings() {
 
       if (data) {
         setWorkType(data.work_type || '3-shift');
+        if (data.shift_pattern) setShiftPattern(data.shift_pattern);
+        if (data.rest_days) setRestDays(data.rest_days);
         setIsSaturdayWorkday(data.is_saturday_workday || false);
         if (data.employment_start_date) setEmploymentStartDate(data.employment_start_date);
         if (data.shift_epoch_date) setShiftEpochDate(data.shift_epoch_date);
@@ -168,10 +172,14 @@ export default function Settings() {
     setIsSaving(true);
 
     const calculatedDaily = grossNum / 30;
-    const finalEndTime = calculateEndTime(shiftStartTime, Number(shiftDuration) || 8);
+    const finalEndTime = (workType === 'fixed' || workType === 'yevmiye')
+      ? shiftEndTime
+      : calculateEndTime(shiftStartTime, Number(shiftDuration) || 8);
 
     const payload = {
       work_type: workType,
+      shift_pattern: shiftPattern,
+      rest_days: restDays,
       is_saturday_workday: isSaturdayWorkday,
       employment_start_date: employmentStartDate,
       shift_epoch_date: shiftEpochDate,
@@ -232,7 +240,8 @@ export default function Settings() {
             shiftStartTime={shiftStartTime} setShiftStartTime={setShiftStartTime}
             shiftEndTime={shiftEndTime} setShiftEndTime={setShiftEndTime}
             shiftDuration={shiftDuration} setShiftDuration={setShiftDuration}
-            isSaturdayWorkday={isSaturdayWorkday} setIsSaturdayWorkday={setIsSaturdayWorkday}
+            setShiftPattern={setShiftPattern}
+            restDays={restDays} setRestDays={setRestDays}
           />
 
           <DateReferencesSection

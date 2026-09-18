@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { subscribeToSyncState, processSyncQueue } from '../../services/syncService';
-import { getSyncQueueCount } from '../../services/offlineStorage';
+import { getSyncQueueCount, getSyncQueue, clearSyncQueue } from '../../services/offlineStorage';
 
 export default function OfflineSyncIndicator() {
-  const { user, isOnline, setIsOnline, pendingSyncCount, setPendingSyncCount } = useAppStore();
+  const { user, settings, isOnline, setIsOnline, pendingSyncCount, setPendingSyncCount } = useAppStore();
   const [isSyncing, setIsSyncing] = useState(false);
   const [showSyncedSuccess, setShowSyncedSuccess] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // Initial count
@@ -85,27 +86,91 @@ export default function OfflineSyncIndicator() {
     );
   }
 
-  // Durum 4: Çevrimdışı (Offline)
+  // Durum 4: Çevrimdışı (Offline) veya Hata Durumunda Bekleyen
+  const queue = user?.id ? getSyncQueue(user.id) : [];
+
   return (
-    <button
-      onClick={() => {
-        if (isOnline && user?.id) {
-          processSyncQueue(user.id);
-        } else {
-          alert('İnternet bağlantısı yok. Yaptığınız tüm işlemler cihazınızda güvenle saklanıyor; internete bağlanıldığında otomatik olarak veritabanına aktarılacaktır.');
-        }
-      }}
-      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-900/30 text-amber-300 border border-amber-500/40 shadow-sm hover:bg-amber-900/50 transition-all cursor-pointer"
-      title="Çevrimdışı Mod. Tıklayarak detay görebilir veya bağlantı varsa eşitlemeyi deneyebilirsiniz."
-    >
-      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-      <span>
-        {!isOnline
-          ? (pendingSyncCount > 0 ? `Çevrimdışı (${pendingSyncCount} kuyrukta)` : 'Çevrimdışı Mod')
-          : `${pendingSyncCount} Kayıt Bekliyor`
-        }
-      </span>
-    </button>
+    <>
+      <button
+        onClick={() => {
+          if (isOnline && user?.id) {
+            processSyncQueue(user.id);
+          }
+          setShowModal(true);
+        }}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-900/30 text-amber-300 border border-amber-500/40 shadow-sm hover:bg-amber-900/50 transition-all cursor-pointer"
+        title="Bekleyen işlemler var. Tıklayarak detay görebilirsiniz."
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+        </span>
+        <span>{pendingSyncCount} İşlem Çevrimiçi Bekliyor</span>
+      </button>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#16191d] rounded-2xl border border-base-300 p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-bold text-base-content mb-2 flex items-center gap-2">
+              <span className="text-amber-400">⚠️</span> Bekleyen İşlemler
+            </h3>
+            <p className="text-sm text-base-content/70 mb-4">
+              Aşağıdaki işlemler cihazınızda kaydedildi ancak henüz buluta aktarılamadı. İnternetiniz açık olduğu halde bu liste boşalmıyorsa, bir veritabanı kısıtlamasına (hataya) takılmış olabilir.
+            </p>
+
+            <ul className="text-xs space-y-2 mb-6 max-h-40 overflow-y-auto">
+              {queue.map((item, i) => (
+                <li key={i} className="bg-base-200 p-2 rounded border border-base-300 font-mono text-base-content/80 flex flex-col gap-1">
+                  <span className="font-bold text-amber-500">{item.type}</span>
+                  <span className="text-[10px] text-base-content/50 truncate">
+                    {JSON.stringify(item.payload)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-col gap-2">
+              <button
+                className="btn btn-warning w-full shadow-lg shadow-warning/20"
+                onClick={() => {
+                  if (user?.id) processSyncQueue(user.id);
+                }}
+              >
+                Tekrar Senkronize Etmeyi Dene
+              </button>
+              {(settings?.role === 'admin' || user?.email === 'm3rt7132@gmail.com') && (
+                <button
+                  className="btn btn-error w-full shadow-lg shadow-error/20"
+                  onClick={() => {
+                    if (window.confirm('DİKKAT: Kuyruktaki tüm işlemleri silmek üzeresiniz. Bu işlem geri alınamaz. Emin misiniz?')) {
+                      if (user?.id) {
+                        clearSyncQueue(user.id);
+                        setShowModal(false);
+                      }
+                    }
+                  }}
+                >
+                  Kuyruğu Zorla Temizle (Yönetici)
+                </button>
+              )}
+              <button
+                className="btn btn-outline border-base-300 text-base-content/70 w-full"
+                onClick={() => setShowModal(false)}
+              >
+                Kapat
+              </button>
+              <div className="divider my-1"></div>
+              <p className="text-xs text-base-content/50 text-center px-2">
+                Hala hata alıyorsanız, lütfen bize bildirin:
+              </p>
+              <a href="/contact" className="btn btn-sm btn-ghost text-primary w-full">
+                Destek & Geri Bildirim'e Git
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

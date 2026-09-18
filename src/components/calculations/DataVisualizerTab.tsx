@@ -16,7 +16,7 @@ export default function DataVisualizerTab() {
   const [isLoading, setIsLoading] = useState(false);
 
   const isPremiumOrAdmin = user?.email === 'm3rt7132@gmail.com';
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
+  const hasAccess = true;
 
   useEffect(() => {
     if (!user || !settings || !hasAccess) return;

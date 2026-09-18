@@ -1,27 +1,18 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import Alert from '../shared/Alert';
-import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function ShortWorkTab() {
   const { settings } = useAppStore();
   const [grossSalary, setGrossSalary] = useState<string>('');
   const [workType, setWorkType] = useState<'kisa' | 'yarim'>('kisa');
-  
+
   const [result, setResult] = useState<any>(null);
-  const [showPaywall, setShowPaywall] = useState(false);
 
   const CURRENT_GROSS_MIN_WAGE = 20002.50;
 
-  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    if (!hasAccess) {
-      setShowPaywall(true);
-      return;
-    }
+
 
     if (!grossSalary || isNaN(Number(grossSalary))) return;
 
@@ -29,8 +20,8 @@ export default function ShortWorkTab() {
 
     if (workType === 'kisa') {
       let allowance = gross * 0.60;
-      const maxLimit = CURRENT_GROSS_MIN_WAGE * 1.50; 
-      
+      const maxLimit = CURRENT_GROSS_MIN_WAGE * 1.50;
+
       if (allowance > maxLimit) allowance = maxLimit;
       const stampDuty = allowance * 0.00759;
 
@@ -56,25 +47,21 @@ export default function ShortWorkTab() {
 
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
-      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
-        <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
-          Kısa ve Yarım Çalışma Ödeneği hesaplama aracı Premium üyelere özeldir.
-        </Alert>
-      )}
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-[#1e2329] p-4 sm:p-6 rounded-2xl border border-base-300 shadow-xl flex flex-col justify-between">
           <div>
             <h3 className="text-xl font-bold text-base-content mb-2">Kısa ve Yarım Çalışma Ödeneği</h3>
             <p className="text-sm text-base-content/60 mb-6">Kriz anlarında (Kısa Çalışma) veya doğum sonrası (Yarım Çalışma) devletin yapacağı ödenek desteğini hesaplayın.</p>
-            
+
             <div className="space-y-6">
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Aylık Brüt Maaşınız (TL)</span></label>
-                <input 
-                  type="number" 
-                  placeholder="Örn: 40000" 
-                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium" 
+                <input
+                  type="number"
+                  placeholder="Örn: 40000"
+                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium"
                   value={grossSalary}
                   onChange={(e) => setGrossSalary(e.target.value)}
                 />
@@ -83,14 +70,14 @@ export default function ShortWorkTab() {
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Çalışma Tipi</span></label>
                 <div className="flex bg-base-200 p-1 rounded-lg">
-                  <button 
-                    onClick={() => setWorkType('kisa')} 
+                  <button
+                    onClick={() => setWorkType('kisa')}
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-md transition-all ${workType === 'kisa' ? 'bg-indigo-600 text-white shadow-md' : 'text-base-content/60 hover:text-base-content'}`}
                   >
                     Kısa Çalışma
                   </button>
-                  <button 
-                    onClick={() => setWorkType('yarim')} 
+                  <button
+                    onClick={() => setWorkType('yarim')}
                     className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-md transition-all ${workType === 'yarim' ? 'bg-indigo-600 text-white shadow-md' : 'text-base-content/60 hover:text-base-content'}`}
                   >
                     Yarım Çalışma
@@ -101,7 +88,7 @@ export default function ShortWorkTab() {
               <div className="alert alert-info bg-indigo-900/20 text-indigo-200 border border-indigo-500/30 text-xs sm:text-sm text-left shadow-none mt-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>
-                  {workType === 'kisa' 
+                  {workType === 'kisa'
                     ? "Kısa çalışma ödeneği brüt maaşın %60'ıdır ancak brüt asgari ücretin %150'sini geçemez."
                     : "Yarım çalışmada maaşın yarısını işveren kendi brütünüzden, diğer yarısını İŞKUR brüt asgari ücret üzerinden öder."}
                 </span>
@@ -111,7 +98,7 @@ export default function ShortWorkTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Ödeneği Hesapla
-            {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-2 text-xs bg-indigo-900/40 px-2 py-1 rounded text-indigo-200">PRO</span>}
+
           </button>
         </div>
 
@@ -149,8 +136,9 @@ export default function ShortWorkTab() {
           )}
         </div>
       </div>
-
-      <PremiumPaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} featureName="Kısa / Yarım Çalışma Ödeneği" />
     </div>
   );
 }
+
+
+

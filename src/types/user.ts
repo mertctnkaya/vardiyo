@@ -24,6 +24,8 @@ export interface UserSettings {
   premium_until?: string | null;
   shift_epoch_date: string;
   work_type: string;
+  shift_pattern?: number[];
+  rest_days?: number[];
   is_saturday_workday: boolean;
   shift_start_time: string;
   shift_end_time: string;
@@ -46,6 +48,7 @@ export interface UserSettings {
   yevmiye_base_hours?: number;
   payment_frequency?: 'weekly' | 'biweekly' | 'daily';
   payment_day_of_week?: number;
+  frozen_months?: string[];
 }
 
 export interface Reminder {

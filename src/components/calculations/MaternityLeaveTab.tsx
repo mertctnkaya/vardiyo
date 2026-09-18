@@ -1,39 +1,30 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import Alert from '../shared/Alert';
-import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
 
 export default function MaternityLeaveTab() {
   const { settings } = useAppStore();
-  
+
   const [grossSalary, setGrossSalary] = useState<string>('');
   const [birthDate, setBirthDate] = useState<string>('');
-  
+
   const [result, setResult] = useState<any>(null);
 
-  const [showPaywall, setShowPaywall] = useState(false);
-  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   const handleCalculate = () => {
-    if (!hasAccess) {
-      setShowPaywall(true);
-      return;
-    }
+
 
     if (!grossSalary || isNaN(Number(grossSalary)) || !birthDate) return;
 
     const gross = Number(grossSalary);
     const date = new Date(birthDate);
 
-    const totalDays = 112; 
+    const totalDays = 112;
     const dailyGross = gross / 30;
     const totalAllowance = (dailyGross * (2 / 3)) * totalDays;
 
     const startDate = new Date(date);
     startDate.setDate(startDate.getDate() - (8 * 7));
-    
+
     const endDate = new Date(date);
     endDate.setDate(endDate.getDate() + (8 * 7));
 
@@ -52,27 +43,23 @@ export default function MaternityLeaveTab() {
 
   return (
     <div className="space-y-6 animate-fade-in px-2 sm:px-0">
-      
+
       {/* PREMIUM UYARISI */}
-      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
-        <Alert color="amber" title="Premium Özellik" icon="warning">
-          Doğum ve Süt İzni Planlama modülü sadece Premium üyelere açıktır.
-        </Alert>
-      )}
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-[#1e2329] p-4 sm:p-6 rounded-2xl border border-base-300 shadow-xl flex flex-col justify-between">
           <div>
             <h3 className="text-xl font-bold text-base-content mb-2">Doğum & Süt İzni Hesaplayıcı</h3>
             <p className="text-sm text-base-content/60 mb-6">Anneler için 16 haftalık (112 gün) yasal doğum izni tarihlerini ve SGK'nın yatıracağı toplam Analık Ödeneğini bulun.</p>
-            
+
             <div className="space-y-6">
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Aylık Brüt Maaşınız (TL)</span></label>
-                <input 
-                  type="number" 
-                  placeholder="Örn: 40000" 
-                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium" 
+                <input
+                  type="number"
+                  placeholder="Örn: 40000"
+                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 text-lg font-medium"
                   value={grossSalary}
                   onChange={(e) => setGrossSalary(e.target.value)}
                 />
@@ -80,9 +67,9 @@ export default function MaternityLeaveTab() {
 
               <div className="form-control w-full">
                 <label className="label"><span className="label-text font-bold text-base-content/80">Tahmini Doğum Tarihi</span></label>
-                <input 
-                  type="date" 
-                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 font-medium" 
+                <input
+                  type="date"
+                  className="input input-bordered w-full bg-base-200 focus:border-indigo-500 font-medium"
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
                 />
@@ -97,7 +84,7 @@ export default function MaternityLeaveTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Planlamayı Hesapla
-            {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-2 text-xs bg-indigo-900/40 px-2 py-1 rounded text-indigo-200">PRO</span>}
+
           </button>
         </div>
 
@@ -133,12 +120,9 @@ export default function MaternityLeaveTab() {
           )}
         </div>
       </div>
-
-      <PremiumPaywallModal 
-        isOpen={showPaywall} 
-        onClose={() => setShowPaywall(false)} 
-        featureName="Doğum ve Süt İzni Hesaplama" 
-      />
     </div>
   );
 }
+
+
+

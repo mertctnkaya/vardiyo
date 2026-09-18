@@ -23,6 +23,13 @@ Bu doküman, Vardiyo projesinin gelecek sürümleri, ürün stratejisi, yapay ze
 - **[Gelişmiş PDF & Veri Görselleştirme]**
   - Bordro, Tazminat ve Mesai Takvimi için tek sayfaya sığan resmi antetli, tablolu PDF çıktısı.
   - Recharts ile son 6 aylık kazanç, mesai ve devamsızlık trend grafikleri.
+  - PDF Motoru TypeScript değişken hataları giderildi (`pdfGenerator.ts`).
+- **[Paywall (Premium) Stratejisi Değişimi]**
+  - İşsizlik, Rapor Parası, Süt İzni, Kısa Çalışma ve Zam Simülatörü gibi temel yasal hesaplama modülleri tamamen ücretsiz (Free) hale getirildi.
+  - Premium kısıtlaması, "Bu Ayın Tüm Kayıtlarını Temizle" gibi toplu işlem (bulk action) butonlarına kaydırıldı.
+- **[Teknik S.S.S & Kullanıcı Eğitimi (FAQ)]**
+  - Kullanıcıları uygulamanın geri plandaki hesaplama zekası (14 saat kuralı, hafta sonu atlaması, kümülatif vergi) hakkında bilgilendiren 16 maddelik teknik SSS oluşturuldu.
+  - SSS kategorileri tamamen açılır/kapanır (collapsible) yapıldı ve sistemin tasarım renk kodlarına (Indigo, Amber, Emerald, Red, Purple) göre temalandırıldı.
 
 ---
 

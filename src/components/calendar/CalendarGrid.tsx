@@ -32,7 +32,7 @@ export default function CalendarGrid({
 
             <div className="grid grid-cols-7 auto-rows-fr">
                 {calendarDays.map((item, index) => {
-                    const shift = getShiftForDate(item.date);
+                    const shift = getShiftForDate(item.date, workLogs);
                     const isPast = item.date < actualToday;
                     const isToday = item.date.toDateString() === actualToday.toDateString();
                     const isBeforeEmployment = item.date < employmentStartDate;
@@ -44,6 +44,7 @@ export default function CalendarGrid({
 
                     let cellBg = "bg-[#1e2329] hover:bg-[#2a3038] cursor-pointer";
                     let textColor = "text-white";
+                    let displayName = shift.name;
 
                     if (isBeforeEmployment) {
                         cellBg = "bg-[#1e2329] opacity-30 cursor-not-allowed";
@@ -52,6 +53,12 @@ export default function CalendarGrid({
                         cellBg = "bg-[#16191d] cursor-pointer hover:bg-[#1e2329]";
                         textColor = "text-white/50";
                     } else if (logStatus) {
+                        if (shift.id === -2) {
+                            if (logStatus === 'normal') displayName = 'Çalışıldı';
+                            else if (logStatus === 'late') displayName = 'Geç Kaldı';
+                            else if (logStatus === 'partial_leave') displayName = 'Eksik Çalışma';
+                            else if (logStatus === 'holiday_work') displayName = 'Tatil Mesaisi';
+                        }
                         if (logStatus === 'overtime') { cellBg = "bg-green-900/90 cursor-pointer hover:bg-green-900/70"; textColor = "text-green-400"; }
                         else if (logStatus === 'leave') { cellBg = "bg-purple-900/40 cursor-pointer hover:bg-purple-900/60"; textColor = "text-purple-400"; }
                         else if (logStatus === 'annual_leave') { cellBg = "bg-pink-900/30 cursor-pointer hover:bg-pink-900/50"; textColor = "text-pink-400"; }
@@ -65,11 +72,13 @@ export default function CalendarGrid({
                             else { cellBg = "bg-[#192a25] hover:bg-[#213831] cursor-pointer"; textColor = "text-[#4ade80]"; }
                         }
                     } else if (isPast || isToday) {
-                        if (shift.isOffDay) { cellBg = "bg-[#331c17] hover:bg-[#43251e] cursor-pointer"; textColor = "text-[#d97757]"; }
+                        if (shift.id === -2) { cellBg = "bg-[#16191d] cursor-pointer hover:bg-[#1e2329]"; textColor = "text-base-content/40"; }
+                        else if (shift.isOffDay) { cellBg = "bg-[#331c17] hover:bg-[#43251e] cursor-pointer"; textColor = "text-[#d97757]"; }
                         else if (shift.isNight) { cellBg = "bg-[#163333] hover:bg-[#1f4a4a] cursor-pointer"; textColor = "text-[#5eead4]"; }
                         else { cellBg = "bg-[#192a25] hover:bg-[#213831] cursor-pointer"; textColor = "text-[#4ade80]"; }
                     } else {
-                        if (shift.isOffDay) textColor = "text-[#d97757]";
+                        if (shift.id === -2) textColor = "text-base-content/40";
+                        else if (shift.isOffDay) textColor = "text-[#d97757]";
                     }
 
                     return (
@@ -110,9 +119,14 @@ export default function CalendarGrid({
                                             ₺
                                         </span>
                                     )}
+                                    {workLogs[dateKeyStr]?.frozen_shift_name && (
+                                        <span className="text-[10px] bg-warning/20 text-warning px-1 rounded font-bold border border-warning/30" title="Kilitli / Kesinleşmiş">
+                                            🔒
+                                        </span>
+                                    )}
                                 </div>
 
-                                {workLogs[dateKeyStr]?.note && !isBeforeEmployment && (
+                                {workLogs[dateKeyStr]?.note && !['SYSTEM_AUTO_OFF', 'SYSTEM_AUTO_NORMAL'].includes(workLogs[dateKeyStr].note) && !isBeforeEmployment && (
                                     <span className="text-white/50">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -123,7 +137,7 @@ export default function CalendarGrid({
 
                             {!isBeforeEmployment && (
                                 <div className={`mt-auto text-[10px] sm:text-xs font-semibold truncate opacity-80 ${textColor}`}>
-                                    {shift.name}
+                                    {displayName}
                                 </div>
                             )}
                         </div>

@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { useShiftCalculator } from '../hooks/useShiftCalculator';
 import WeekList from '../components/next-weeks/WeekList';
 
 export default function NextWeeks() {
   usePageTitle('Gelecek Haftalar');
   const { settings } = useAppStore();
+  const { getShiftForDate } = useShiftCalculator();
 
   const upcomingWeeks = useMemo(() => {
     const list = [];
@@ -17,11 +19,7 @@ export default function NextWeeks() {
     currentMonday.setDate(today.getDate() + diffToMonday);
     currentMonday.setHours(0, 0, 0, 0);
 
-    const epochDate = settings?.shift_epoch_date
-      ? new Date(settings.shift_epoch_date + 'T00:00:00')
-      : new Date('2026-07-06T00:00:00');
     const workType = settings?.work_type || '3-shift';
-    const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
 
     for (let i = 0; i < 10; i++) {
       const weekStart = new Date(currentMonday);
@@ -29,24 +27,51 @@ export default function NextWeeks() {
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
 
-      const diffMs = weekStart.getTime() - epochDate.getTime();
-      const deltaWeeks = Math.floor(diffMs / MS_PER_WEEK);
-
-      let shiftName = 'Gündüz';
-      if (workType === 'fixed') {
-        shiftName = 'Sabit Gündüz';
-      } else if (workType === '2-shift') {
-        const shiftIndex = ((deltaWeeks % 2) + 2) % 2;
-        shiftName = shiftIndex === 0 ? 'Gündüz' : 'Gece';
+      let shiftName = '';
+      if (workType === 'yevmiye') {
+        shiftName = 'Yevmiye (Günlük Çalışma)';
+      } else if (['fixed', '3-shift', '2-shift'].includes(workType)) {
+        // For weekly systems, find the first non-off day to represent the week
+        let firstWorkingShift = 'Hafta Tatili';
+        for (let d = 0; d < 7; d++) {
+          const testDate = new Date(weekStart);
+          testDate.setDate(weekStart.getDate() + d);
+          const s = getShiftForDate(testDate);
+          if (!s.isOffDay) {
+            firstWorkingShift = s.name;
+            break;
+          }
+        }
+        shiftName = firstWorkingShift;
       } else {
-        const shiftIndex = ((deltaWeeks % 3) + 3) % 3;
-        shiftName = shiftIndex === 0 ? 'Gündüz' : shiftIndex === 1 ? 'Gece' : 'Akşam';
+        // For daily rotating cyclic systems (4-shift, 12-36, 24-48)
+        // Extract the unique pattern for the week to show a summary
+        const days = [];
+        for (let d = 0; d < 7; d++) {
+          const testDate = new Date(weekStart);
+          testDate.setDate(weekStart.getDate() + d);
+          const s = getShiftForDate(testDate);
+          days.push(s.name === 'Hafta Tatili' ? 'Tatil' : s.name);
+        }
+
+        const summary = [];
+        for (let j = 0; j < days.length; j++) {
+          if (j === 0 || days[j] !== days[j - 1]) {
+            summary.push(days[j]);
+          }
+        }
+
+        shiftName = summary.join(' ➔ ');
+        // If it's too long (like 12-36 repeating), truncate it safely
+        if (shiftName.length > 35) {
+          shiftName = summary.slice(0, 4).join(' ➔ ') + ' ➔ ...';
+        }
       }
 
       list.push({ weekStart, weekEnd, shiftName });
     }
     return list;
-  }, [settings]);
+  }, [settings, getShiftForDate]);
 
   return (
     <div className="flex flex-col items-center animate-fade-in w-full pb-10">

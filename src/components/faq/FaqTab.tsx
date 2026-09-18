@@ -47,26 +47,31 @@ export default function FaqTab() {
           const theme = THEMES[catIndex % THEMES.length];
 
           return (
-            <div key={catIndex} className="mb-8">
-              <h4 className={`font-bold uppercase tracking-wider text-xs mb-3 ml-2 flex items-center gap-2 ${theme.text}`}>
-                <span className={`w-2 h-2 rounded-full ${theme.iconBg.replace('/10', '')}`}></span>
-                {category.category}
-              </h4>
-              <div className="space-y-2">
-                {category.faqs.map((faq, faqIndex) => (
-                  <div key={faqIndex} className={`collapse collapse-arrow bg-base-200 border border-base-300 shadow-sm transition-all duration-300 ${theme.borderHover}`}>
-                    <input type="checkbox" className="peer" />
-                    <div className="collapse-title text-base sm:text-md font-bold text-base-content/90 flex items-center gap-3 pr-10 peer-checked:text-base-content">
-                      <span className={`${theme.text} ${theme.iconBg} p-1.5 rounded-lg shrink-0`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
-                      </span>
-                      {faq.q}
+            <div key={catIndex} className={`collapse collapse-arrow mb-4 border ${theme.bgBorder} transition-all duration-300`}>
+              <input type="checkbox" defaultChecked={catIndex === 0} />
+              <div className="collapse-title flex items-center gap-2">
+                <h4 className={`font-bold uppercase tracking-wider text-sm flex items-center gap-2 ${theme.text}`}>
+                  <span className={`w-3 h-3 rounded-full ${theme.iconBg.replace('/10', '')}`}></span>
+                  {category.category}
+                </h4>
+              </div>
+              <div className="collapse-content">
+                <div className="space-y-2 pt-2">
+                  {category.faqs.map((faq, faqIndex) => (
+                    <div key={faqIndex} className={`collapse collapse-arrow bg-[#16191d] border border-base-300 shadow-sm transition-all duration-300 ${theme.borderHover}`}>
+                      <input type="checkbox" className="peer" />
+                      <div className="collapse-title text-base sm:text-md font-bold text-base-content/90 flex items-center gap-3 pr-10 peer-checked:text-base-content">
+                        <span className={`${theme.text} ${theme.iconBg} p-1.5 rounded-lg shrink-0`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
+                        </span>
+                        {faq.q}
+                      </div>
+                      <div className="collapse-content text-sm text-base-content/70 leading-relaxed bg-[#1e2329] pt-4 border-t border-base-300">
+                        <p>{faq.a}</p>
+                      </div>
                     </div>
-                    <div className="collapse-content text-sm text-base-content/70 leading-relaxed bg-[#1e2329] pt-4 border-t border-base-300">
-                      <p>{faq.a}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           )

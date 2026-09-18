@@ -351,9 +351,8 @@ export const generateAdvancedCalendarPDF = (
     const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
     const log = workLogs[dateStr];
     const shift = getShiftForDate(dateObj);
-
-    let statusStr = shift.isOffDay ? 'Hafta Tatili' : 'Normal Mesai';
-    let isWorked = !shift.isOffDay;
+    let statusStr = shift.isOffDay ? 'Hafta Tatili' : (shift.id === -2 ? 'Bos / Calisilmadi' : 'Normal Mesai');
+    let isWorked = !shift.isOffDay && shift.id !== -2;
 
     if (log && log.status) {
       statusStr = statusMap[log.status] || tr2en(log.status);
@@ -363,8 +362,11 @@ export const generateAdvancedCalendarPDF = (
       } else if (log.status === 'overtime') {
         totalOvertimeHours += (log.hours || 0);
         isWorked = true;
+      } else if (log.status === 'normal' || log.status === 'leave' || log.status === 'annual_leave' || log.status === 'holiday_work') {
+        isWorked = true;
       }
     } else if (shift.isOffDay) {
+    } else if (shift.isOffDay || shift.id === -2) {
       isWorked = false;
     }
 

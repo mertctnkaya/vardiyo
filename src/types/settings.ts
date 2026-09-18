@@ -9,8 +9,9 @@ export interface ShiftSystemSectionProps {
   setShiftEndTime: (val: string) => void;
   shiftDuration: string;
   setShiftDuration: (val: string) => void;
-  isSaturdayWorkday: boolean;
-  setIsSaturdayWorkday: (val: boolean) => void;
+  setShiftPattern: (val: number[]) => void;
+  restDays: number[];
+  setRestDays: (val: number[]) => void;
 }
 
 export interface PayrollSectionProps {

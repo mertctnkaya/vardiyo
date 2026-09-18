@@ -1,10 +1,34 @@
 export const FAQ_DATA = [
     {
+        category: "Uygulama Kullanımı ve Takvim",
+        faqs: [
+            { q: "Milat (Döngü Başlangıcı) kutucuğu nedir?", a: "Vardiya sistemleri (Örn: 2 gün çalış 1 gün yat) sürekli kendini tekrar eden bir döngüden ibarettir. Uygulamanın sizin bugün hangi vardiyada olduğunuzu bilebilmesi için, geçmişte o döngünün 1. gününe denk gelen rastgele bir tarihi 'Milat' olarak seçmeniz gerekir. Sistem tüm geleceği bu referans noktasına göre çizer." },
+            { q: "Vardiya Sistemleri (2, 3, 4'lü, 12/36, 24/48) ve kullanım alanları nelerdir?", a: "Ayarlar menüsünde seçtiğiniz vardiya sistemi çalışma hayatınızı belirler. 3'lü vardiya klasik 8 saatlik fabrika düzenidir. 4'lü vardiya, fabrikaların durmadan 7/24 çalışmasını sağlayan rotasyondur. 12/36 ve 24/48 ise genellikle güvenlik, sağlık ve itfaiye personellerinin kullandığı yoğun nöbet-dinlenme sistemleridir." },
+            { q: "Haftalık İzin Günleri nasıl seçilir? (Restoran, AVM vb. sektörler)", a: "Pazar günleri çalışılan AVM, restoran veya perakende sektörlerinde izin günleri genellikle hafta içidir. Ayarlardan 'Haftalık İzin Günü'nüzü Pazar yerine örneğin Salı olarak seçtiğinizde; takvim motorumuz Salı günlerini resmi hafta tatiliniz kabul eder ve olası mesai hesaplamalarını buna göre %50 zamlı işletir." },
+            { q: "Ayarlara neden Net yerine Brüt Maaş girmeliyim?", a: "Türkiye'de vergi sistemi kümülatiftir (katlanarak artar). Yılın başında %15 ile başlayan vergi diliminiz, aylar geçtikçe %20 ve %27'ye yükselir. Eğer sadece Net maaş girerseniz sistem yıl sonundaki vergi kesintisini ve elinize geçecek gerçek rakamı hesaplayamaz. Brüt maaş, devletin ve SGK'nın gözündeki gerçek maaşınızdır." },
+            { q: "'Saatlik ve Net Maaş Bul' aracı ne işe yarar?", a: "Eğer Brüt maaşınızı bilmiyorsanız 'Hesaplamalar' sekmesindeki araca elinize geçen net tutarı yazın. Sistem tersine mühendislik ile brütünüzü bulur. Çıkan sonucun yanındaki 'Ayarlara Kaydet' butonuna basarak bu değeri tek tuşla tüm takviminize ve bordronuza entegre edebilirsiniz." },
+            { q: "Takvim Yönetimi & İzinler Tablosu nasıl kullanılır?", a: "Takvim sayfasının altındaki İzinler Tablosu; toplu yıllık izin girmek, yanlış girdiğiniz eski izin aralıklarını silmek veya askerlik/ücretsiz izin gibi durumlar için takvimi uzun süreliğine 'Duraklatmak' için kullanılan kontrol merkezidir." },
+            { q: "Bordrodaki Gizli Kurtarıcı Matematikler (Hafta Sonu Atlaması) nasıl çalışır?", a: "İzinler Tablosundan örneğin 14 günlük toplu bir yıllık izin aralığı girdiğinizde, sistem aradaki haftalık izin günlerinizi (Örn: Pazar) ve varsa Resmi Tatilleri otomatik olarak atlar. Böylece yasal yıllık izin hakkınızdan boş yere gün eksilmesini ve paranızın yanmasını engeller." },
+            { q: "Yıllık İzin mantığı nedir ve maaşa nasıl yansır?", a: "İş Kanununa göre yıllık izne ayrıldığınızda maaşınızdan kesinti yapılamaz. Takvimden ilgili günleri 'Yıllık İzin' olarak işaretlediğinizde, bordro motoru o günleri normal çalışmışsınız gibi tam yevmiye olarak hesaplamaya devam eder, ancak puantajınıza 'İzinli' olarak işler." },
+            { q: "Ayı Dondurma ve Manuel Kayıtta Otomatik Dondurma nedir?", a: "Takvime kendi elinizle girdiğiniz özel bir kayıt (rapor, mesai) sizin gerçeğiniz olduğu için sistem tarafından anında dondurulur (🔒) ve gelecekte vardiya döngünüzü değiştirseniz dahi bozulmaz. Ancak tüm geçmişin (tatiller ve normal çalışma günleri dahil) değişime kapanmasını istiyorsanız 'Bu Ayı Dondur' butonunu kullanabilirsiniz." },
+            { q: "Sistem fazla mesaiyi nasıl hesaplıyor?", a: "Mesai hesaplaması yasal olarak saatlik ücretinizin 1.5 katı (%50 zamlı) olarak yapılır. İş Kanunu'na göre haftalık 45 saati aşan çalışmalar mesai sayılır. Ayrıca resmi tatil veya hafta tatilinizde (Off-Day) çalışırsanız, sistem bu katsayıları otomatik olarak birleştirir ve katlamalı yevmiye uygular." },
+            { q: "24 saat nöbet usulü çalışmada 24 saatin hepsi mesai mi olur?", a: "Hayır. Yargıtay kararlarına göre bir insan 24 saat uyanık kalamayacağı için (yemek, uyku, mola), 24 saatlik nöbetin en fazla 14 saati fiili çalışma sayılır. Sistem 24/48 gibi sistemlerde bu kuralı bilir ve haftalık 45 saati aşan kısımları ayıklayarak mesaiye dönüştürür." },
+            { q: "Gece Zammı nedir?", a: "Gece çalışması (20:00 - 06:00 arası), gündüz çalışmasına göre fiziksel olarak daha yıpratıcı olduğu için bazı işyerlerinde (Örn: Güvenlik, Fabrika) gece saatlerine ekstra prim ödenir. Ayarlardan 'Gece Zammı' oranını girerseniz, sistem gece vardiyalarına denk gelen günlerde maaşınıza bu primi otomatik ekler." },
+            { q: "Kısa/Yarım Çalışma, İşsizlik ve Doğum (Süt) İzni araçları nedir?", a: "Hesaplamalar sekmesindeki bu modüller, İŞKUR veya SGK tarafından işçilere ödenen yasal hakların simülasyonlarıdır. Kendi isteğiniz dışında işten ayrıldığınızda alacağınız maaşı veya yeni doğum yapmış bir annenin alacağı yasal süt ve rapor parasını net olarak hesaplar." },
+            { q: "Kıdem ve İhbar Tazminatı hesaplayıcısı nasıl kullanılır?", a: "İşten haksız yere çıkarıldığınızda veya haklı nedenle istifa ettiğinizde (Örn: Maaşın ödenmemesi, Askerlik) alacağınız toplu parayı gösterir. Çalıştığınız süreyi, brüt maaşınızı ve varsa yol/yemek gibi ek menfaatleri girerek devletin keseceği Damga Vergisi düşülmüş net tutarı alabilirsiniz." },
+            { q: "Bildirimler Sistemi ne işe yarar?", a: "Vardiyo, yaklaşan vardiyalarınızı (örn: Bu gece 00:00 vardiyanız var) veya önemli yasal sınırları size hatırlatmak için cihazınıza lokal bildirim gönderir. Bu sistem vardiyanızı kaçırmamanız veya peş peşe devamsızlık gibi riskli durumlarda (Risk Radarı) sizi korumak için tasarlanmıştır." },
+            { q: "Dışa Aktarmada CSV, JSON ve PDF nedir, nerelerde kullanılır?", a: "PDF, vardiya ve bordro dökümünüzü telefonunuzda kolayca okumak veya İK/Muhasebe departmanına çıktı alıp vermek içindir. CSV, verilerinizi Excel'de açıp kendi matematiksel formüllerinizi kurmanız içindir. JSON ise verilerini başka bir sisteme/yazılıma göç ettirmek isteyen ileri düzey kullanıcılar içindir." }
+        ]
+    },
+    {
         category: "Maaş, Vergi ve Mesailer",
         faqs: [
             { q: "Vergi dilimi nedir? Yıl sonuna doğru maaşım neden düşer?", a: "Kümülatif Gelir Vergisi matrahınız arttıkça yıl içinde %15 ile başlayan vergi diliminiz %20 ve %27'ye çıkar. Bu nedenle brüt maaşınız sabit kalsa bile (özellikle ikramiye alınan aylardan sonra) vergi kesintiniz artacağı için elinize geçen net maaş azalır." },
             { q: "Fazla çalışma ücretine hangi hallerde hak kazanılmaktadır?", a: "Haftalık yasal çalışma süresi olan 45 saati aşan her çalışma 'Fazla Mesai' sayılır ve saatlik ücretiniz %50 zamlı (1.5 katı) olarak ödenmek zorundadır." },
-            { q: "Hafta tatili (Pazar) mesaisi nasıl hesaplanır?", a: "Hafta tatilinde çalışılması yasaktır ancak çalışılırsa, o günün yevmiyesine ek olarak %50 zamlı (1.5 yevmiye) ödenmesi gerektiği Yargıtay kararlarıyla sabittir. Toplamda o gün için 2.5 yevmiye ödenmelidir." },
+            { q: "12/36, 12/24 veya 24/48 sistemlerinde mesai nasıl hesaplanır?", a: "Yargıtay kararlarına göre bir işçi günde (molalar düşüldükten sonra) en fazla 11 saat çalıştırılabilir. 24 saatlik nöbetlerde işçi fiilen 14 saat çalışmış sayılır ve haftalık 45 saati aşan kısımlar fazla mesai olarak ödenmek zorundadır." },
+            { q: "4'lü Vardiya Sistemi (4-Shift) nedir?", a: "3 vardiyalı (8 saatlik) sistemin hiç durmadan (7/24) çalışmasını sağlayan, 4 farklı ekibin rotasyona girdiği sistemdir. Genellikle 6 gün çalışma 2 gün tatil şeklinde uygulanır." },
+            { q: "Hafta tatilimi (izin günümü) pazar dışında bir gün yapabilir miyim?", a: "Evet. İş Kanununa göre hafta tatili kesintisiz en az 24 saat olmalıdır, ancak Pazar günü olmak zorunda değildir. İş sözleşmenize göre haftanın herhangi bir günü (veya birden fazla gün) izin kullandırılabilir." },
+            { q: "Hafta tatili (Pazar veya kendi izin günüm) mesaisi nasıl hesaplanır?", a: "Hafta tatilinde çalışılması yasaktır ancak çalışılırsa, o günün yevmiyesine ek olarak %50 zamlı (1.5 yevmiye) ödenmesi gerektiği Yargıtay kararlarıyla sabittir. Toplamda o gün için 2.5 yevmiye ödenmelidir." },
             { q: "Tatil günlerinde çalışan bir işçinin ücreti nasıl hesaplanır?", a: "Ulusal bayram ve resmi tatillerde (Örn: 23 Nisan, Bayramlar) çalışırsanız, o günün yevmiyesine ek olarak +1 yevmiye daha alırsınız. Yani toplamda o gün için çift yevmiye ödenir." },
             { q: "Maaşımın bir kısmı bankadan, bir kısmı elden veriliyor. Yasal mı?", a: "KESİNLİKLE HAYIR. Bu durum SGK primlerinizin ve ileride alacağınız emekli maaşının/tazminatın düşük yatması anlamına gelir. İşçi bu durumu ispatlarsa, sözleşmeyi haklı nedenle feshedip kıdem tazminatını alarak derhal işten ayrılabilir." },
             { q: "Ücretler hangi aralıklarla ve hangi oranlarda artırılmalıdır?", a: "İş Kanununda 'Her yıl zam yapılır' diye zorunlu bir oran yoktur (Asgari ücretin altında kalmamak şartıyla). Ancak iş veya toplu iş sözleşmenizde 'Enflasyon oranında artırılır' maddesi varsa işveren buna kesinlikle uymak zorundadır." },
@@ -72,11 +96,11 @@ export const FAQ_DATA = [
 ];
 
 export const THEMES = [
-    { text: 'text-emerald-400', iconBg: 'bg-emerald-500/10', borderHover: 'hover:border-emerald-500/30' },
-    { text: 'text-rose-400', iconBg: 'bg-rose-500/10', borderHover: 'hover:border-rose-500/30' },
-    { text: 'text-sky-400', iconBg: 'bg-sky-500/10', borderHover: 'hover:border-sky-500/30' },
-    { text: 'text-amber-400', iconBg: 'bg-amber-500/10', borderHover: 'hover:border-amber-500/30' },
-    { text: 'text-purple-400', iconBg: 'bg-purple-500/10', borderHover: 'hover:border-purple-500/30' }
+    { text: 'text-indigo-400', bgBorder: 'bg-indigo-900/10 border-indigo-500/30', iconBg: 'bg-indigo-500/10', borderHover: 'hover:border-indigo-500/50' },
+    { text: 'text-amber-400', bgBorder: 'bg-amber-900/10 border-amber-500/30', iconBg: 'bg-amber-500/10', borderHover: 'hover:border-amber-500/50' },
+    { text: 'text-red-400', bgBorder: 'bg-red-900/10 border-red-500/30', iconBg: 'bg-red-500/10', borderHover: 'hover:border-red-500/50' },
+    { text: 'text-emerald-400', bgBorder: 'bg-emerald-900/10 border-emerald-500/30', iconBg: 'bg-emerald-500/10', borderHover: 'hover:border-emerald-500/50' },
+    { text: 'text-purple-400', bgBorder: 'bg-purple-900/10 border-purple-500/30', iconBg: 'bg-purple-500/10', borderHover: 'hover:border-purple-500/50' }
 ];
 
 export const TERMINATION_CODES = [
