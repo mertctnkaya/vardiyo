@@ -29,6 +29,21 @@ export default function TicketManager() {
 
   useEffect(() => {
     fetchTickets();
+    if (!user) return;
+
+    const channel = supabase
+      .channel('ticket_manager_updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages', filter: `user_id=eq.${user.id}` }, () => {
+        fetchTickets();
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_replies', filter: `user_id=eq.${user.id}` }, () => {
+        fetchTickets();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const handleTicketClick = async (ticket: ContactMessage) => {

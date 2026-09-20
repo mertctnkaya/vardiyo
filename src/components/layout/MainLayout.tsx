@@ -61,28 +61,31 @@ export default function MainLayout() {
 
       // Realtime subscription for unread count
       unreadSub = supabase
-        .channel('contact_messages_unread')
+        .channel('global_ticket_replies_unread')
         .on(
           'postgres_changes',
-          { event: '*', schema: 'public', table: 'contact_messages', filter: `user_id=eq.${userId}` },
-          () => {
-            const fetchCount = async () => {
-              const { count } = await supabase
-                .from('contact_messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .eq('is_read_by_user', false);
+          { event: 'INSERT', schema: 'public', table: 'ticket_replies', filter: `user_id=eq.${userId}` },
+          (payload) => {
+            // Eğer mesajı başkası (Admin) gönderdiyse
+            if (payload.new.sender_id !== userId) {
+              const fetchCount = async () => {
+                const { count } = await supabase
+                  .from('contact_messages')
+                  .select('*', { count: 'exact', head: true })
+                  .eq('user_id', userId)
+                  .eq('is_read_by_user', false);
 
-              if (count !== null) {
-                const current = useAppStore.getState().unreadTicketCount;
-                useAppStore.getState().setUnreadTicketCount(count);
-                if (count > current) {
-                  const { addToast } = useToastStore.getState();
-                  addToast('Destek talebinize yanıt geldi!', 'info');
+                if (count !== null) {
+                  const current = useAppStore.getState().unreadTicketCount;
+                  useAppStore.getState().setUnreadTicketCount(count);
+                  if (count > current) {
+                    const { addToast } = useToastStore.getState();
+                    addToast('Destek talebinize yanıt geldi!', 'info');
+                  }
                 }
-              }
-            };
-            fetchCount();
+              };
+              fetchCount();
+            }
           }
         )
         .subscribe();

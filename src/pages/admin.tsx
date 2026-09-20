@@ -88,11 +88,22 @@ export default function AdminPanel() {
   useEffect(() => {
     fetchData();
 
-    // Subscribe to any changes on contact_messages
-    const channel = supabase
+    // Subscribe to any new tickets
+    const channel1 = supabase
       .channel('admin_contact_messages')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages' }, () => {
-        // Just refetch when a change occurs to keep it simple and accurate
+        const fetchMessagesOnly = async () => {
+          const { data: msgData } = await supabase.rpc('get_admin_messages');
+          if (msgData) setMessages(msgData);
+        };
+        fetchMessagesOnly();
+      })
+      .subscribe();
+
+    // Subscribe to any new replies
+    const channel2 = supabase
+      .channel('admin_ticket_replies')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_replies' }, () => {
         const fetchMessagesOnly = async () => {
           const { data: msgData } = await supabase.rpc('get_admin_messages');
           if (msgData) setMessages(msgData);
@@ -102,7 +113,8 @@ export default function AdminPanel() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(channel1);
+      supabase.removeChannel(channel2);
     };
   }, []);
 
