@@ -90,7 +90,7 @@ export default function AdminPanel() {
 
     // Subscribe to any new tickets
     const channel1 = supabase
-      .channel('admin_contact_messages')
+      .channel('admin_contact_messages_listener')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages' }, () => {
         const fetchMessagesOnly = async () => {
           const { data: msgData } = await supabase.rpc('get_admin_messages');
@@ -102,7 +102,7 @@ export default function AdminPanel() {
 
     // Subscribe to any new replies
     const channel2 = supabase
-      .channel('admin_ticket_replies')
+      .channel('admin_ticket_replies_listener')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ticket_replies' }, () => {
         const fetchMessagesOnly = async () => {
           const { data: msgData } = await supabase.rpc('get_admin_messages');

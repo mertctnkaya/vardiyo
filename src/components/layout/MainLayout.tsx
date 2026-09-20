@@ -49,24 +49,30 @@ export default function MainLayout() {
       processSyncQueue(userId);
 
       // Fetch initial unread count
-      const { count } = await supabase
-        .from('contact_messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('is_read_by_user', false);
+      const fetchInitial = async () => {
+        const { count } = await supabase
+          .from('contact_messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('is_read_by_user', false);
 
-      if (count !== null) {
-        useAppStore.getState().setUnreadTicketCount(count);
-      }
+        if (count !== null) {
+          useAppStore.getState().setUnreadTicketCount(count);
+        }
+      };
+      fetchInitial();
 
       // Realtime subscription for unread count
+      if (unreadSub) {
+        supabase.removeChannel(unreadSub);
+      }
+
       unreadSub = supabase
-        .channel('global_ticket_replies_unread')
+        .channel(`main_layout_unread_${userId}`)
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'ticket_replies', filter: `user_id=eq.${userId}` },
           (payload) => {
-            // Eğer mesajı başkası (Admin) gönderdiyse
             if (payload.new.sender_id !== userId) {
               const fetchCount = async () => {
                 const { count } = await supabase
@@ -105,7 +111,10 @@ export default function MainLayout() {
         loadSettings(session.user.id);
       } else {
         setSettings(null);
-        if (unreadSub) supabase.removeChannel(unreadSub);
+        if (unreadSub) {
+          supabase.removeChannel(unreadSub);
+          unreadSub = null;
+        }
       }
     });
 
