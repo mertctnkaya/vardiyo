@@ -99,7 +99,7 @@ export default function TicketManager() {
         <h2 className="text-xl font-bold text-white">Taleplerim & Önerilerim</h2>
         <button
           onClick={() => setView('new')}
-          className="btn btn-sm bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/40"
+          className="btn btn-sm p-3 bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/40"
         >
           + Yeni Oluştur
         </button>

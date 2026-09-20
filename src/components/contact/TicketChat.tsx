@@ -40,7 +40,12 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
         table: 'ticket_replies',
         filter: `ticket_id=eq.${ticket.id}`
       }, (payload) => {
-        setReplies(prev => [...prev, payload.new as TicketReply]);
+        const newReply = payload.new as TicketReply;
+        setReplies(prev => {
+          // Eğer aynı ID'ye sahip mesaj zaten varsa ekleme (fetchReplies ile gelmiş olabilir)
+          if (prev.some(r => r.id === newReply.id)) return prev;
+          return [...prev, newReply];
+        });
 
         // Eğer gelen mesaj admin dense, ve şu an ekrana bakıyorsak
         // Görüldü yapmak için tabloyu update edebiliriz
@@ -116,7 +121,7 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
   };
 
   return (
-    <div className="bg-[#16191d] rounded-2xl shadow-2xl border border-base-300 flex flex-col h-[600px] overflow-hidden relative">
+    <div className="bg-[#16191d] rounded-3xl shadow-2xl border border-base-300 flex flex-col h-[600px] overflow-hidden relative">
 
       {/* Header */}
       <div className="bg-base-200/50 border-b border-base-300 p-4 flex justify-between items-center shrink-0">
@@ -164,11 +169,11 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
                 <div className="chat-footer opacity-50 text-[10px] mt-1 flex gap-1 items-center">
                   {new Date(reply.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                   {isMe && (
-                    <span className="text-info ml-1">
+                    <span className="ml-1">
                       {reply.is_read ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-sky-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        <span className="text-sky-400 italic">Görüldü</span>
                       ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-base-content/40" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        <span className="text-base-content/40 italic">İletildi</span>
                       )}
                     </span>
                   )}

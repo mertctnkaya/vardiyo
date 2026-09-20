@@ -261,24 +261,26 @@ export default function AdminPanel() {
       </div>
 
       {activeChatTicket && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <div className="w-full max-w-2xl relative rounded-3xl shadow-2xl">
             <button
               onClick={() => {
                 setActiveChatTicket(null);
                 fetchData(); // Refresh list to get updated statuses
               }}
-              className="absolute -top-4 -right-4 btn btn-circle btn-sm bg-base-300 border-base-100 hover:bg-base-200 z-10"
+              className="absolute -top-4 -right-2 sm:-right-4 btn btn-circle btn-sm bg-red-500/20 text-red-400 hover:bg-red-600 hover:text-white border-none z-10 shadow-lg shadow-red-900/50"
             >
               ✕
             </button>
-            <TicketChat
-              ticket={activeChatTicket}
-              onCloseTicket={() => {
-                setActiveChatTicket(null);
-                fetchData();
-              }}
-            />
+            <div className="rounded-3xl overflow-hidden">
+              <TicketChat
+                ticket={activeChatTicket}
+                onCloseTicket={() => {
+                  setActiveChatTicket(null);
+                  fetchData();
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
