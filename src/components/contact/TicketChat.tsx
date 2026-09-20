@@ -30,7 +30,19 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
   };
 
   useEffect(() => {
-    fetchReplies();
+    const markAsReadAndFetch = async () => {
+      if (user) {
+        await supabase
+          .from('ticket_replies')
+          .update({ is_read: true })
+          .eq('ticket_id', ticket.id)
+          .eq('is_read', false)
+          .neq('sender_id', user.id);
+      }
+      fetchReplies();
+    };
+
+    markAsReadAndFetch();
 
     const channel = supabase
       .channel(`ticket_${ticket.id}`)
@@ -163,7 +175,7 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
                 <div className="chat-header text-xs opacity-50 mb-1">
                   {isMe ? 'Siz' : 'Yönetici (Vardiyo Destek)'}
                 </div>
-                <div className={`chat-bubble text-sm ${isMe ? 'chat-bubble-primary bg-indigo-600 text-white' : 'bg-base-200 text-base-content'}`}>
+                <div className={`chat-bubble text-sm ${isMe ? 'chat-bubble-primary bg-indigo-600 text-white' : 'bg-base-200 text-base-content border border-indigo-500/30'}`}>
                   {reply.message}
                 </div>
                 <div className="chat-footer opacity-50 text-[10px] mt-1 flex gap-1 items-center">

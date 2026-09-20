@@ -64,15 +64,25 @@ export default function MainLayout() {
         .channel('contact_messages_unread')
         .on(
           'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'contact_messages', filter: `user_id=eq.${userId}` },
-          (payload) => {
-            const { is_read_by_user } = payload.new as any;
-            if (is_read_by_user === false) {
-              const current = useAppStore.getState().unreadTicketCount;
-              useAppStore.getState().setUnreadTicketCount(current + 1);
-              const { addToast } = useToastStore.getState();
-              addToast('Destek talebinize yanıt geldi!', 'info');
-            }
+          { event: '*', schema: 'public', table: 'contact_messages', filter: `user_id=eq.${userId}` },
+          () => {
+            const fetchCount = async () => {
+              const { count } = await supabase
+                .from('contact_messages')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId)
+                .eq('is_read_by_user', false);
+
+              if (count !== null) {
+                const current = useAppStore.getState().unreadTicketCount;
+                useAppStore.getState().setUnreadTicketCount(count);
+                if (count > current) {
+                  const { addToast } = useToastStore.getState();
+                  addToast('Destek talebinize yanıt geldi!', 'info');
+                }
+              }
+            };
+            fetchCount();
           }
         )
         .subscribe();
