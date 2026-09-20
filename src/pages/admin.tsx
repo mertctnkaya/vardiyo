@@ -87,6 +87,23 @@ export default function AdminPanel() {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to any changes on contact_messages
+    const channel = supabase
+      .channel('admin_contact_messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages' }, () => {
+        // Just refetch when a change occurs to keep it simple and accurate
+        const fetchMessagesOnly = async () => {
+          const { data: msgData } = await supabase.rpc('get_admin_messages');
+          if (msgData) setMessages(msgData);
+        };
+        fetchMessagesOnly();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleGrantPremium = async (userId: string, monthsToAdd: number) => {

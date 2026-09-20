@@ -96,6 +96,9 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
 
     setNewMessage('');
     setIsSending(false);
+
+    // Kendi gönderdiğimiz mesajı anında görebilmek için (Realtime pingini beklemeden)
+    fetchReplies();
   };
 
   const handleCloseTicket = async () => {
