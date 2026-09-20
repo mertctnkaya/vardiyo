@@ -9,6 +9,7 @@ import PremiumTab from '../components/admin/PremiumTab';
 import MessagesTab from '../components/admin/MessagesTab';
 import StatsTab from '../components/admin/StatsTab';
 import BroadcastTab from '../components/admin/BroadcastTab';
+import TicketChat from '../components/contact/TicketChat';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useToastStore } from '../store/useToastStore';
 
@@ -18,6 +19,7 @@ export default function AdminPanel() {
   const { addToast } = useToastStore();
 
   const [activeTab, setActiveTab] = useState<'premium' | 'messages' | 'stats' | 'broadcast'>('premium');
+  const [activeChatTicket, setActiveChatTicket] = useState<ContactMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [actionFeedback, _setActionFeedback] = useState('');
 
@@ -145,6 +147,14 @@ export default function AdminPanel() {
     }
   };
 
+  const handleOpenChat = async (msg: ContactMessage) => {
+    setActiveChatTicket(msg);
+    if (!msg.is_read_by_admin) {
+      await supabase.from('contact_messages').update({ is_read_by_admin: true }).eq('id', msg.id);
+      setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read_by_admin: true } : m));
+    }
+  };
+
   if (!user || (user.email !== 'm3rt7132@gmail.com' && settings?.role !== 'admin')) {
     return <Navigate to="/" replace />;
   }
@@ -201,6 +211,7 @@ export default function AdminPanel() {
               <MessagesTab
                 messages={messages}
                 onDeleteMessage={handleDeleteMessage}
+                onOpenChat={handleOpenChat}
               />
             )}
 
@@ -228,12 +239,32 @@ export default function AdminPanel() {
                 onSend={handleSendBroadcast}
               />
             )}
-
-
           </>
         )}
       </div>
 
+      {activeChatTicket && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl relative">
+            <button
+              onClick={() => {
+                setActiveChatTicket(null);
+                fetchData(); // Refresh list to get updated statuses
+              }}
+              className="absolute -top-4 -right-4 btn btn-circle btn-sm bg-base-300 border-base-100 hover:bg-base-200 z-10"
+            >
+              ✕
+            </button>
+            <TicketChat
+              ticket={activeChatTicket}
+              onCloseTicket={() => {
+                setActiveChatTicket(null);
+                fetchData();
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

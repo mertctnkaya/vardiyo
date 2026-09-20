@@ -15,6 +15,7 @@ export interface PremiumTabProps {
 export interface MessagesTabProps {
   messages: ContactMessage[];
   onDeleteMessage: (id: number) => void;
+  onOpenChat: (msg: ContactMessage) => void;
 }
 
 export interface BroadcastTabProps {

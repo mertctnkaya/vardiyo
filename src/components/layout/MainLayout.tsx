@@ -15,6 +15,7 @@ import InAppReviewPrompt from '../shared/InAppReviewPrompt';
 import PwaUpdatePrompt from '../shared/PwaUpdatePrompt';
 import ToastContainer from '../shared/ToastContainer';
 import { useMobileBackHandler } from '../../hooks/useMobileBackHandler';
+import { useToastStore } from '../../store/useToastStore';
 
 export default function MainLayout() {
   useMobileBackHandler();
@@ -38,12 +39,43 @@ export default function MainLayout() {
   }, []);
 
   useEffect(() => {
+    let unreadSub: any;
+
     const loadSettings = async (userId: string) => {
       const settingsData = await fetchUserSettings(userId);
       if (settingsData) {
         setSettings(settingsData);
       }
       processSyncQueue(userId);
+
+      // Fetch initial unread count
+      const { count } = await supabase
+        .from('contact_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_read_by_user', false);
+
+      if (count !== null) {
+        useAppStore.getState().setUnreadTicketCount(count);
+      }
+
+      // Realtime subscription for unread count
+      unreadSub = supabase
+        .channel('contact_messages_unread')
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'contact_messages', filter: `user_id=eq.${userId}` },
+          (payload) => {
+            const { is_read_by_user } = payload.new as any;
+            if (is_read_by_user === false) {
+              const current = useAppStore.getState().unreadTicketCount;
+              useAppStore.getState().setUnreadTicketCount(current + 1);
+              const { addToast } = useToastStore.getState();
+              addToast('Destek talebinize yanıt geldi!', 'info');
+            }
+          }
+        )
+        .subscribe();
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -56,11 +88,18 @@ export default function MainLayout() {
       setSession(session);
       setUser(session?.user ?? null);
 
-      if (session?.user) loadSettings(session.user.id);
-      else setSettings(null);
+      if (session?.user) {
+        loadSettings(session.user.id);
+      } else {
+        setSettings(null);
+        if (unreadSub) supabase.removeChannel(unreadSub);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (unreadSub) supabase.removeChannel(unreadSub);
+    };
   }, [setUser, setSession, setSettings]);
 
   const closeDrawer = () => {

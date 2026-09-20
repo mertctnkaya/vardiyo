@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import type { SidebarProps } from '../../types';
 import { useEffect } from 'react';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarProps) {
+  const { unreadTicketCount } = useAppStore();
+
   useEffect(() => {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -51,7 +54,14 @@ export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarP
         <li><Link to="/next-weeks" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Gelecek Haftalar</Link></li>
         <li><Link to="/calculations" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Hesaplamalar&İşlemler</Link></li>
         <li><Link to="/faq" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">S.S.S & Haklar</Link></li>
-        <li><Link to="/contact" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">İletişim</Link></li>
+        <li>
+          <Link to="/contact" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400 flex justify-between items-center">
+            İletişim
+            {unreadTicketCount > 0 && (
+              <span className="badge badge-error text-white font-bold">{unreadTicketCount}</span>
+            )}
+          </Link>
+        </li>
         <li><Link to="/settings" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Ayarlar</Link></li>
 
         {isFounder && (

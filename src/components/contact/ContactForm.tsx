@@ -3,7 +3,11 @@ import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabaseClient';
 import Alert from '../shared/Alert';
 
-export default function ContactForm() {
+interface ContactFormProps {
+  onFinish?: () => void;
+}
+
+export default function ContactForm({ onFinish }: ContactFormProps) {
   const { user } = useAppStore();
 
   const [name, setName] = useState('');
@@ -32,12 +36,18 @@ export default function ContactForm() {
       name,
       contact_info: contactInfo,
       topic,
-      message
+      message,
+      status: 'open',
+      is_read_by_user: true,
+      is_read_by_admin: false
     });
 
     if (!error) {
       setFeedback({ type: 'success', message: 'Mesajınız başarıyla iletildi! En kısa sürede dönüş yapacağım.' });
       setMessage('');
+      if (onFinish) {
+        setTimeout(onFinish, 1500);
+      }
     } else {
       setFeedback({ type: 'error', message: 'Bir hata oluştu: ' + error.message });
     }

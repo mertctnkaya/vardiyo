@@ -1,6 +1,6 @@
 import type { MessagesTabProps } from '../../types';
 
-export default function MessagesTab({ messages, onDeleteMessage }: MessagesTabProps) {
+export default function MessagesTab({ messages, onDeleteMessage, onOpenChat }: MessagesTabProps) {
   return (
     <div className="space-y-4 px-2 animate-fade-in">
       {messages.length === 0 ? (
@@ -28,14 +28,36 @@ export default function MessagesTab({ messages, onDeleteMessage }: MessagesTabPr
             <div className="bg-base-200/50 p-4 rounded-xl border border-base-300/50 text-base-content/80 leading-relaxed whitespace-pre-wrap">
               {msg.message}
             </div>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => onDeleteMessage(msg.id)}
-                className="btn btn-sm px-4 bg-red-500/10 text-red-400 hover:bg-red-600 hover:text-white border-none transition-colors flex items-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                Mesajı Sil
-              </button>
+            <div className="mt-4 flex justify-between items-center">
+              <div>
+                {msg.status === 'closed' ? (
+                  <span className="badge badge-success badge-sm badge-outline gap-1 text-xs">Kapatıldı</span>
+                ) : msg.status === 'active_chat' ? (
+                  <span className="badge badge-info badge-sm badge-outline gap-1 text-xs text-sky-400 border-sky-400">Sohbet Aktif</span>
+                ) : (
+                  <span className="badge badge-ghost badge-sm gap-1 text-xs">Bekliyor</span>
+                )}
+                {!msg.is_read_by_admin && msg.status !== 'closed' && (
+                  <span className="badge badge-error badge-sm text-white font-bold ml-2 animate-pulse">Yeni Mesaj!</span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {msg.status !== 'closed' && (
+                  <button
+                    onClick={() => onOpenChat(msg)}
+                    className="btn btn-sm px-4 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-600 hover:text-white border-none transition-colors flex items-center gap-2"
+                  >
+                    💬 Yanıtla
+                  </button>
+                )}
+                <button
+                  onClick={() => onDeleteMessage(msg.id)}
+                  className="btn btn-sm px-4 bg-red-500/10 text-red-400 hover:bg-red-600 hover:text-white border-none transition-colors flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  Mesajı Sil
+                </button>
+              </div>
             </div>
           </div>
         ))

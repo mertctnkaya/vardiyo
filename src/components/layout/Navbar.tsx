@@ -2,8 +2,11 @@ import { Link } from 'react-router-dom';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import OfflineSyncIndicator from '../shared/OfflineSyncIndicator';
 import type { NavbarProps } from '../../types';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
+  const { unreadTicketCount } = useAppStore();
+
   return (
     <div className="navbar bg-base-100 shadow-xl mb-6 sm:mb-8 w-full z-10 px-2 sm:px-4 print:hidden justify-between">
       <div className="navbar-start w-auto flex items-center shrink-0">
@@ -24,7 +27,16 @@ export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
           <li><Link to="/next-weeks" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Gelecek Haftalar</Link></li>
           <li><Link to="/calculations" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Hesaplamalar&İşlemler</Link></li>
           <li><Link to="/faq" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">S.S.S & Haklar</Link></li>
-          <li><Link to="/contact" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">İletişim</Link></li>
+          <li>
+            <Link to="/contact" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5 relative">
+              İletişim
+              {unreadTicketCount > 0 && (
+                <span className="absolute -top-1 -right-2 badge badge-error badge-xs w-4 h-4 text-[10px] animate-bounce shadow-lg shadow-red-900/50">
+                  {unreadTicketCount}
+                </span>
+              )}
+            </Link>
+          </li>
           <li><Link to="/settings" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Ayarlar</Link></li>
 
           {isFounder && (
