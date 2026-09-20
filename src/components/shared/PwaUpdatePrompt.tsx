@@ -1,3 +1,4 @@
+/// <reference types="vite-plugin-pwa/client" />
 import { useRegisterSW } from 'virtual:pwa-register/react';
 
 export default function PwaUpdatePrompt() {
@@ -5,10 +6,10 @@ export default function PwaUpdatePrompt() {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegistered(r) {
+    onRegistered(r: any) {
       console.log('SW Registered:', r);
     },
-    onRegisterError(error) {
+    onRegisterError(error: any) {
       console.log('SW registration error', error);
     },
   });
@@ -30,14 +31,14 @@ export default function PwaUpdatePrompt() {
           </div>
         </div>
         <div className="flex gap-2 justify-end">
-          <button 
-            onClick={() => setNeedRefresh(false)} 
+          <button
+            onClick={() => setNeedRefresh(false)}
             className="btn btn-sm btn-ghost text-indigo-300 hover:bg-indigo-800/50"
           >
             Sonra
           </button>
-          <button 
-            onClick={() => updateServiceWorker(true)} 
+          <button
+            onClick={() => updateServiceWorker(true)}
             className="btn btn-sm bg-indigo-500 hover:bg-indigo-400 text-white border-none shadow-lg shadow-indigo-900/50"
           >
             Yenile

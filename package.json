@@ -1,8 +1,8 @@
 {
   "name": "vardiyo",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "description": "vardiyo B2C - Çalışan odaklı akıllı vardiya ve bordro takip sistemi",
-  "author": "m3rt",
+  "author": "Mertcan Çetinkaya",
   "private": true,
   "type": "module",
   "scripts": {
