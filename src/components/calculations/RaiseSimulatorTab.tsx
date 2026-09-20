@@ -8,13 +8,26 @@ export default function RaiseSimulatorTab() {
   const [result, setResult] = useState<any>(null);
 
 
+  const [feedback, setFeedback] = useState<string | null>(null);
+
   const handleCalculate = () => {
-
-
-    if (!currentSalary || isNaN(Number(currentSalary)) || !raiseValue || isNaN(Number(raiseValue))) return;
+    setFeedback(null);
+    if (!currentSalary || isNaN(Number(currentSalary)) || !raiseValue || isNaN(Number(raiseValue))) {
+      setFeedback("Lütfen geçerli değerler girin.");
+      return;
+    }
 
     const base = Number(currentSalary);
     const value = Number(raiseValue);
+
+    if (base <= 0 || base > 2000000) {
+      setFeedback("Lütfen 0 ile 2.000.000 ₺ arası bir mevcut maaş girin.");
+      return;
+    }
+    if (value < 0 || (raiseType === 'percent' && value > 1000) || (raiseType === 'flat' && value > 2000000)) {
+      setFeedback("Lütfen geçerli bir zam oranı/tutarı girin.");
+      return;
+    }
 
     let newSalary = 0;
     let raiseAmount = 0;
@@ -74,8 +87,13 @@ export default function RaiseSimulatorTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Zammı Hesapla
-
           </button>
+
+          {feedback && (
+            <div className="mt-4 p-3 bg-red-900/30 text-red-400 rounded-lg text-sm font-bold text-center animate-fade-in">
+              {feedback}
+            </div>
+          )}
         </div>
 
         <div className="bg-base-200 p-4 sm:p-6 rounded-2xl border border-base-300 flex flex-col justify-center min-h-[300px]">

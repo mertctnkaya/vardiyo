@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { useToastStore } from '../store/useToastStore';
 
 const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
@@ -15,7 +16,7 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export async function registerAndSubscribeToPush(userId: string) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    alert('Tarayıcınız anlık bildirimleri desteklemiyor.');
+    useToastStore.getState().addToast('Tarayıcınız anlık bildirimleri desteklemiyor.', 'warning');
     return null;
   }
 
@@ -34,7 +35,7 @@ export async function registerAndSubscribeToPush(userId: string) {
     }
 
     if (!publicVapidKey) {
-      alert('HATA: VAPID Key bulunamadı!');
+      useToastStore.getState().addToast('HATA: VAPID Key bulunamadı!', 'error');
       return permission;
     }
 
@@ -49,15 +50,15 @@ export async function registerAndSubscribeToPush(userId: string) {
       .eq('user_id', userId);
 
     if (error) {
-      alert('DB HATA: ' + error.message);
+      useToastStore.getState().addToast('DB HATA: ' + error.message, 'error');
     } else {
-      alert('BAŞARILI: Cihaz sisteme bağlandı!');
+      useToastStore.getState().addToast('BAŞARILI: Cihaz sisteme bağlandı!', 'success');
     }
 
     return permission;
 
   } catch (error: any) {
-    alert(`SİSTEM HATASI [${error.name}]: ${error.message}`);
+    useToastStore.getState().addToast(`SİSTEM HATASI [${error.name}]: ${error.message}`, 'error');
     return null;
   }
 }
@@ -71,7 +72,7 @@ export async function sendTestNotification(userId: string) {
       .single();
 
     if (error || !data?.push_subscription) {
-      alert("Cihaz aboneliği bulunamadı. Lütfen önce bildirim izni verin.");
+      useToastStore.getState().addToast("Cihaz aboneliği bulunamadı. Lütfen önce bildirim izni verin.", 'warning');
       return;
     }
 
@@ -88,7 +89,7 @@ export async function sendTestNotification(userId: string) {
 
     if (funcError) {
       console.error("Postacı (Edge Function) hatası:", funcError);
-      alert("Bildirim gönderilemedi. Konsolu kontrol edin.");
+      useToastStore.getState().addToast("Bildirim gönderilemedi. Konsolu kontrol edin.", 'error');
     } else {
       console.log("Mektup postacıya teslim edildi!");
     }

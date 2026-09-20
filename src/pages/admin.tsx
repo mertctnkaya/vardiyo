@@ -10,14 +10,16 @@ import MessagesTab from '../components/admin/MessagesTab';
 import StatsTab from '../components/admin/StatsTab';
 import BroadcastTab from '../components/admin/BroadcastTab';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { useToastStore } from '../store/useToastStore';
 
 export default function AdminPanel() {
   usePageTitle('Yönetici Paneli');
   const { user, settings } = useAppStore();
+  const { addToast } = useToastStore();
 
   const [activeTab, setActiveTab] = useState<'premium' | 'messages' | 'stats' | 'broadcast'>('premium');
   const [isLoading, setIsLoading] = useState(true);
-  const [actionFeedback, setActionFeedback] = useState('');
+  const [actionFeedback, _setActionFeedback] = useState('');
 
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -31,7 +33,7 @@ export default function AdminPanel() {
 
   const handleSendBroadcast = async () => {
     if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
-      alert("Lütfen başlık ve mesaj girin.");
+      addToast("Lütfen başlık ve mesaj girin.", 'warning');
       return;
     }
 
@@ -43,30 +45,26 @@ export default function AdminPanel() {
 
       if (error) throw error;
 
-      alert(`Duyuru başarıyla gönderildi! (${data.sentCount} kişiye ulaştı)`);
+      addToast(`Duyuru başarıyla gönderildi! (${data.sentCount} kişiye ulaştı)`, 'success');
       setBroadcastTitle('');
       setBroadcastMessage('');
-    } catch (err) {
-      console.error("Duyuru gönderilemedi:", err);
-      alert("Gönderim sırasında bir hata oluştu.");
+    } catch (err: any) {
+      console.error(err);
+      addToast("Gönderim sırasında bir hata oluştu.", 'error');
     } finally {
       setIsBroadcasting(false);
     }
   };
-
-  if (!user || (user.email !== 'm3rt7132@gmail.com' && settings?.role !== 'admin')) {
-    return <Navigate to="/" replace />;
-  }
 
   const handleForceCronRun = async () => {
     setIsTriggeringCron(true);
     try {
       const { data, error } = await supabase.functions.invoke('daily-worker');
       if (error) throw error;
-      alert(`Günlük işçi başarıyla çalıştırıldı! İşlenen kullanıcı: ${data.processedUsers}, Atılan Bildirim: ${data.notificationsSent}`);
+      addToast(`Günlük işçi başarıyla çalıştırıldı! İşlenen kullanıcı: ${data.processedUsers}, Atılan Bildirim: ${data.notificationsSent}`, 'success');
     } catch (err) {
       console.error(err);
-      alert("Tetikleme başarısız oldu.");
+      addToast("Tetikleme başarısız oldu.", 'error');
     } finally {
       setIsTriggeringCron(false);
     }
@@ -114,9 +112,10 @@ export default function AdminPanel() {
       .eq('user_id', userId);
 
     if (error) {
-      setActionFeedback('Hata: ' + error.message);
-      setTimeout(() => setActionFeedback(''), 3000);
+      addToast('Hata: ' + error.message, 'error');
       fetchData();
+    } else {
+      addToast('Premium güncellendi', 'success');
     }
   };
 
@@ -127,9 +126,10 @@ export default function AdminPanel() {
 
     const { error } = await supabase.rpc('delete_admin_message', { msg_id: id });
     if (error) {
-      setActionFeedback('Hata: ' + error.message);
-      setTimeout(() => setActionFeedback(''), 3000);
+      addToast('Hata: ' + error.message, 'error');
       fetchData();
+    } else {
+      addToast('Mesaj silindi', 'success');
     }
   };
 
@@ -140,11 +140,14 @@ export default function AdminPanel() {
 
     const { error } = await supabase.rpc('delete_user_account', { target_user_id: id });
     if (error) {
-      setActionFeedback('Hata: ' + error.message);
-      setTimeout(() => setActionFeedback(''), 3000);
+      addToast('Hata: ' + error.message, 'error');
       fetchData();
     }
   };
+
+  if (!user || (user.email !== 'm3rt7132@gmail.com' && settings?.role !== 'admin')) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex flex-col items-center animate-fade-in w-full pb-10">

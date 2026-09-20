@@ -141,6 +141,41 @@ export default function SeveranceTab() {
 
       {severanceResult && (
         <div className="space-y-6 animate-fade-in mt-6">
+          {/* Akıllı Uyarı / İpucu Sistemi */}
+          {(() => {
+            const start = new Date(settings.employment_start_date);
+            const end = new Date(terminationDate);
+            const diffDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+            const years = diffDays / 365.25;
+
+            // Eğer 1 yılı doldurmaya çok az kaldıysa
+            if (years < 1 && years > 0.8) {
+              const daysLeft = Math.ceil(365.25 - diffDays);
+              return (
+                <Alert color="red" title="Kritik Uyarı!" icon="warning" bgStyle="colored" borderStyle="colored">
+                  Kıdem tazminatı alabilmek için <strong>1 tam yılı</strong> doldurmanız şarttır.
+                  Sadece <strong>{daysLeft} gün</strong> daha beklerseniz, yasal olarak kıdem tazminatına hak kazanacaksınız!
+                </Alert>
+              );
+            }
+
+            // 1 yılı geçmiş ama sonraki yıldönümüne 90 günden az kaldıysa
+            if (years >= 1) {
+              const nextAnniversaryDays = Math.ceil((Math.floor(years) + 1) * 365.25);
+              const daysLeft = nextAnniversaryDays - diffDays;
+
+              if (daysLeft > 0 && daysLeft <= 90) {
+                return (
+                  <Alert color="red" title="💡 Akıllı İpucu" icon="info" bgStyle="colored" borderStyle="left-colored">
+                    Çalışma yıldönümünüze sadece <strong>{Math.ceil(daysLeft)} gün</strong> kaldı!
+                    Eğer {Math.ceil(daysLeft)} gün daha beklerseniz, hem yeni dönem <strong>yıllık izin hakkınızı</strong> kazanıp çıkışta bunun parasını fazladan alabilirsiniz, hem de kıdem tazminatınız yeni bir tam yıl üzerinden hesaplanacağı için artış gösterir.
+                  </Alert>
+                );
+              }
+            }
+            return null;
+          })()}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-[#16191d] p-5 rounded-xl border border-base-300 shadow-lg">
               <h4 className="font-bold text-base-content/70 mb-4 border-b border-base-300 pb-2">Kıdem Tazminatı</h4>

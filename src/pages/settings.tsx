@@ -5,7 +5,6 @@ import { registerAndSubscribeToPush } from '../lib/pushNotifications';
 import { LocalNotifications } from '@capacitor/local-notifications'; // NATIVE API
 import { isNative } from "../utils/isNative";
 
-import Alert from '../components/shared/Alert';
 import SettingsHeader from '../components/settings/SettingsHeader';
 import ShiftSystemSection from '../components/settings/ShiftSystemSection';
 import DateReferencesSection from '../components/settings/DateReferencesSection';
@@ -15,15 +14,16 @@ import NotificationSection from '../components/settings/NotificationSection';
 import AccountSection from '../components/settings/AccountSection';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { triggerHaptic } from '../utils/haptics';
+import { useToastStore } from '../store/useToastStore';
 
 export default function Settings() {
   usePageTitle('Ayarlar');
   const { user, setSettings } = useAppStore();
+  const { addToast } = useToastStore();
   const [_showAuthModal, setShowAuthModal] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   const [workType, setWorkType] = useState('3-shift');
   const [shiftPattern, setShiftPattern] = useState<number[]>([]);
@@ -59,7 +59,7 @@ export default function Settings() {
 
   const handleRequestPermission = async () => {
     if (!user) {
-      alert("Bildirim izni verebilmek için lütfen önce giriş yapın!");
+      addToast("Bildirim izni verebilmek için lütfen önce giriş yapın!", 'warning');
       return;
     }
 
@@ -69,14 +69,14 @@ export default function Settings() {
         const finalStatus = permStatus.display === 'prompt' ? 'default' : permStatus.display;
         setNotificationStatus(finalStatus);
         if (finalStatus === 'granted') {
-          alert('Mobil bildirim izni başarıyla alındı!');
+          addToast('Mobil bildirim izni başarıyla alındı!', 'success');
         }
       } else {
         const newStatus = await registerAndSubscribeToPush(user.id);
         if (newStatus) setNotificationStatus(newStatus);
       }
     } catch (error) {
-      alert("İzin istenirken sistem hatası oluştu: " + String(error));
+      addToast("İzin istenirken sistem hatası oluştu: " + String(error), 'error');
     }
   };
 
@@ -159,14 +159,60 @@ export default function Settings() {
       setShowAuthModal(true);
       return;
     }
-    setFeedback(null);
 
-    if (monthlyGross === '' || Number(monthlyGross) <= 0 || baseWorkHours === '') {
+    const showError = (msg: string) => {
       triggerHaptic('error');
-      setFeedback({ type: 'error', message: 'Lütfen geçerli bir aylık brüt maaş ve çalışma süresi girin.' });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+      addToast(msg, 'error');
+      setIsSaving(false);
+    };
+
+    // --- FORM VALIDATION GUARDRAILS ---
+    const grossVal = Number(monthlyGross);
+    const hoursVal = Number(baseWorkHours);
+    const nightBonusVal = Number(nightBonus);
+    const yevmiyeVal = Number(dailyYevmiye);
+    const durationVal = Number(shiftDuration);
+    const yevmiyeHoursVal = Number(yevmiyeBaseHours);
+    const satMultVal = Number(saturdayMultiplier);
+    const weekendMultVal = Number(weekendMultiplier);
+    const holMultVal = Number(holidayMultiplier);
+
+    if (workType !== 'yevmiye') {
+      if (isNaN(grossVal) || grossVal <= 0 || grossVal > 2000000) {
+        return showError('Lütfen geçerli bir aylık brüt maaş girin (0 - 2.000.000 ₺ arası).');
+      }
+      if (isNaN(hoursVal) || hoursVal <= 0 || hoursVal > 24) {
+        return showError('Günlük normal çalışma süresi 0 ile 24 saat arasında olmalıdır.');
+      }
+      if (isNaN(nightBonusVal) || nightBonusVal < 0 || nightBonusVal > 500) {
+        return showError('Gece zammı oranı mantıksız. Lütfen geçerli bir yüzde girin (0 - 500 arası).');
+      }
+    } else {
+      if (isNaN(yevmiyeVal) || yevmiyeVal <= 0 || yevmiyeVal > 100000) {
+        return showError('Lütfen geçerli bir günlük yevmiye girin (0 - 100.000 ₺ arası).');
+      }
+      if (isNaN(yevmiyeHoursVal) || yevmiyeHoursVal <= 0 || yevmiyeHoursVal > 24) {
+        return showError('Yevmiye günlük çalışma süresi 0 ile 24 saat arasında olmalıdır.');
+      }
     }
+
+    if (workType === 'fixed' || workType === 'yevmiye') {
+      if (isNaN(durationVal) || durationVal <= 0 || durationVal > 24) {
+        return showError('Vardiya süresi 0 ile 24 saat arasında olmalıdır.');
+      }
+    }
+
+    // Ortak Çarpan (Multiplier) Kontrolleri
+    if (isNaN(satMultVal) || satMultVal < 1 || satMultVal > 10) {
+      return showError('Cumartesi mesai çarpanı mantıksız (En az 1, en fazla 10 olmalıdır).');
+    }
+    if (isNaN(weekendMultVal) || weekendMultVal < 1 || weekendMultVal > 10) {
+      return showError('Hafta tatili (Pazar) çarpanı mantıksız (En az 1, en fazla 10 olmalıdır).');
+    }
+    if (isNaN(holMultVal) || holMultVal < 1 || holMultVal > 10) {
+      return showError('Resmi tatil çarpanı mantıksız (En az 1, en fazla 10 olmalıdır).');
+    }
+    // -----------------------------------
 
     triggerHaptic('medium');
     setIsSaving(true);
@@ -204,18 +250,18 @@ export default function Settings() {
 
     if (error) {
       triggerHaptic('error');
-      setFeedback({ type: 'error', message: 'Hata: ' + error.message });
+      addToast('Hata: ' + error.message, 'error');
     } else {
       triggerHaptic('success');
       const msg = typeof navigator !== 'undefined' && !navigator.onLine
         ? 'Ayarlarınız cihaza kaydedildi. İnternet bağlantısı sağlandığında sunucuya aktarılacaktır.'
         : 'Ayarlarınız başarıyla kaydedildi.';
-      setFeedback({ type: 'success', message: msg });
+
+      addToast(msg, 'success');
+
       if (data) setSettings(data);
       setShiftEndTime(finalEndTime);
-      setTimeout(() => setFeedback(null), 3500);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsSaving(false);
   };
 
@@ -232,8 +278,6 @@ export default function Settings() {
         <SettingsHeader user={user} />
 
         <div className="p-6 sm:p-8 space-y-8 pt-0">
-          {feedback?.type === 'success' && <Alert color="emerald" icon="check" title="İşlem Başarılı">{feedback.message}</Alert>}
-          {feedback?.type === 'error' && <Alert color="red" icon="warning" title="Kayıt Hatası">{feedback.message}</Alert>}
 
           <ShiftSystemSection
             workType={workType} setWorkType={setWorkType}

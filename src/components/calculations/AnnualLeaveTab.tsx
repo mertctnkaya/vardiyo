@@ -30,17 +30,25 @@ export default function AnnualLeaveTab() {
       }
 
       try {
-        const { count, error } = await supabase.from('work_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'annual_leave');
+        const todayStr = new Date().toISOString().split('T')[0];
+        const { count, error } = await supabase
+          .from('work_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('status', 'annual_leave')
+          .lte('date', todayStr);
+
         if (!error && count !== null) {
           setCalendarUsedLeave(count);
         } else {
           const logs = getCachedWorkLogs(user.id);
-          const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave').length;
+          const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave' && l.log_date <= todayStr).length;
           setCalendarUsedLeave(localCount);
         }
       } catch {
+        const todayStr = new Date().toISOString().split('T')[0];
         const logs = getCachedWorkLogs(user.id);
-        const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave').length;
+        const localCount = Object.values(logs).filter((l: any) => l?.status === 'annual_leave' && l.log_date <= todayStr).length;
         setCalendarUsedLeave(localCount);
       }
     };

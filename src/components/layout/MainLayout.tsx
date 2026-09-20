@@ -12,6 +12,8 @@ import Footer from './Footer';
 import CookieBanner from '../shared/CookieBanner';
 import PWAInstallPrompt from '../shared/PWAInstallPrompt';
 import InAppReviewPrompt from '../shared/InAppReviewPrompt';
+import PwaUpdatePrompt from '../shared/PwaUpdatePrompt';
+import ToastContainer from '../shared/ToastContainer';
 import { useMobileBackHandler } from '../../hooks/useMobileBackHandler';
 
 export default function MainLayout() {
@@ -93,6 +95,8 @@ export default function MainLayout() {
       <CookieBanner />
       <PWAInstallPrompt />
       <InAppReviewPrompt />
+      <PwaUpdatePrompt />
+      <ToastContainer />
     </div>
   );
 }

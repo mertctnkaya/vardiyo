@@ -2,7 +2,7 @@ import React from 'react';
 
 export type IconName = 
   | 'crown' | 'users' | 'calendar' | 'bell' | 'trash' 
-  | 'close' | 'check' | 'warning' | 'info' | 'mail' | 'premium' | 'wallet' | 'clock';
+  | 'close' | 'check' | 'warning' | 'info' | 'mail' | 'premium' | 'wallet' | 'clock' | 'money' | 'star' | 'moon';
 
 export interface IconProps {
   name: IconName;
@@ -13,7 +13,7 @@ export interface StatCardProps {
   title: string;
   value: string | number;
   desc: string;
-  colorTheme?: 'blue' | 'emerald' | 'orange' | 'rose' | 'indigo' | 'white' | 'gray';
+  colorTheme?: 'blue' | 'emerald' | 'orange' | 'rose' | 'indigo' | 'white' | 'gray' | 'red';
   iconName?: IconName;
 }
 

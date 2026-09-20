@@ -6,22 +6,27 @@ import type { HourlyCalcResult } from '../../types';
 
 export default function MonthlyToolsTab() {
   const { settings, user, setSettings } = useAppStore();
-  
+
   const [calcTargetType, setCalcTargetType] = useState<'gross' | 'net'>('net');
   const [calcTargetValue, setCalcTargetValue] = useState('');
   const [calcResults, setCalcResults] = useState<HourlyCalcResult | null>(null);
-  
+
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   const performCalculation = () => {
     const cleanValue = calcTargetValue.replace(/\./g, '').replace(',', '.');
     const val = Number(cleanValue);
-    if (!val || val <= 0) return;
+    if (isNaN(val) || val <= 0 || val > 2000000) {
+      setFeedback({ type: 'error', message: 'Lütfen 0 ile 2.000.000 ₺ arası geçerli bir maaş girin.' });
+      setTimeout(() => setFeedback(null), 3000);
+      return;
+    }
 
     const baseHours = settings?.base_work_hours ? Number(settings.base_work_hours) : 7.5;
     const result = calculateWageFromMonthlyTarget(val, calcTargetType, baseHours);
     setCalcResults(result);
+    setFeedback(null);
   };
 
   const saveToSettings = async () => {

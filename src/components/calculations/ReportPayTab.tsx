@@ -8,13 +8,22 @@ export default function ReportPayTab() {
   const [result, setResult] = useState<any>(null);
 
 
+  const [feedback, setFeedback] = useState<string | null>(null);
+
   const handleCalculate = () => {
-
-
-    if (!grossSalary || isNaN(Number(grossSalary)) || !reportDays || isNaN(Number(reportDays))) return;
+    setFeedback(null);
+    if (!grossSalary || isNaN(Number(grossSalary)) || !reportDays || isNaN(Number(reportDays))) {
+      setFeedback("Lütfen geçerli maaş ve gün sayısı girin.");
+      return;
+    }
 
     const gross = Number(grossSalary);
     const days = Math.floor(Number(reportDays));
+
+    if (gross <= 0 || gross > 2000000) {
+      setFeedback("Lütfen 0 ile 2.000.000 ₺ arası geçerli bir brüt maaş girin.");
+      return;
+    }
 
     if (days < 3) {
       setResult({ error: 'SGK, 3 günden az (1 veya 2 günlük) raporlar için işgöremezlik ödeneği yatırmaz. Bu günlerin ücreti işveren insiyatifindedir.' });
@@ -94,8 +103,13 @@ export default function ReportPayTab() {
 
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Hesapla
-
           </button>
+
+          {feedback && (
+            <div className="mt-4 p-3 bg-red-900/30 text-red-400 rounded-lg text-sm font-bold text-center animate-fade-in">
+              {feedback}
+            </div>
+          )}
         </div>
 
         <div className="bg-base-200 p-4 sm:p-6 rounded-2xl border border-base-300 flex flex-col justify-center min-h-[300px]">

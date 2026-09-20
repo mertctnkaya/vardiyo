@@ -4,6 +4,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabaseClient';
 import { downloadDataAsJSON } from '../../utils/exportUtils';
 import Alert from '../shared/Alert';
+import { useToastStore } from '../../store/useToastStore';
 
 export default function AccountSection() {
   const { user, setUser, setSession, setSettings } = useAppStore();
@@ -43,7 +44,7 @@ export default function AccountSection() {
       const fileName = `Vardiyo_Verilerim_${new Date().toISOString().split('T')[0]}.json`;
       downloadDataAsJSON(fileName, exportPayload);
     } catch {
-      alert('Veri dışa aktarılırken bir hata oluştu.');
+      useToastStore.getState().addToast('Veri dışa aktarılırken bir hata oluştu.', 'error');
     }
     setIsExporting(false);
   };

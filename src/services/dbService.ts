@@ -12,6 +12,7 @@ import {
   addToSyncQueue 
 } from './offlineStorage';
 import type { Reminder, UserSettings } from '../types';
+import { useToastStore } from '../store/useToastStore';
 
 export interface DbResult<T = any> {
   data: T | null;
@@ -234,7 +235,7 @@ export const saveWorkLogBatch = async (userId: string, dates: any[]): Promise<Db
     mergeCachedWorkLogs(userId, cacheMap);
     return { error: null };
   } catch (err: any) {
-    alert(`[Sistem Notu] Veritabanı Hatası: ${err.message || JSON.stringify(err)}`);
+    useToastStore.getState().addToast(`[Sistem Notu] Veritabanı Hatası: ${err.message || JSON.stringify(err)}`, 'error');
     console.warn('[dbService] Network failure in saveWorkLogBatch, fallback to offline:', err);
     mergeCachedWorkLogs(userId, cacheMap);
     addToSyncQueue(userId, 'SAVE_WORK_LOG_BATCH', { dates });

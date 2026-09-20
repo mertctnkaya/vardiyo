@@ -40,7 +40,12 @@ export default function PayrollTab() {
     const lastDayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
 
     const logsMap = await fetchMonthWorkLogs(user.id, firstDayStr, lastDayStr);
-    setFetchedLogs(logsMap ? Object.values(logsMap) : []);
+
+    // YENİ KURALLAR: Gelecek tarihli mesailer / izinler o gün gelmeden bordroya yansımamalı.
+    const todayStr = new Date().toISOString().split('T')[0];
+    const filteredLogs = logsMap ? Object.values(logsMap).filter((l: any) => l.log_date <= todayStr) : [];
+
+    setFetchedLogs(filteredLogs);
     setIsLoadingPayroll(false);
   };
 

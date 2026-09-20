@@ -1,4 +1,5 @@
 import type { ShiftSystemSectionProps } from '../../types';
+import { useToastStore } from '../../store/useToastStore';
 
 export default function ShiftSystemSection({
   workType, setWorkType, shiftStartTime, setShiftStartTime, shiftEndTime, setShiftEndTime,
@@ -46,7 +47,7 @@ export default function ShiftSystemSection({
     } else {
       const maxDays = (workType === 'fixed' || workType === 'yevmiye') ? 2 : 1;
       if (restDays.length >= maxDays) {
-        alert(maxDays === 1 ? "Bu vardiya sisteminde sistemin şaşmaması için en fazla 1 gün izin seçilebilir." : "Gerçekçi çalışma standartlarına göre en fazla 2 gün izin seçebilirsiniz.");
+        useToastStore.getState().addToast(maxDays === 1 ? "Bu vardiya sisteminde sistemin şaşmaması için en fazla 1 gün izin seçilebilir." : "Gerçekçi çalışma standartlarına göre en fazla 2 gün izin seçebilirsiniz.", 'warning');
         return;
       }
       setRestDays([...restDays, dayIndex].sort());

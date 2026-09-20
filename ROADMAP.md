@@ -33,10 +33,25 @@ Bu doküman, Vardiyo projesinin gelecek sürümleri, ürün stratejisi, yapay ze
 
 ---
 
+## 🛠 AŞAMA 0: CİLA, STABİLİZASYON VE UX (YAPILACAKLAR)
+
+Büyük yeni modüllere geçmeden önce uygulamanın "Native" hissiyatını artıracak ve kullanıcı hatalarını önleyecek kalite güncellemeleri:
+
+- [x] **PWA Güncelleme Uyarısı (Update Prompt):** Uygulamaya yeni bir sürüm çıkıldığında tarayıcı önbelleğinde takılı kalmaması için "Yeni sürüm var, yenilemek için tıklayın" bildirim yapısı.
+- [x] **Dokunmatik Kaydırma (Swipe) Desteği:** Özellikle Mesai Takvimi (`WorktimeCalendar`) üzerinde ayları değiştirirken mobil cihazlardaki gibi sağa-sola kaydırma hareketlerinin algılanması.
+- [x] **Global Bildirim (Toast/Snackbar) Sistemi:** "Ayarlar kaydedildi", "Kayıt silindi" gibi işlemler sonrası ekranın altından/üstünden belirip kaybolan şık sistem bildirimleri.
+- [x] **Form Validasyonu (Mantıksız Veri Engeli):** Ayarlar ekranında brüt maaşa veya çalışma saatine eksi (-), 24'ten büyük vs. sistemi çökertecek geçersiz değerlerin girilmesinin engellenmesi.
+
+---
+
 ## 🎯 1. AŞAMA: HIZLI DEĞER ÜRETEN ÖZELLİKLER & ONBOARDING
 
 Kullanıcının ilk kurulumunu saniyelere indiren ve viral yayılmayı tetikleyen özellikler:
 
+- [ ] **Uygulama İçi Destek Talebi (Ticket Sistemi):**
+  - Kullanıcıların iletişim sayfasından admin'e (kurucuya) uygulama içinden destek bileti (ticket) açabilmesi.
+  - Supabase üzerinden real-time veya asenkron bildirim altyapısıyla gelen cevapların sağ üstteki zile bildirim olarak düşmesi.
+  - Gelecekteki "Kullanıcıdan Kullanıcıya" (User-to-User) kariyer / ilan ağı mesajlaşmasının temel veritabanı altyapısının atılması.
 - [ ] **İşyeri & Sektör Hazır Şablonları (Presets):**
   - Ayarlar sayfasında tek tıkla uygulanabilen popüler işkolu şablonları.
   - _MESS Metal & Otomotiv:_ Fazla mesai %100, gece zammı %15, 3 vardiya döngüsü.
@@ -52,6 +67,11 @@ Kullanıcının ilk kurulumunu saniyelere indiren ve viral yayılmayı tetikleye
   - Takvimden tek tıkla "Haftalık Vardiya Çizelgem" görseli üretme (html-to-image altyapısıyla hatasız render).
   - İşçinin arkadaşlarına, ailesine veya WhatsApp grubuna atabileceği şık, altında _"Vardiyo ile planlandı"_ imzalı HD paylaşım kartı.
   - Akıllı "Sonraki Vardiya" dedektörü ile önümüzdeki 7 gün içerisindeki ilk çalışma gününün tarihini ve vardiyasını otomatik hesaplama.
+- [ ] **Akıllı Hızlı Mesai Widget'ı (iOS & Android):**
+  - Kullanıcıların uygulamayı açmadan, telefonlarının ana ekranından tek tuşla hızlı mesai girişi yapabilecekleri Native araç takımları.
+  - _Dashboard Vizyonu:_ Widget üzerinde aynı zamanda "Bu ay tahmini net maaş", "Ayın bitmesine kalan gün" gibi kullanıcıyı motive edecek özet bilgiler bulunacak.
+- [x] **Gelecek Tarihli Kayıtların İzole Edilmesi (Future Log Isolation):**
+  - Kullanıcı ileri bir tarihe Fazla Mesai veya Yıllık İzin girebilecek. Ancak bu veriler o gün gelene kadar bordro hesaplamalarına KESİNLİKLE yansımayacak. Sadece takvimde planlanmış olarak duracak.
 
 ---
 

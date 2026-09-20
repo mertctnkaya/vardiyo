@@ -19,7 +19,7 @@ export default function PayrollSection({
             <span className="text-indigo-400 font-bold">₺</span>
             <input type="number" className="grow font-bold text-white" value={monthlyGross} onChange={(e) => setMonthlyGross(e.target.value)} onClick={(e) => (e.target as HTMLInputElement).select()} />
           </label>
-          <Link to="/calculations" className="text-sm font-medium text-indigo-400/80 hover:text-indigo-300 mt-2 ml-1 inline-flex items-center gap-1 transition-colors">
+          <Link to="/calculations?tab=tools" className="text-sm font-medium text-indigo-400/80 hover:text-indigo-300 mt-2 ml-1 inline-flex items-center gap-1 transition-colors">
             <Icon name="info" className="w-4 h-4" /> Brüt tutarınızı bilmiyorsanız tıklayın.
           </Link>
         </div>

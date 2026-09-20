@@ -6,12 +6,14 @@ import { saveUserWorkLog, deleteUserWorkLog } from '../../services/dbService';
 import Alert from '../shared/Alert';
 import { useAppStore } from '../../store/useAppStore';
 import { triggerHaptic } from '../../utils/haptics';
+import { useToastStore } from '../../store/useToastStore';
 
 export default function DayActionModal({
   isOpen, onClose, selectedDay, existingLog, actualToday, user, onUpdateLog, onDeleteLog
 }: DayActionModalProps) {
 
   const { settings } = useAppStore();
+  const { addToast } = useToastStore();
   const isYevmiye = settings?.work_type === 'yevmiye';
 
   const [logHours, setLogHours] = useState('');
@@ -47,7 +49,7 @@ export default function DayActionModal({
     if (!user || !selectedDay) return;
     if (!dayStatus) {
       triggerHaptic('error');
-      alert("Lütfen kaydetmeden önce bir 'Günlük Durum' seçin.");
+      addToast("Lütfen kaydetmeden önce bir 'Günlük Durum' seçin.", 'warning');
       return;
     }
     triggerHaptic('medium');
@@ -79,7 +81,7 @@ export default function DayActionModal({
       onClose();
     } else {
       triggerHaptic('error');
-      alert("Kaydedilirken hata oluştu: " + error?.message);
+      addToast("Kaydedilirken hata oluştu: " + error?.message, 'error');
     }
     setIsSaving(false);
   };
@@ -98,7 +100,7 @@ export default function DayActionModal({
       onClose();
     } else {
       triggerHaptic('error');
-      alert("Silinirken hata oluştu: " + error.message);
+      addToast("Silinirken hata oluştu: " + error.message, 'error');
     }
     setIsSaving(false);
   };
@@ -124,7 +126,7 @@ export default function DayActionModal({
 
         {isFutureDay && (
           <Alert color="indigo" borderStyle="colored" bgStyle="colored" icon="info" title="Gelecekteki Gün">
-            Bu gün henüz yaşanmadı. Sadece geleceğe yönelik planlı izin veya tatil mesaisi girebilirsiniz.
+            Bu gün henüz yaşanmadı. Sadece geleceğe yönelik fazla mesai, resmi tatil mesaisi veya yıllık izin girebilirsiniz. Girdiğiniz bu kayıtlar, gün gelene kadar bordroya ve hakediş hesaplamalarına <strong>YANSIMAYACAKTIR.</strong>
           </Alert>
         )}
 
@@ -179,8 +181,8 @@ export default function DayActionModal({
                   <span className="label-text text-error font-bold">Devamsız / Ücretsiz</span>
                 </label>
 
-                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors ${(isFutureDay ?? false) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-base-200'}`}>
-                  <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#10b981' }} disabled={isFutureDay ?? false} checked={dayStatus === 'overtime'} onChange={() => handleStatusChange('overtime')} />
+                <label className={`label justify-start gap-3 p-1 rounded-lg transition-colors cursor-pointer hover:bg-base-200`}>
+                  <input type="radio" name="status" className="radio radio-sm" style={{ accentColor: '#10b981' }} checked={dayStatus === 'overtime'} onChange={() => handleStatusChange('overtime')} />
                   <span className="label-text text-emerald-500 font-bold">Fazla Mesai (+Ekstra)</span>
                 </label>
 

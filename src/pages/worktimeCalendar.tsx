@@ -10,6 +10,7 @@ import ExportPanel from '../components/shared/ExportPanel';
 import PremiumPaywallModal from '../components/shared/PremiumPaywallModal';
 import { IS_PAYWALL_ACTIVE } from '../config/features';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { useToastStore } from '../store/useToastStore';
 
 import CalendarHeader from '../components/calendar/CalendarHeader';
 import CalendarGrid from '../components/calendar/CalendarGrid';
@@ -23,6 +24,7 @@ export default function WorktimeCalendar() {
   usePageTitle('Mesai Takvimim');
 
   const { user, settings, setSettings } = useAppStore();
+  const { addToast } = useToastStore();
 
   const {
     baseDate,
@@ -39,6 +41,29 @@ export default function WorktimeCalendar() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<DayDetail | null>(null);
+
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEndEvent = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      handleNextMonth();
+    } else if (distance < -minSwipeDistance) {
+      handlePrevMonth();
+    }
+  };
 
   const [workLogs, setWorkLogs] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -122,10 +147,10 @@ export default function WorktimeCalendar() {
     const { error } = await clearMonthWorkLogs(user.id, start, end);
 
     if (!error) {
-      alert('Seçili aralıktaki tüm kayıtlar başarıyla temizlendi.');
+      addToast('Seçili aralıktaki tüm kayıtlar başarıyla temizlendi.', 'success');
       fetchLogs();
     } else {
-      alert('Hata oluştu: ' + error?.message);
+      addToast('Hata oluştu: ' + error?.message, 'error');
     }
   };
 
@@ -217,9 +242,9 @@ export default function WorktimeCalendar() {
     if (!error) {
       setIsCalendarPaused(true);
       setPausedDates({ start, end });
-      alert('Takvim belirlediğiniz tarihler arasında başarıyla duraklatıldı.');
+      addToast('Takvim belirlediğiniz tarihler arasında başarıyla duraklatıldı.', 'warning');
     } else {
-      alert('Hata oluştu: ' + error?.message);
+      addToast('Hata oluştu: ' + error?.message, 'error');
     }
   };
 
@@ -243,7 +268,7 @@ export default function WorktimeCalendar() {
     if (!error) {
       setIsCalendarPaused(false);
       setPausedDates(null);
-      alert('Takvim tekrar aktif edildi. Mesai üretimi devam edecek.');
+      addToast('Takvim tekrar aktif edildi. Mesai üretimi devam edecek.', 'success');
     }
   };
 
@@ -270,17 +295,17 @@ export default function WorktimeCalendar() {
     }
 
     if (datesToInsert.length === 0) {
-      alert('Seçilen aralıkta izin düşülecek normal mesai günü bulunamadı (Hafta sonu veya resmi tatile denk gelmiş olabilir).');
+      addToast('Seçilen aralıkta izin düşülecek normal mesai günü bulunamadı (Hafta sonu veya resmi tatile denk gelmiş olabilir).', 'warning');
       return;
     }
 
     const { error } = await saveWorkLogBatch(user.id, datesToInsert);
 
     if (!error) {
-      alert(`${datesToInsert.length} günlük Yıllık İzin takvime başarıyla işlendi.`);
+      addToast(`${datesToInsert.length} günlük Yıllık İzin takvime başarıyla işlendi.`, 'success');
       fetchLogs();
     } else {
-      alert('Hata oluştu: ' + error?.message);
+      addToast('Hata oluştu: ' + error?.message, 'error');
     }
   };
 
@@ -303,7 +328,7 @@ export default function WorktimeCalendar() {
         if (!item.isCurrentMonth || item.date < employmentStartDate) return;
 
         const dateStr = getLocalDateString(item.date);
-        const shift = getShiftForDate(item.date); // calculate dynamically for this snapshot
+        const shift = getShiftForDate(item.date);
 
         const basePayload = {
           user_id: user.id,
@@ -338,7 +363,6 @@ export default function WorktimeCalendar() {
     } else {
       if (!window.confirm('Kilitli ayı açmak üzeresiniz. Otomatik dondurulan boş günler silinecek ve tüm geçmiş günlerin vardiyaları güncel ayarlarınıza göre hesaplanacaktır. Onaylıyor musunuz?')) return;
 
-      // Kilidi açarken otomatik oluşturulmuş kayıtları sil
       const logsToDelete = Object.values(workLogs).filter((log: any) =>
         log.log_date?.startsWith(currentMonthKey) &&
         (log.status === 'off_day' || log.status === 'unlogged_normal' || log.note === 'SYSTEM_AUTO_OFF' || log.note === 'SYSTEM_AUTO_NORMAL')
@@ -350,7 +374,6 @@ export default function WorktimeCalendar() {
         log.frozen_shift_name
       );
 
-      // Temizleme işlemini offline cache dahil yap
       for (const log of logsToDelete) {
         if (log.log_date) {
           await deleteUserWorkLog(user.id, log.log_date);
@@ -376,8 +399,9 @@ export default function WorktimeCalendar() {
     if (!error && data) {
       setSettings(data);
       fetchLogs();
+      addToast(newFrozenStatus ? 'Ay başarıyla donduruldu.' : 'Ay kilidi başarıyla açıldı.', 'success');
     } else {
-      alert('İşlem başarısız: ' + error?.message);
+      addToast('İşlem başarısız: ' + error?.message, 'error');
     }
   };
 
@@ -396,10 +420,10 @@ export default function WorktimeCalendar() {
     const { error } = await clearMonthWorkLogs(user.id, firstDay, lastDay);
 
     if (!error) {
-      alert('Bu aya ait tüm kayıtlar başarıyla temizlendi.');
+      addToast('Bu aya ait tüm kayıtlar başarıyla temizlendi.', 'success');
       fetchLogs();
     } else {
-      alert('Kayıtlar silinirken hata oluştu: ' + error?.message);
+      addToast('Kayıtlar silinirken hata oluştu: ' + error?.message, 'error');
     }
   };
 
@@ -466,16 +490,23 @@ export default function WorktimeCalendar() {
           </div>
         </div>
       ) : (
-        <CalendarGrid
-          calendarDays={calendarDays}
-          getShiftForDate={getShiftForDate}
-          actualToday={actualToday}
-          employmentStartDate={employmentStartDate}
-          workLogs={workLogs}
-          onDayClick={handleDayClick}
-          isPaused={isCalendarPaused}
-          pausedDates={pausedDates}
-        />
+        <div
+          className="w-full max-w-4xl touch-pan-y"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEndEvent}
+        >
+          <CalendarGrid
+            calendarDays={calendarDays}
+            getShiftForDate={getShiftForDate}
+            actualToday={actualToday}
+            employmentStartDate={employmentStartDate}
+            workLogs={workLogs}
+            onDayClick={handleDayClick}
+            isPaused={isCalendarPaused}
+            pausedDates={pausedDates}
+          />
+        </div>
       )}
 
       <div className="w-full max-w-4xl mt-6 px-4 sm:px-0 flex justify-end">

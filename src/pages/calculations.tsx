@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PayrollTab from '../components/calculations/PayrollTab';
 import DataVisualizerTab from '../components/calculations/DataVisualizerTab';
 import AnnualLeaveTab from '../components/calculations/AnnualLeaveTab';
@@ -21,7 +22,20 @@ const YEVMIYE_DISABLED_TABS: TabType[] = ['annual_leave', 'tazminat', 'hourly', 
 
 export default function Calculations() {
   usePageTitle('Hesaplamalar & İşlemler');
-  const [activeTab, setActiveTab] = useState<TabType>('payroll');
+  const [searchParams] = useSearchParams();
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const tabFromUrl = searchParams.get('tab') as TabType;
+    return tabFromUrl || 'payroll';
+  });
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab') as TabType;
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
   const { settings } = useAppStore();
   const isYevmiye = settings?.work_type === 'yevmiye';
 
@@ -67,7 +81,7 @@ export default function Calculations() {
       <div className="w-full max-w-5xl px-2 mb-6 print:hidden">
         <div className="tabs tabs-boxed bg-[#16191d] p-1 border border-base-300 flex-wrap justify-center sm:justify-start gap-1">
           <a className={getTabClass('payroll')} onClick={() => handleTabClick('payroll')}>Aylık Bordro</a>
-          <a className={getTabClass('charts')} onClick={() => handleTabClick('charts')}>Grafikler</a>
+          <a className={getTabClass('charts')} onClick={() => handleTabClick('charts')}>İstatistikler & Grafikler</a>
           <a className={getTabClass('annual_leave')} onClick={() => handleTabClick('annual_leave')}>Yıllık İzin</a>
           <a className={getTabClass('tazminat')} onClick={() => handleTabClick('tazminat')}>Tazminat Hesapla</a>
           <a className={getTabClass('hourly')} onClick={() => handleTabClick('hourly')}>Saatlikten Bul</a>

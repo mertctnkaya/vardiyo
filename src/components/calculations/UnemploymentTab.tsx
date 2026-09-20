@@ -9,10 +9,20 @@ export default function UnemploymentTab() {
 
   const CURRENT_GROSS_MIN_WAGE = 20002.50;
 
+  const [feedback, setFeedback] = useState<string | null>(null);
+
   const handleCalculate = () => {
-    if (!salary || isNaN(Number(salary))) return;
+    setFeedback(null);
+    if (!salary || isNaN(Number(salary))) {
+      setFeedback("Lütfen geçerli bir maaş girin.");
+      return;
+    }
 
     let gross = Number(salary);
+    if (gross <= 0 || gross > 2000000) {
+      setFeedback("Lütfen 0 ile 2.000.000 ₺ arası geçerli bir maaş girin.");
+      return;
+    }
     if (salaryType === 'net') {
       gross = gross / 0.7149;
     }
@@ -77,6 +87,12 @@ export default function UnemploymentTab() {
           <button onClick={handleCalculate} className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none mt-6">
             Hesapla
           </button>
+
+          {feedback && (
+            <div className="mt-4 p-3 bg-red-900/30 text-red-400 rounded-lg text-sm font-bold text-center animate-fade-in">
+              {feedback}
+            </div>
+          )}
         </div>
 
         <div className="bg-base-200 p-4 sm:p-6 rounded-2xl border border-base-300 flex flex-col justify-center min-h-[300px]">
