@@ -13,6 +13,8 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
   const [replies, setReplies] = useState<TicketReply[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const isClosed = ticket.status === 'closed';
@@ -54,13 +56,10 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
       }, (payload) => {
         const newReply = payload.new as TicketReply;
         setReplies(prev => {
-          // Eğer aynı ID'ye sahip mesaj zaten varsa ekleme (fetchReplies ile gelmiş olabilir)
           if (prev.some(r => r.id === newReply.id)) return prev;
           return [...prev, newReply];
         });
 
-        // Eğer gelen mesaj admin dense, ve şu an ekrana bakıyorsak
-        // Görüldü yapmak için tabloyu update edebiliriz
         if (payload.new.sender_id !== user?.id) {
           supabase.from('ticket_replies').update({ is_read: true }).eq('id', payload.new.id).then();
         }
@@ -71,7 +70,6 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
         table: 'ticket_replies',
         filter: `ticket_id=eq.${ticket.id}`
       }, (payload) => {
-        // Update read status of messages
         setReplies(prev => prev.map(r => r.id === payload.new.id ? payload.new as TicketReply : r));
       })
       .subscribe();
@@ -82,60 +80,91 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
   }, [ticket.id, user?.id]);
 
   useEffect(() => {
-    // Scroll to bottom when replies change
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [replies]);
 
+  const isAdminViewing = user?.email === 'm3rt7132@gmail.com';
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 20 * 1024 * 1024) {
+        alert("Dosya boyutu en fazla 20MB olabilir.");
+        return;
+      }
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || isClosed) return;
+    if ((!newMessage.trim() && !selectedFile) || !user || isClosed) return;
 
     setIsSending(true);
+    let attachment_url = null;
 
-    // 1. Send the message
+    if (selectedFile) {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${ticket.id}/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('support_attachments')
+        .upload(filePath, selectedFile);
+
+      if (!uploadError && uploadData) {
+        const { data: publicUrlData } = supabase.storage
+          .from('support_attachments')
+          .getPublicUrl(filePath);
+        attachment_url = publicUrlData.publicUrl;
+      }
+    }
+
     await supabase.from('ticket_replies').insert({
       ticket_id: ticket.id,
-      user_id: ticket.user_id, // Always the ticket owner's ID
-      sender_id: user.id, // Whoever is sending (User or Admin)
-      message: newMessage.trim(),
+      user_id: ticket.user_id,
+      sender_id: user.id,
+      message: newMessage.trim() || (attachment_url ? '📷 Fotoğraf' : ''),
+      attachment_url: attachment_url,
       is_read: false
     });
 
-    // 2. Update the parent ticket status (active_chat) & unread state
-    const isAdmin = user.email === 'm3rt7132@gmail.com'; // or checking role
     await supabase.from('contact_messages').update({
       status: 'active_chat',
-      is_read_by_admin: isAdmin ? true : false,
-      is_read_by_user: isAdmin ? false : true
+      is_read_by_admin: isAdminViewing ? true : false,
+      is_read_by_user: isAdminViewing ? false : true
     }).eq('id', ticket.id);
 
     setNewMessage('');
+    setSelectedFile(null);
+    setPreviewUrl(null);
     setIsSending(false);
 
-    // Kendi gönderdiğimiz mesajı anında görebilmek için (Realtime pingini beklemeden)
     fetchReplies();
   };
 
   const handleCloseTicket = async () => {
-    if (!window.confirm('Bu talebi kapatmak istediğinize emin misiniz? Tüm sohbet geçmişi silinecektir.')) return;
+    if (!window.confirm('Bu talebi kapatmak istediğinize emin misiniz? Tüm sohbet geçmişi ve fotoğraflar silinecektir.')) return;
 
-    // 1. Talebi kapat
+    const { data: files } = await supabase.storage.from('support_attachments').list(ticket.id.toString());
+    if (files && files.length > 0) {
+      const paths = files.map(f => `${ticket.id}/${f.name}`);
+      await supabase.storage.from('support_attachments').remove(paths);
+    }
+
     await supabase.from('contact_messages').update({
       status: 'closed'
     }).eq('id', ticket.id);
 
-    // 2. Mesajları tamamen temizle
     await supabase.from('ticket_replies').delete().eq('ticket_id', ticket.id);
-
     onCloseTicket();
   };
 
   return (
     <div className="bg-[#16191d] rounded-3xl shadow-2xl border border-base-300 flex flex-col h-[600px] overflow-hidden relative">
-
-      {/* Header */}
       <div className="bg-base-200/50 border-b border-base-300 p-4 flex justify-between items-center shrink-0">
         <div>
           <h3 className="text-white font-bold text-lg">{ticket.topic}</h3>
@@ -148,13 +177,13 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
         )}
       </div>
 
-      {/* Original Message Box */}
       <div className="p-4 bg-[#1e2329] border-b border-base-300 shrink-0">
-        <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1 block">Sizin İlk Mesajınız</span>
+        <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1 block">
+          {isAdminViewing ? 'Kullanıcının İlk Mesajı' : 'Sizin İlk Mesajınız'}
+        </span>
         <p className="text-sm text-base-content/80">{ticket.message}</p>
       </div>
 
-      {/* Chat Area */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
         {isClosed ? (
           <div className="flex flex-col items-center justify-center h-full text-base-content/50 gap-2">
@@ -165,7 +194,9 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
           </div>
         ) : replies.length === 0 ? (
           <div className="flex items-center justify-center h-full text-base-content/50">
-            <p className="text-sm text-center">Henüz bu talebe bir yanıt verilmedi. <br /> Yöneticinin yanıtı burada görünecektir.</p>
+            <p className="text-sm text-center">
+              {isAdminViewing ? 'Henüz yanıt vermediniz.' : 'Henüz bu talebe bir yanıt verilmedi. Yöneticinin yanıtı burada görünecektir.'}
+            </p>
           </div>
         ) : (
           replies.map((reply) => {
@@ -173,10 +204,15 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
             return (
               <div key={reply.id} className={`chat ${isMe ? 'chat-end' : 'chat-start'}`}>
                 <div className="chat-header text-xs opacity-50 mb-1">
-                  {isMe ? 'Siz' : 'Yönetici (Vardiyo Destek)'}
+                  {isMe ? 'Siz' : (isAdminViewing ? ticket.name || 'Kullanıcı' : 'Yönetici (Vardiyo Destek)')}
                 </div>
-                <div className={`chat-bubble text-sm ${isMe ? 'chat-bubble-primary bg-indigo-600 text-white' : 'bg-base-200 text-base-content border border-indigo-500/30'}`}>
-                  {reply.message}
+                <div className={`chat-bubble text-sm ${isMe ? 'chat-bubble-primary bg-indigo-600 text-white' : 'bg-base-200 text-base-content border border-indigo-500/30'} flex flex-col gap-2`}>
+                  {reply.attachment_url && (
+                    <a href={reply.attachment_url} target="_blank" rel="noopener noreferrer">
+                      <img src={reply.attachment_url} alt="Ek" className="max-w-[200px] sm:max-w-[250px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity" />
+                    </a>
+                  )}
+                  {reply.message !== '📷 Fotoğraf' && <span>{reply.message}</span>}
                 </div>
                 <div className="chat-footer opacity-50 text-[10px] mt-1 flex gap-1 items-center">
                   {new Date(reply.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
@@ -196,9 +232,24 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
         )}
       </div>
 
-      {/* Message Input */}
+      {!isClosed && previewUrl && (
+        <div className="p-3 bg-[#1e2329] border-t border-base-300 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={previewUrl} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-base-100 shadow-md" />
+            <span className="text-sm text-base-content/80 font-medium">Fotoğraf eklendi</span>
+          </div>
+          <button type="button" onClick={() => { setSelectedFile(null); setPreviewUrl(null); }} className="btn btn-sm btn-circle btn-ghost text-red-400">✕</button>
+        </div>
+      )}
+
       {!isClosed && (
-        <form onSubmit={handleSendMessage} className="p-3 bg-base-200/50 border-t border-base-300 shrink-0 flex gap-2">
+        <form onSubmit={handleSendMessage} className="p-3 bg-base-200/50 border-t border-base-300 shrink-0 flex gap-2 items-center">
+          <label className="btn btn-circle btn-ghost text-base-content/60 hover:text-indigo-400 cursor-pointer">
+            <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          </label>
           <input
             type="text"
             placeholder="Mesajınızı yazın..."
@@ -206,7 +257,7 @@ export default function TicketChat({ ticket, onCloseTicket }: TicketChatProps) {
             value={newMessage}
             onChange={e => setNewMessage(e.target.value)}
           />
-          <button type="submit" disabled={isSending || !newMessage.trim()} className="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg px-6">
+          <button type="submit" disabled={isSending || (!newMessage.trim() && !selectedFile)} className="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg px-6">
             {isSending ? <span className="loading loading-spinner loading-sm"></span> : 'Gönder'}
           </button>
         </form>

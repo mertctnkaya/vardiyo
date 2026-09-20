@@ -20,6 +20,7 @@ export interface TicketReply {
   user_id: string;
   sender_id: string;
   message: string;
+  attachment_url?: string;
   is_read: boolean;
   created_at: string;
 }
