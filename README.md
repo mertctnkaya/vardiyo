@@ -14,7 +14,16 @@ Alt tarafı bir vardiya ve mesai uygulaması gibi durabilir; ama arkasında deli
 
 ## 🚀 Neler Yapabiliyor? (Özellikler)
 
-### 💰 1. Gerçekçi Bordro & Kazanç Motoru (Aylık & Yevmiye)
+### 📄 1. Türkiye'nin En Gelişmiş, ATS Uyumlu Mavi&Beyaz Yaka CV Motoru
+
+Sadece vardiya değil, kariyerinizi de yönetin! Vardiyo PRO, içerisinde 16 farklı ana sektör (Lojistik, Üretim, Teknoloji vs.) ve 50'den fazla özel meslek dalı (CNC Operatörü, Forklift, Depo, Bakım vb.) barındıran akıllı bir CV motoruna sahiptir.
+
+- **İK Robotlarını (ATS) %100 Geçme Garantisi:** Fontlar (Arimo TTF), başlık dizilimleri ve satır yapıları global ATS (Aday Takip Sistemi) algoritmalarına %100 uyumlu olarak makine okuması için optimize edilmiştir.
+- **Akıllı Yetenek Önerileri:** Seçtiğiniz mesleğe göre yüzlerce teknik beceri ve makine parkuru önerisi sunar.
+- **Çift Format Çıktı:** İster kurumsal firmalar (Ford, Arçelik, THY vb.) için makine okumalı katı "Kurumsal PDF", ister ustaya/patrona elden vermek için görsel "Atölye (Mavi Yaka)" formatı!
+- **Gelecek Vizyonu:** İlerleyen güncellemelerde "İngilizce Otomatik Çeviri" desteği eklenecektir.
+
+### 💰 2. Gerçekçi Bordro & Kazanç Motoru (Aylık & Yevmiye)
 
 Uygulamanın kalbi burası. Sadece kabataslak "Aylık kazancın şu kadar" deyip geçmez, şirketin muhasebe departmanı gibi hesap yapar:
 
@@ -124,7 +133,7 @@ Vardiyo Proje Ağacı (src/):
 ├── core/                  # Saf matematik motorları (payrollEngine, severanceEngine, hourlyEngine)
 ├── hooks/                 # Takvim mantığı, mobil geri tuşu ve hesaplayıcı kancaları
 ├── lib/                   # Supabase istemcisi ve yerel bildirim yöneticileri
-├── pages/                 # Sayfa görünümleri (Takvim, Hesaplamalar, Ayarlar, Giriş, Yasal Sözleşmeler)
+├── pages/                 # Sayfa görünümleri (CV, Takvim, Hesaplamalar, Ayarlar, Giriş, Yasal Sözleşmeler)
 ├── services/              # Offline-first veritabanı sarmalayıcısı (dbService, offlineStorage, syncService)
 ├── store/                 # Zustand global durum yönetimi (useAppStore)
 ├── types/                 # Katı TypeScript tip tanımları ve arayüzler

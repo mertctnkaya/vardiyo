@@ -53,6 +53,12 @@ export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarP
         <li><Link to="/worktime" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Mesai Takvimim</Link></li>
         <li><Link to="/next-weeks" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Gelecek Haftalar</Link></li>
         <li><Link to="/calculations" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Hesaplamalar&İşlemler</Link></li>
+        <li>
+          <Link to="/cv-builder" onClick={onClose} className="text-lg py-3 font-bold text-amber-500 rounded-xl hover:bg-amber-500/10 flex items-center justify-between">
+            📄 Akıllı CV Oluştur
+            <span className="badge badge-warning badge-sm">PRO</span>
+          </Link>
+        </li>
         <li><Link to="/faq" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">S.S.S & Haklar</Link></li>
         <li>
           <Link to="/contact" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400 flex justify-between items-center">
@@ -79,10 +85,10 @@ export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarP
 
         {user ? (
           <div className="mt-auto flex flex-col gap-3 pb-2">
-            <div className="bg-[#1e2329] p-4 rounded-2xl text-center border border-base-300">
-              <p className="text-xs text-base-content/50 uppercase font-bold tracking-widest mb-1">KULLANICI</p>
-              <p className="font-bold text-indigo-400 text-lg truncate">{user.user_metadata?.name || user.email}</p>
-            </div>
+            <Link to="/profile" onClick={onClose} className="bg-[#1e2329] p-4 rounded-2xl text-center border border-indigo-500/30 hover:bg-indigo-900/20 transition-colors block">
+              <p className="text-xs text-indigo-400/70 uppercase font-bold tracking-widest mb-1">HESABIM</p>
+              <p className="font-bold text-indigo-400 text-lg truncate">{user.user_metadata?.name || 'Profilime Git'}</p>
+            </Link>
             <button onClick={onLogout} className="btn bg-red-900/20 hover:bg-red-600 text-red-400 hover:text-white border-none w-full shadow-sm rounded-xl text-base h-11">Çıkış Yap</button>
           </div>
         ) : (

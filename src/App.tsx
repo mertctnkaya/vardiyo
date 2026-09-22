@@ -7,6 +7,7 @@ import CurrentShift from './pages/currentShift';
 import NextWeeks from './pages/nextWeeks';
 import WorktimeCalendar from './pages/worktimeCalendar';
 import Settings from './pages/settings';
+import Profile from './pages/profile';
 import Calculations from './pages/calculations';
 import Login from './pages/login';
 import Register from './pages/register';
@@ -18,6 +19,7 @@ import UpdatePassword from './pages/updatePassword';
 import PrivacyPolicy from './pages/privacy';
 import TermsOfService from './pages/terms';
 import NotFound from './pages/NotFound';
+import CVBuilderPage from './pages/cv-builder';
 
 export default function App() {
   return (
@@ -30,6 +32,7 @@ export default function App() {
           <Route path="next-weeks" element={<NextWeeks />} />
           <Route path="worktime" element={<WorktimeCalendar />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<Profile />} />
           <Route path="calculations" element={<Calculations />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="contact" element={<Contact />} />
@@ -40,6 +43,7 @@ export default function App() {
           <Route path="update-password" element={<UpdatePassword />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsOfService />} />
+          <Route path="cv-builder" element={<CVBuilderPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

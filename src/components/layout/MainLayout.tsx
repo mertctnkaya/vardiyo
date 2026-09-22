@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAppStore } from '../../store/useAppStore';
 import { fetchUserSettings } from '../../services/dbService';
 import { processSyncQueue } from '../../services/syncService';
+import { useCVStore } from '../../store/useCVStore';
 
 import Navbar from './Navbar';
 import Sidebar from './SidebarMobile';
@@ -111,6 +112,9 @@ export default function MainLayout() {
         loadSettings(session.user.id);
       } else {
         setSettings(null);
+        // Güvenlik: Kullanıcı çıkış yaptığında CV state'ini (ve localStorage'ı) temizle
+        useCVStore.getState().resetForm();
+
         if (unreadSub) {
           supabase.removeChannel(unreadSub);
           unreadSub = null;

@@ -55,10 +55,10 @@ export default function PWAInstallPrompt() {
             <p className="text-xs text-base-content/60">Vardiyo'yu hızlı erişim için ana ekranınıza ekleyin.</p>
           </div>
           <div className="flex gap-2 shrink-0">
-            <button onClick={handleDismiss} className="btn btn-xs btn-ghost text-base-content/50 hover:text-base-content">
+            <button onClick={handleDismiss} className="btn btn-xs p-3 btn-ghost text-base-content/50 hover:text-base-content">
               Kapat
             </button>
-            <button onClick={handleInstall} className="btn btn-xs bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/40">
+            <button onClick={handleInstall} className="btn btn-xs p-3 bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/40">
               Ekle
             </button>
           </div>

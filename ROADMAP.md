@@ -6,6 +6,11 @@ Bu doküman, Vardiyo projesinin gelecek sürümleri, ürün stratejisi, yapay ze
 
 ## 🚀 SON TAMAMLANANLAR (COMPLETED)
 
+- **[Akıllı Mavi Yaka CV Motoru (ATS %100 Uyumlu)]**
+  - Mavi yaka, üretim, lojistik ve teknisyen odaklı Türkiye'nin ilk akıllı CV oluşturucusu.
+  - İK Robotlarını (ATS) kandırabilen ve tam eşleşme sağlayan (font, boşluk, satır) özel optimizasyonlar.
+  - Kurumsal (Yapay Zeka ve İK) formatı ile Atölye (Usta ve Patron) görsel formatı olmak üzere iki farklı çıktı (PDF).
+  - 16 Ana Sektör ve 50'den fazla iş dalında otomatik teknik yetenek öneri sistemi.
 - **[Offline-First & Senkronizasyon (Sync Queue) Mimarisi]**
   - Fabrika, şantiye ve internetsiz ortamlarda mesai takvimi, ayarlar, katsayılar ve hatırlatıcılar için tam çevrimdışı çalışma desteği.
   - İnternet geldiğinde otomatik çalışan arka plan senkronizasyon motoru (`syncService`).
@@ -59,10 +64,17 @@ Kullanıcının ilk kurulumunu saniyelere indiren ve viral yayılmayı tetikleye
   - _Sağlık Personeli:_ 24 saat nöbet - 48 saat blok izin şablonu.
   - _Lojistik & Depo:_ Sabit gündüz + 45 saatlik kota ve %50 zamlı mesai.
   - _Standart 4857:_ Kanuni asgari oranlar.
-- [ ] **Mavi Yaka Akıllı CV Oluşturucu (Smart Worker CV Builder):**
-  - Mavi yakaya özel soru-cevap sihirbazı (kullandığı makineler, SRC, Forklift, Kaynakçı sertifikaları, vardiya tecrübesi).
-  - Sıfır İŞKUR riskiyle doğrudan kullanıcının cihazında antetli, koyu/profesyonel 1 sayfalık PDF CV üretimi.
-  - İşçinin WhatsApp'tan fabrikaya gönderebileceği veya elden teslim edebileceği temiz çıktı.
+- **[Akıllı CV Motoru (Faz 2) - İngilizce ve Çoklu Dil Desteği]:**
+  - Türkiye pazarında oluşturduğumuz kusursuz ATS yapısını globale taşımak.
+  - Form verilerini yapay zeka ile anında teknik İngilizce'ye çevirip PDF çıktısı alma.
+  - Yurt dışı (Avrupa / Ortadoğu) iş başvuruları için mavi yakaya uluslararası kapı açma.
+- [x] **Mavi Yaka Akıllı CV Oluşturucu (Smart Worker CV Builder):**
+  - 6 adımlık wizard: Kişisel Bilgiler → Meslek & Özet → Eğitim & Deneyim → Yetenekler & Disiplin → Ek Bilgiler → PDF Önizleme & İndirme.
+  - 7+ sektör, 200+ unvan, dinamik yetenek önerileri (chip butonları), sektöre özel akıllı alanlar (Güvenlik → Boy/Kilo, Lojistik → SRC/Ehliyet).
+  - Çift çıktılı PDF motoru: Kurumsal ATS (metin tabanlı, tek sütun) + Atölye Usta Formatı (görsel, rozetli, fotoğraflı).
+  - Freemium: 1 seferlik ücretsiz oluştur + indir, düzenleme/yeni CV için Premium.
+  - Supabase `user_cvs` tablosu (RLS, JSONB form_data, freemium takibi).
+  - Route: `/cv-builder`. Menü: Navbar + SidebarMobile'a amber [PRO] badge ile eklendi.
 - [x] **WhatsApp Vardiya Paylaşım Kartı (Viral Büyüme Motoru):**
   - Takvimden tek tıkla "Haftalık Vardiya Çizelgem" görseli üretme (html-to-image altyapısıyla hatasız render).
   - İşçinin arkadaşlarına, ailesine veya WhatsApp grubuna atabileceği şık, altında _"Vardiyo ile planlandı"_ imzalı HD paylaşım kartı.

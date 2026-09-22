@@ -26,6 +26,12 @@ export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
           <li><Link to="/worktime" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Mesai Takvimim</Link></li>
           <li><Link to="/next-weeks" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Gelecek Haftalar</Link></li>
           <li><Link to="/calculations" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Hesaplamalar&İşlemler</Link></li>
+          <li>
+            <Link to="/cv-builder" className="hover:text-amber-400 focus:bg-amber-500/10 text-amber-500 font-semibold rounded-lg px-2 xl:px-2.5 py-1.5 flex items-center gap-1">
+              CV Oluştur
+              <span className="badge badge-warning badge-xs">PRO</span>
+            </Link>
+          </li>
           <li><Link to="/faq" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">S.S.S & Haklar</Link></li>
           <li>
             <Link to="/contact" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5 relative">
@@ -57,9 +63,9 @@ export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
 
             {/* Masaüstü Kullanıcı Adı ve Çıkış (lg ve üzeri) */}
             <div className="hidden lg:flex items-center gap-3">
-              <span className="text-xs font-semibold text-base-content/80 border border-base-300 bg-base-200 px-3 py-1.5 rounded-full max-w-[140px] truncate" title={user.user_metadata?.name}>
-                {user.user_metadata?.name || 'Kullanıcı'}
-              </span>
+              <Link to="/profile" className="text-xs font-semibold text-indigo-400 hover:text-white hover:bg-indigo-600 border border-indigo-500/30 bg-indigo-900/20 px-4 py-1.5 rounded-full max-w-[140px] truncate transition-colors cursor-pointer" title="Hesabım">
+                {user.user_metadata?.name || 'Hesabım'}
+              </Link>
               <button onClick={onLogout} className="btn btn-sm btn-outline hover:bg-red-600 hover:text-white border-red-500/30 text-red-400 transition-colors">
                 Çıkış
               </button>

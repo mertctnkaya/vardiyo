@@ -33,13 +33,13 @@ export default function PwaUpdatePrompt() {
         <div className="flex gap-2 justify-end">
           <button
             onClick={() => setNeedRefresh(false)}
-            className="btn btn-sm btn-ghost text-indigo-300 hover:bg-indigo-800/50"
+            className="btn btn-sm p-3 btn-ghost text-indigo-300 hover:bg-indigo-800/50"
           >
             Sonra
           </button>
           <button
             onClick={() => updateServiceWorker(true)}
-            className="btn btn-sm bg-indigo-500 hover:bg-indigo-400 text-white border-none shadow-lg shadow-indigo-900/50"
+            className="btn btn-sm p-3 bg-indigo-500 hover:bg-indigo-400 text-white border-none shadow-lg shadow-indigo-900/50"
           >
             Yenile
           </button>

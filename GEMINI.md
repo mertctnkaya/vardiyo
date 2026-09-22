@@ -188,7 +188,7 @@ All legal and mathematical shift calculations MUST reside in pure, testable func
 ### 7. BACKEND, DATABASE & SECURITY SPECIFICATIONS
 
 7.1 Row Level Security (RLS) Policy
-All tables in the public schema (work_logs, user_settings, reminders, contact_messages, notifications) MUST have RLS enabled. Mandatory Policy Filter: (auth.uid() = user_id)Any table accessed via client calls without auth.uid() = user_id is a critical security vulnerability.
+All tables in the public schema (work_logs, user_settings, reminders, contact_messages, notifications, user_cvs) MUST have RLS enabled. Mandatory Policy Filter: (auth.uid() = user_id)Any table accessed via client calls without auth.uid() = user_id is a critical security vulnerability.
 7.2 Zero Client Trust & Secrets
 VITE_SUPABASE_ANON_KEY is public and restricted by RLS.SUPABASE_SERVICE_ROLE_KEY must NEVER exist in client code, .env, or Capacitor builds.
 Elevated operations (user deletion, role changes, cron broadcasting) must execute strictly via Supabase RPCs with security definer checks or Edge Functions.
@@ -235,7 +235,7 @@ Phase 5: Mobile Native Hardening & Offline-First Protocol
 Phase 6: Viral Growth & User Retention
 [x] Paywall Strategic Shift: Free essential calculators (unemployment, maternity, report, short work) and shifted paywall constraint to bulk clear actions.
 [x] Collapsible Technical FAQ: Rebuilt FAQ with 16 technical items explaining complex system mechanics with themed color categories.
-[ ] Smart Worker CV Generator: Build a blue-collar specific CV wizard creating professional, dark-themed PDF resumes.
+[x] Smart Worker CV Generator: Built a 6-step wizard CV builder with 16 main sectors, 50+ specialized job titles, dynamic skill suggestions, dual-output PDF (Kurumsal ATS + Atölye Görsel), freemium strategy (1 free CV, premium for edits/new), Supabase user_cvs table with RLS. Strictly optimized for ATS: Uses Arimo font (ToUnicode bug fixed), enforces start/end dates for education & experience, enforces descriptive content via mandatory inputs, distinct text blocks for name and job titles. Route: /cv-builder.
 [x] WhatsApp Shift Share Card: Build a viral 'Haftalık Vardiya Çizelgem' shareable card generator for organic growth.
 
 ### 9. INSTRUCTIONS FOR THE CODE AGENT

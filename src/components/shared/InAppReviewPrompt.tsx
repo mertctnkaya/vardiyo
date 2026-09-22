@@ -59,10 +59,10 @@ export default function InAppReviewPrompt() {
         </div>
 
         <div className="flex w-full gap-3">
-          <button onClick={handleDismiss} className="btn flex-1 btn-ghost text-indigo-200 hover:bg-white/10 hover:text-white rounded-xl">
+          <button onClick={handleDismiss} className="btn flex-1 p-3 btn-ghost text-indigo-200 hover:bg-white/10 hover:text-white rounded-xl">
             Sonra
           </button>
-          <button onClick={handleReview} className="btn flex-1 bg-white text-indigo-900 hover:bg-indigo-50 border-none shadow-lg rounded-xl font-bold">
+          <button onClick={handleReview} className="btn flex-1 p-3 bg-white text-indigo-900 hover:bg-indigo-50 border-none shadow-lg rounded-xl font-bold">
             Puan Ver ⭐️
           </button>
         </div>

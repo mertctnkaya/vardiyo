@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { fetchUserSettings, updateUserSettings } from '../services/dbService';
-import { registerAndSubscribeToPush } from '../lib/pushNotifications';
-import { LocalNotifications } from '@capacitor/local-notifications'; // NATIVE API
-import { isNative } from "../utils/isNative";
 
 import SettingsHeader from '../components/settings/SettingsHeader';
 import ShiftSystemSection from '../components/settings/ShiftSystemSection';
 import DateReferencesSection from '../components/settings/DateReferencesSection';
 import PayrollSection from '../components/settings/PayrollSection';
 import YevmiyeSection from '../components/settings/YevmiyeSection';
-import NotificationSection from '../components/settings/NotificationSection';
-import AccountSection from '../components/settings/AccountSection';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { triggerHaptic } from '../utils/haptics';
 import { useToastStore } from '../store/useToastStore';
@@ -49,52 +45,6 @@ export default function Settings() {
   const [paymentFrequency, setPaymentFrequency] = useState('weekly');
   const [paymentDayOfWeek, setPaymentDayOfWeek] = useState('3');
 
-  const [notificationStatus, setNotificationStatus] = useState<string>('default');
-
-  const [notifPrefs, setNotifPrefs] = useState({
-    shift_changes: true, holidays: true, reminders: true, payroll: true,
-    risks: true, annual_leave: true, daily_log: false, weekly_summary: false,
-    night_shift_health: false, app_updates: false
-  });
-
-  const handleRequestPermission = async () => {
-    if (!user) {
-      addToast("Bildirim izni verebilmek için lütfen önce giriş yapın!", 'warning');
-      return;
-    }
-
-    try {
-      if (isNative()) {
-        let permStatus = await LocalNotifications.requestPermissions();
-        const finalStatus = permStatus.display === 'prompt' ? 'default' : permStatus.display;
-        setNotificationStatus(finalStatus);
-        if (finalStatus === 'granted') {
-          addToast('Mobil bildirim izni başarıyla alındı!', 'success');
-        }
-      } else {
-        const newStatus = await registerAndSubscribeToPush(user.id);
-        if (newStatus) setNotificationStatus(newStatus);
-      }
-    } catch (error) {
-      addToast("İzin istenirken sistem hatası oluştu: " + String(error), 'error');
-    }
-  };
-
-  useEffect(() => {
-    const checkNotificationStatus = async () => {
-      if (isNative()) {
-        const permStatus = await LocalNotifications.checkPermissions();
-        setNotificationStatus(permStatus.display === 'prompt' ? 'default' : permStatus.display);
-      } else {
-        if ('Notification' in window) {
-          setNotificationStatus(Notification.permission);
-        } else {
-          setNotificationStatus('denied');
-        }
-      }
-    };
-    checkNotificationStatus();
-  }, []);
 
   useEffect(() => {
     async function loadSettings() {
@@ -121,9 +71,6 @@ export default function Settings() {
         if (data.yevmiye_base_hours) setYevmiyeBaseHours(data.yevmiye_base_hours.toString());
         if (data.payment_frequency) setPaymentFrequency(data.payment_frequency);
         if (data.payment_day_of_week) setPaymentDayOfWeek(data.payment_day_of_week.toString());
-        if (data.notification_preferences) {
-          setNotifPrefs(data.notification_preferences);
-        }
       }
       setIsLoading(false);
     }
@@ -143,15 +90,6 @@ export default function Settings() {
     const newH = Math.floor(totalMinutes / 60) % 24;
     const newM = Math.round(totalMinutes % 60);
     return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
-  };
-
-  const handleTogglePref = async (key: keyof typeof notifPrefs) => {
-    if (!user) return;
-
-    const newPrefs = { ...notifPrefs, [key]: !notifPrefs[key] };
-    setNotifPrefs(newPrefs);
-
-    await updateUserSettings(user.id, { notification_preferences: newPrefs });
   };
 
   const handleSaveSettings = async () => {
@@ -316,16 +254,27 @@ export default function Settings() {
             </button>
           </div>
 
-          <NotificationSection
-            notificationStatus={notificationStatus}
-            onRequestPermission={handleRequestPermission}
-            prefs={notifPrefs}
-            onToggle={handleTogglePref}
-          />
-
-          <AccountSection />
+          <div className="pt-6 border-t border-base-300">
+            <h3 className="text-lg font-bold text-base-content mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Hesap & Bildirim Ayarları
+            </h3>
+            <p className="text-sm text-base-content/70 mb-4">
+              Hesap bilgileriniz, kayıtlı CV'leriniz, veri indirme/silme işlemleri ve bildirim tercihleri için Profil sayfanıza gidin.
+            </p>
+            <Link to="/profile" className="btn bg-[#1e2329] border border-base-300 hover:bg-indigo-600 hover:border-indigo-600 text-base-content hover:text-white transition-all w-full sm:w-auto">
+              Hesabıma Git
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
+
     </div>
   );
 }

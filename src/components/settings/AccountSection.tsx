@@ -27,10 +27,13 @@ export default function AccountSection() {
   const handleExportData = async () => {
     setIsExporting(true);
     try {
-      const [workLogs, settings, reminders] = await Promise.all([
+      const [workLogs, settings, reminders, userCvs, contactMsgs, notifications] = await Promise.all([
         supabase.from('work_logs').select('*').eq('user_id', user.id),
         supabase.from('user_settings').select('*').eq('user_id', user.id),
         supabase.from('reminders').select('*').eq('user_id', user.id),
+        supabase.from('user_cvs').select('*').eq('user_id', user.id),
+        supabase.from('contact_messages').select('*').eq('user_id', user.id),
+        supabase.from('notifications').select('*').eq('user_id', user.id),
       ]);
 
       const exportPayload = {
@@ -39,6 +42,9 @@ export default function AccountSection() {
         work_logs: workLogs.data || [],
         settings: settings.data || [],
         reminders: reminders.data || [],
+        user_cvs: userCvs.data || [],
+        contact_messages: contactMsgs.data || [],
+        notifications: notifications.data || [],
       };
 
       const fileName = `Vardiyo_Verilerim_${new Date().toISOString().split('T')[0]}.json`;
@@ -81,7 +87,7 @@ export default function AccountSection() {
   };
 
   return (
-    <div className="space-y-6 mt-4 border-t border-base-300 pt-8">
+    <div className="space-y-6">
       <h3 className="text-lg font-bold text-base-content flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

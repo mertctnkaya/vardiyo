@@ -7,10 +7,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5000000 // 5 MB to allow pdf generator chunk
+      },
       manifest: {
         name: 'vardiyo',
         short_name: 'vardiyo',
-        description: 'Akıllı Vardiya ve Bordro Takip Sistemi',
+        description: 'Akıllı Vardiya ve Bordro Takip Sistemi & CV Oluşturucu',
         theme_color: '#4f46e5', // indigo-600
         icons: [
           {
