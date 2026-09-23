@@ -2,7 +2,7 @@ import type { StatCardProps } from '../../types';
 import Icon from './Icon';
 
 export default function StatCard({ title, value, desc, colorTheme = 'emerald', iconName }: StatCardProps) {
-  const themeMap = {
+  const themeMap: Record<string, { text: string; glow: string }> = {
     white: { text: 'text-white', glow: 'bg-white/10' },
     blue: { text: 'text-blue-400', glow: 'bg-blue-500/10' },
     emerald: { text: 'text-emerald-400', glow: 'bg-emerald-500/10' },
@@ -10,10 +10,15 @@ export default function StatCard({ title, value, desc, colorTheme = 'emerald', i
     rose: { text: 'text-rose-400', glow: 'bg-rose-500/10' },
     indigo: { text: 'text-indigo-400', glow: 'bg-indigo-500/10' },
     gray: { text: 'text-base-content/50', glow: 'bg-base-300/20' },
-    red: { text: 'text-red-400', glow: 'bg-red-500/10' }
+    red: { text: 'text-red-400', glow: 'bg-red-500/10' },
+    sky: { text: 'text-sky-400', glow: 'bg-sky-500/10' },
+    violet: { text: 'text-violet-400', glow: 'bg-violet-500/10' },
+    amber: { text: 'text-amber-400', glow: 'bg-amber-500/10' },
+    yellow: { text: 'text-yellow-400', glow: 'bg-yellow-500/10' },
+    pink: { text: 'text-pink-400', glow: 'bg-pink-500/10' }
   };
 
-  const theme = themeMap[colorTheme];
+  const theme = themeMap[colorTheme] || themeMap.emerald;
 
   return (
     <div className="bg-[#16191d] rounded-2xl border border-base-300 p-4 sm:p-5 lg:p-6 shadow-lg text-center relative overflow-hidden flex flex-col items-center justify-center">

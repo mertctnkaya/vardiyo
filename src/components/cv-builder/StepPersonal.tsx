@@ -99,45 +99,37 @@ export default function StepPersonal() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
         <div className="form-control w-full">
           <label className="label">
-            <span className="label-text text-white">İkamet Edilen İl</span>
+            <span className="label-text text-white">İl</span>
           </label>
-          <input
-            type="text"
+          <select
             name="city"
-            list="cities"
             value={formData.city}
             onChange={handleChange}
-            placeholder="Örn: İstanbul"
-            className="input input-bordered w-full p-2 bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white"
-            autoComplete="off"
-          />
-          <datalist id="cities">
+            className="select select-bordered w-full bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white"
+          >
+            <option value="" disabled>İl seçin</option>
             {locationsData.map(loc => (
-              <option key={loc.il} value={loc.il} />
+              <option key={loc.il} value={loc.il}>{loc.il}</option>
             ))}
-          </datalist>
+          </select>
         </div>
 
         <div className="form-control w-full">
           <label className="label">
             <span className="label-text text-white">İlçe</span>
           </label>
-          <input
-            type="text"
+          <select
             name="district"
-            list="districts"
             value={formData.district}
             onChange={handleChange}
-            placeholder={districts.length > 0 ? "İlçe seçin" : "Önce il seçin"}
-            className="input input-bordered w-full p-2 bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white"
+            className="select select-bordered w-full bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white"
             disabled={!formData.city}
-            autoComplete="off"
-          />
-          <datalist id="districts">
+          >
+            <option value="" disabled>{districts.length > 0 ? "İlçe seçin" : "Önce il seçin"}</option>
             {districts.map(dist => (
-              <option key={dist} value={dist} />
+              <option key={dist} value={dist}>{dist}</option>
             ))}
-          </datalist>
+          </select>
         </div>
       </div>
 

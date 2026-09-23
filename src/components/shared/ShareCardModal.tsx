@@ -269,7 +269,7 @@ export default function ShareCardModal({ isOpen, onClose, targetDate }: ShareCar
                   </div>
 
                   <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between opacity-50 z-10">
-                    <span className="text-sm font-semibold text-white tracking-[0.2em]">VARDİYO İLE PLANLANDI</span>
+                    <span className="text-sm font-semibold text-white tracking-[0.2em]">VARDİYO İLE PLANLANDI & Mertcan Çetinkaya</span>
                     <span className="text-xs font-medium text-white/60">vardiyo.vercel.app & on App/Play Store</span>
                   </div>
                 </div>

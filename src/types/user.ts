@@ -69,6 +69,11 @@ export interface Reminder {
 export interface AdminUser {
   id: string;
   email: string;
+  name?: string;
   role: 'user' | 'admin';
   premium_until: string | null;
+  created_at?: string;
+  has_settings?: boolean;
+  logs_count?: number;
+  cvs_count?: number;
 }

@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { fetchWorkLogsRange } from '../../services/dbService';
 import { generatePayrollData } from '../../core/payrollEngine';
 import { calculateMonthlyYevmiyeStats } from '../../core/yevmiyeEngine';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
+import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
 import Alert from '../shared/Alert';
 import Icon from '../shared/Icon';
 import StatCard from '../shared/StatCard';

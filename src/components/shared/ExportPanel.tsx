@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ExportPanelProps } from "../../types/index";
 import { useAppStore } from '../../store/useAppStore';
 import PremiumPaywallModal from './PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
+import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
 
 export default function ExportPanel({ 
   title = "Raporu Dışa Aktar", 

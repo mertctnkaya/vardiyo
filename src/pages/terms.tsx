@@ -7,7 +7,7 @@ export default function TermsOfService() {
     <div className="w-full max-w-4xl animate-fade-in pb-10">
       <div className="bg-[#16191d] rounded-2xl p-8 border border-base-300 shadow-xl prose prose-invert max-w-none">
         <h1 className="text-3xl font-black text-white mb-6">Kullanım Koşulları</h1>
-        
+
         <p className="text-base-content/80">
           Son Güncellenme Tarihi: 14 Eylül 2026
         </p>
@@ -24,9 +24,9 @@ export default function TermsOfService() {
 
         <h3 className="text-indigo-400 mt-8">3. Feragatname (Sorumluluk Reddi)</h3>
         <p className="text-base-content/80">
-          Uygulama içerisindeki bordro, fazla mesai, tazminat, yıllık izin, işsizlik maaşı ve benzeri her türlü parasal/rakamsal hesaplama <strong>tamamen bilgilendirme ve tahmin amaçlıdır.</strong> 
-          Hesaplamalar resmi ilk vergi dilimleri ve standart yasal oranlar üzerinden yaklaşık olarak hesaplanır. Özel şirket politikaları, AGİ farklılıkları, BES ve icra kesintileri veya kümülatif vergi matrahındaki sapmalar nedeniyle gerçek maaş bordronuz ile uygulama sonuçları arasında farklar oluşabilir. 
-          <br/><br/>
+          Uygulama içerisindeki bordro, fazla mesai, tazminat, yıllık izin, işsizlik maaşı ve benzeri her türlü parasal/rakamsal hesaplama <strong>tamamen bilgilendirme ve tahmin amaçlıdır.</strong>
+          Hesaplamalar resmi ilk vergi dilimleri ve standart yasal oranlar üzerinden yaklaşık olarak hesaplanır. Özel şirket politikaları, AGİ farklılıkları, BES ve icra kesintileri veya kümülatif vergi matrahındaki sapmalar nedeniyle gerçek maaş bordronuz ile uygulama sonuçları arasında farklar oluşabilir.
+          <br /><br />
           Vardiyo uygulaması veya geliştiricisi, bu hesaplamaların doğurduğu hiçbir maddi, manevi veya hukuki sonuçtan sorumlu tutulamaz. Uygulama verileri resmi belge hükmünde değildir ve yasal mercilerde delil olarak kullanılamaz.
         </p>
 
@@ -37,7 +37,12 @@ export default function TermsOfService() {
 
         <h3 className="text-indigo-400 mt-8">5. Değişiklikler</h3>
         <p className="text-base-content/80">
-          Geliştirici, bu Kullanım Koşullarını önceden bildirim yapmaksızın güncelleme veya değiştirme hakkını saklı tutar. Güncellemeler uygulamada yayınlandığı andan itibaren geçerli sayılır.
+          Geliştirici (Mertcan Çetinkaya), bu Kullanım Koşullarını önceden bildirim yapmaksızın güncelleme veya değiştirme hakkını saklı tutar. Güncellemeler uygulamada yayınlandığı andan itibaren geçerli sayılır.
+        </p>
+
+        <h3 className="text-indigo-400 mt-8">6. İletişim</h3>
+        <p className="text-base-content/80">
+          Vardiyo uygulaması, <strong>Mertcan Çetinkaya</strong> (Mertcan Çetinkaya) mülkiyetindedir. İletişim için: <a href="mailto:merutou.labs@gmail.com" className="text-indigo-400 underline">merutou.labs@gmail.com</a>
         </p>
       </div>
     </div>

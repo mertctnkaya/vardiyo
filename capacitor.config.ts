@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.vardiyo.client',
+  appId: 'com.mertcancetinkaya.vardiyo',
   appName: 'Vardiyo',
   webDir: 'dist'
 };

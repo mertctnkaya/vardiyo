@@ -3,6 +3,8 @@ import type { AdminUser } from "./user";
 
 export interface StatsTabProps {
   stats: { usersCount: number; logsCount: number; remindersCount: number };
+  users: AdminUser[];
+  messages: ContactMessage[];
 }
 
 export interface PremiumTabProps {
@@ -10,6 +12,7 @@ export interface PremiumTabProps {
   actionFeedback: string;
   onGrantPremium: (userId: string, monthsToAdd: number) => void;
   onDeleteAccount: (id: string, email: string) => void;
+  onSendNotification?: (userId: string, message: string) => void;
 }
 
 export interface MessagesTabProps {

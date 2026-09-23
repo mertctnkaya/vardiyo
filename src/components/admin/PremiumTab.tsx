@@ -1,16 +1,55 @@
+import { useState } from 'react';
 import Alert from '../shared/Alert';
+import UserManageModal from './UserManageModal';
 import type { PremiumTabProps } from '../../types';
+import type { AdminUser } from '../../types';
 
-export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDeleteAccount }: PremiumTabProps) {
+export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDeleteAccount, onSendNotification }: PremiumTabProps) {
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const sortedUsers = [...users].sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  const filteredUsers = sortedUsers.filter((u) => {
+    const q = searchQuery.toLowerCase();
+    return u.email.toLowerCase().includes(q) || (u.name?.toLowerCase().includes(q));
+  });
+
+  const getPlanBadge = (u: AdminUser) => {
+    if (u.role === 'admin') return <span className="badge badge-sm bg-red-900/30 text-red-400 border-red-500/30">Kurucu</span>;
+    if (!u.premium_until || new Date(u.premium_until) <= new Date()) return <span className="badge badge-sm bg-base-300/30 text-base-content/40 border-base-300">Ücretsiz</span>;
+    if (u.premium_until.includes('2099')) return <span className="badge badge-sm bg-emerald-900/30 text-emerald-400 border-emerald-500/30">✨ Sınırsız</span>;
+    const diffDays = Math.ceil((new Date(u.premium_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 31) return <span className="badge badge-sm bg-sky-900/30 text-sky-400 border-sky-500/30">1 Ay</span>;
+    if (diffDays <= 93) return <span className="badge badge-sm bg-indigo-900/30 text-indigo-400 border-indigo-500/30">3 Ay</span>;
+    if (diffDays <= 186) return <span className="badge badge-sm bg-fuchsia-900/30 text-fuchsia-400 border-fuchsia-500/30">6 Ay</span>;
+    return <span className="badge badge-sm bg-purple-900/30 text-purple-400 border-purple-500/30">1 Yıl</span>;
+  };
+
+  const getStatusDot = (u: AdminUser) => {
+    const active = u.has_settings && (u.logs_count ?? 0) > 0;
+    return (
+      <span className="flex items-center gap-1.5">
+        <span className={`w-2 h-2 rounded-full ${active ? 'bg-emerald-500' : 'bg-red-500'}`} />
+        <span className={`text-xs ${active ? 'text-emerald-400' : 'text-red-400'}`}>{active ? 'Aktif' : 'Pasif'}</span>
+      </span>
+    );
+  };
+
   return (
     <div className="w-full bg-[#16191d] rounded-xl shadow-2xl border border-base-300 overflow-hidden px-2 sm:px-0 animate-fade-in">
       {actionFeedback && (
-        <div className="mb-4">
-          <Alert 
+        <div className="m-4 mb-0">
+          <Alert
             color={actionFeedback.includes('Hata') ? 'red' : 'emerald'}
-            title={actionFeedback.includes('Hata') ? 'Hata' : 'Başarılı'} 
-            icon={actionFeedback.includes('Hata') ? "warning" : "check"} 
-            bgStyle="colored" 
+            title={actionFeedback.includes('Hata') ? 'Hata' : 'Başarılı'}
+            icon={actionFeedback.includes('Hata') ? 'warning' : 'check'}
+            bgStyle="colored"
             borderStyle="colored"
           >
             {actionFeedback}
@@ -18,64 +57,122 @@ export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDe
         </div>
       )}
 
+      {/* Search */}
+      <div className="p-4 pb-0">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="İsim veya e-posta ile ara..."
+          className="input input-bordered w-full bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white text-sm"
+        />
+      </div>
+
+      {/* Stats bar */}
+      <div className="px-4 pt-3 pb-1 flex flex-wrap gap-3 text-xs text-base-content/50">
+        <span>Toplam: <strong className="text-white">{users.length}</strong></span>
+        <span>Premium: <strong className="text-amber-400">{users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).length}</strong></span>
+        <span>Aktif: <strong className="text-emerald-400">{users.filter(u => u.has_settings && (u.logs_count ?? 0) > 0).length}</strong></span>
+        <span>Pasif: <strong className="text-base-content/30">{users.filter(u => !u.has_settings || !(u.logs_count ?? 0)).length}</strong></span>
+      </div>
+
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="table w-full text-left">
           <thead className="bg-[#1e2329] text-base-content/70">
             <tr>
-              <th className="py-4 px-4">Kullanıcı (E-posta)</th>
-              <th>Rol</th>
-              <th>Premium Durumu</th>
-              <th className="text-right px-4">Aksiyonlar</th>
+              <th className="py-3 px-4">Kullanıcı</th>
+              <th className="hidden sm:table-cell">Üyelik</th>
+              <th className="hidden md:table-cell">Kayıt Tarihi</th>
+              <th className="hidden sm:table-cell">Durum</th>
+              <th className="text-right px-4">Yönet</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => {
-              const isPremium = u.premium_until && new Date(u.premium_until) > new Date();
-              const premiumDate = isPremium ? new Date(u.premium_until!).toLocaleDateString('tr-TR') : 'Yok';
+            {filteredUsers.map((u) => {
+              const displayName = u.name || u.email.split('@')[0];
+              const initial = displayName.charAt(0).toUpperCase();
+              const registeredAt = u.created_at
+                ? new Date(u.created_at).toLocaleDateString('tr-TR')
+                : '—';
 
               return (
-                <tr key={u.id} className="border-b border-base-300/50 hover:bg-base-200/50 transition-colors">
-                  <td className="py-4 px-4 font-medium">{u.email}</td>
-                  <td>
-                    {u.role === 'admin' ? (
-                      <span className="badge badge-error badge-outline gap-1">Kurucu</span>
-                    ) : (
-                      <span className="badge badge-ghost text-base-content/50">Üye</span>
-                    )}
-                  </td>
-                  <td>
-                    {isPremium ? (
-                      <span className="text-amber-400 font-bold flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" /></svg>
-                        {premiumDate}
-                      </span>
-                    ) : (
-                      <span className="text-base-content/30 text-sm">Ücretsiz</span>
-                    )}
-                  </td>
-                  <td className="text-right px-4 space-x-2 whitespace-nowrap">
-                    {u.role !== 'admin' && (
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => onGrantPremium(u.id, 1)} className="btn btn-sm px-3 bg-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-white border-none">1 Ay Ver</button>
-                        <button onClick={() => onGrantPremium(u.id, 999)} className="btn btn-sm px-3 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-600 hover:text-white border-none">Sınırsız</button>
-                        <button onClick={() => onGrantPremium(u.id, 0)} className="btn btn-sm px-3 bg-red-400/20 text-red-400 hover:bg-red-500 hover:text-white border-none" title="Premium yetkisini geri alır">
-                          Premium İptal
-                        </button>
-                        <button onClick={() => onDeleteAccount(u.id, u.email)} className="btn btn-sm px-3 bg-red-950/80 text-red-300 hover:bg-red-700 hover:text-white border border-red-800/50 shadow-sm" title="Kullanıcıyı sistemden kalıcı olarak siler">
-                          Hesabı Sil
-                        </button>
+                <tr key={u.id} className="border-b border-base-300/50 hover:bg-base-200/30 transition-colors">
+                  {/* User */}
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-indigo-600/80 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                        {initial}
                       </div>
-                    )}
+                      <div className="min-w-0">
+                        <p className="font-medium text-base-content truncate text-sm">{displayName}</p>
+                        <p className="text-xs text-base-content/40 truncate">{u.email}</p>
+                        {/* Mobile-only badges */}
+                        <div className="flex gap-1.5 mt-1 sm:hidden">
+                          {getPlanBadge(u)}
+                          {getStatusDot(u)}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  {/* Plan */}
+                  <td className="hidden sm:table-cell">{getPlanBadge(u)}</td>
+                  {/* Date */}
+                  <td className="hidden md:table-cell text-xs text-base-content/50">{registeredAt}</td>
+                  {/* Status */}
+                  <td className="hidden sm:table-cell">{getStatusDot(u)}</td>
+                  {/* Action */}
+                  <td className="text-right px-4">
+                    <button
+                      onClick={() => setSelectedUser(u)}
+                      className="btn btn-sm p-3 bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white border-none"
+                    >
+                      Yönet
+                    </button>
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-        {users.length === 0 && (
-          <div className="p-8 text-center text-base-content/50">Kayıtlı kullanıcı bulunamadı.</div>
+        {filteredUsers.length === 0 && (
+          <div className="p-8 text-center text-base-content/50">
+            {searchQuery ? 'Aramanızla eşleşen kullanıcı bulunamadı.' : 'Kayıtlı kullanıcı bulunamadı.'}
+          </div>
         )}
       </div>
+
+      {/* User Manage Modal */}
+      {selectedUser && (
+        <UserManageModal
+          user={selectedUser}
+          isOpen={!!selectedUser}
+          onClose={() => setSelectedUser(null)}
+          onGrantPremium={(userId, months) => {
+            onGrantPremium(userId, months);
+            // Update local modal state after grant
+            setSelectedUser(prev => {
+              if (!prev || prev.id !== userId) return prev;
+              let newDate: string | null;
+              if (months === 999) newDate = '2099-12-31T00:00:00.000Z';
+              else if (months === 0) newDate = null;
+              else {
+                const base = prev.premium_until && new Date(prev.premium_until) > new Date()
+                  ? new Date(prev.premium_until)
+                  : new Date();
+                base.setMonth(base.getMonth() + months);
+                newDate = base.toISOString();
+              }
+              return { ...prev, premium_until: newDate };
+            });
+          }}
+          onDeleteAccount={(id, email) => {
+            onDeleteAccount(id, email);
+            setSelectedUser(null);
+          }}
+          onSendNotification={onSendNotification}
+        />
+      )}
     </div>
   );
 }

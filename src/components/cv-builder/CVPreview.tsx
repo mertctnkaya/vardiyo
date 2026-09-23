@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCVStore } from '../../store/useCVStore';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, isPremiumUser } from '../../store/useAppStore';
 import { useToastStore } from '../../store/useToastStore';
 import { supabase } from '../../lib/supabaseClient';
 import { pdf } from '@react-pdf/renderer';
@@ -8,6 +8,7 @@ import CVPdfDocument from './CVPdfDocument';
 import CVPdfWorkshop from './CVPdfWorkshop';
 import { FileDown, Building2, Wrench, CheckCircle2, Trash2 } from 'lucide-react';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
+import { IS_PAYWALL_ACTIVE, isFeaturePremium } from '../../config/premiumFeatures';
 
 type PdfFormat = 'kurumsal' | 'atolye';
 
@@ -19,7 +20,9 @@ export default function CVPreview() {
   const [downloaded, setDownloaded] = useState<PdfFormat[]>([]);
   const hasSavedRef = useRef(false);
 
-  const isPro = settings?.role === 'premium' || settings?.role === 'admin';
+  const isPro = isPremiumUser(settings);
+  // Optional: const isCvPremium = IS_PAYWALL_ACTIVE && isFeaturePremium('CV_UNLIMITED');
+
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
   useEffect(() => {
@@ -202,7 +205,8 @@ export default function CVPreview() {
         <button
           onClick={() => {
             if (window.confirm('Tüm CV form verileriniz (eğitim, deneyim vb.) silinecek ve en başa döneceksiniz. Emin misiniz?')) {
-              if (!isPro) {
+              const isCvPremium = IS_PAYWALL_ACTIVE && isFeaturePremium('CV_UNLIMITED');
+              if (isCvPremium && !isPro) {
                 setIsPaywallOpen(true);
                 return;
               }
@@ -212,7 +216,7 @@ export default function CVPreview() {
           }}
           className="btn btn-outline border-red-500/50 text-red-400 hover:bg-red-600 hover:border-red-600 hover:text-white w-full sm:w-auto"
         >
-          <Trash2 className="w-4 h-4 mr-1" /> Temizle & Yeni CV Oluştur {!isPro && '(PRO)'}
+          <Trash2 className="w-4 h-4 mr-1" /> Temizle & Yeni CV Oluştur {IS_PAYWALL_ACTIVE && isFeaturePremium('CV_UNLIMITED') && !isPro && '(PRO)'}
         </button>
       </div>
       <PremiumPaywallModal

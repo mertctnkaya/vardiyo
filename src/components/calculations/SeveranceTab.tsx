@@ -7,7 +7,7 @@ import Icon from '../shared/Icon';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
 import Alert from '../shared/Alert';
 import { downloadDataAsJSON, generateFileName, exportFile } from '../../utils/exportUtils';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
+import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
 
 export default function SeveranceTab() {
   const { settings, user } = useAppStore();

@@ -14,7 +14,7 @@ export default function Footer() {
         </div>
 
         <div className="flex-1 text-center text-sm font-medium text-base-content/50 order-1 sm:order-2">
-          made by <span className="text-indigo-500 font-black tracking-wide">m3rt</span>
+          &copy; {new Date().getFullYear()} <span className="text-indigo-500 font-black tracking-wide">Mertcan Çetinkaya</span>
         </div>
 
         <div className="flex-1 flex justify-center sm:justify-end order-2 sm:order-3">

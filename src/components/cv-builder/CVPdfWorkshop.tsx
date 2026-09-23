@@ -231,7 +231,11 @@ export default function CVPdfWorkshop({ data }: Props) {
   if (data.securityCardType) extraItems.push(`ÖGG: ${data.securityCardType}`);
 
   return (
-    <Document>
+    <Document
+      title={`${data.firstName} ${data.lastName} - CV (Atölye)`}
+      author={`${data.firstName} ${data.lastName}`}
+      creator="Vardiyo by Mertcan Çetinkaya"
+    >
       <Page size="A4" style={styles.page}>
 
         {/* ÜST BANNER */}

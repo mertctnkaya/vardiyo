@@ -8,7 +8,7 @@ import { fetchMonthWorkLogs, updateUserSettings, saveWorkLogBatch, clearMonthWor
 import { downloadDataAsJSON, downloadCalendarAsCSV, generateFileName } from '../utils/exportUtils';
 import ExportPanel from '../components/shared/ExportPanel';
 import PremiumPaywallModal from '../components/shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../config/features';
+import { IS_PAYWALL_ACTIVE } from '../config/premiumFeatures';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useToastStore } from '../store/useToastStore';
 

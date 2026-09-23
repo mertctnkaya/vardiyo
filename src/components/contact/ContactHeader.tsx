@@ -6,7 +6,7 @@ export default function ContactHeader() {
         <div className="relative z-10">
           <h2 className="text-3xl font-black text-white mb-3">İletişim & Destek</h2>
           <p className="text-base-content/80 text-lg leading-relaxed max-w-2xl">
-            Vardiyo, dev bir şirket değil; tamamen <strong className="text-indigo-400">tek kişilik bir tutku projesidir.</strong>
+            Vardiyo, <strong>Mertcan Çetinkaya</strong> çatısı altında <strong className="text-indigo-400">tek kişilik bir tutku projesidir.</strong>
             <br className="hidden sm:block" /> Sistemle ilgili bir hata mı buldunuz? Yeni bir özellik fikriniz mi var? Yoksa sadece selam mı vermek istiyorsunuz?
           </p>
           <div className="mt-4 flex items-center gap-2 text-emerald-400 font-medium bg-emerald-900/20 w-fit px-3 py-1.5 rounded-lg border border-emerald-500/30">

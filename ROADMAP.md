@@ -53,7 +53,7 @@ Büyük yeni modüllere geçmeden önce uygulamanın "Native" hissiyatını art�
 
 Kullanıcının ilk kurulumunu saniyelere indiren ve viral yayılmayı tetikleyen özellikler:
 
-- [ ] **Uygulama İçi Destek Talebi (Ticket Sistemi):**
+- [x] **Uygulama İçi Destek Talebi (Ticket Sistemi):**
   - Kullanıcıların iletişim sayfasından admin'e (kurucuya) uygulama içinden destek bileti (ticket) açabilmesi.
   - Supabase üzerinden real-time veya asenkron bildirim altyapısıyla gelen cevapların sağ üstteki zile bildirim olarak düşmesi.
   - Gelecekteki "Kullanıcıdan Kullanıcıya" (User-to-User) kariyer / ilan ağı mesajlaşmasının temel veritabanı altyapısının atılması.

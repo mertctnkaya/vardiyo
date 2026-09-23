@@ -1,1 +1,0 @@
-export const IS_PAYWALL_ACTIVE = false;

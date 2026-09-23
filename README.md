@@ -128,7 +128,7 @@ Vardiyo Proje Ağacı (src/):
 │   ├── settings/          # Vardiya döngüsü, çarpanlar, bildirim ve maaş ayarları
 │   └── shared/            # Alert, StatCard, ExportPanel, OfflineSyncIndicator, Icon kütüphanesi
 │
-├── config/                # Özellik bayrakları (features.ts)
+├── config/                # Merkezi özellik bayrakları ve Premium yönetim kayıtları (premiumFeatures.ts)
 ├── constants/             # Resmi tatiller, vergi dilimleri ve mevzuat verileri
 ├── core/                  # Saf matematik motorları (payrollEngine, severanceEngine, hourlyEngine)
 ├── hooks/                 # Takvim mantığı, mobil geri tuşu ve hesaplayıcı kancaları

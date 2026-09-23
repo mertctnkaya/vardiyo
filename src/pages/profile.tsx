@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore, isPremiumUser } from '../store/useAppStore';
 import { useCVStore } from '../store/useCVStore';
 import { supabase } from '../lib/supabaseClient';
 import AccountSection from '../components/settings/AccountSection';
@@ -34,7 +34,7 @@ export default function Profile() {
   const [savedCVs, setSavedCVs] = useState<SavedCV[]>([]);
   const [isLoadingCVs, setIsLoadingCVs] = useState(true);
 
-  const isPro = settings?.role === 'premium' || settings?.role === 'admin';
+  const isPro = isPremiumUser(settings);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
   // Notification states

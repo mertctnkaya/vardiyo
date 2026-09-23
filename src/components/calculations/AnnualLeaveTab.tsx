@@ -4,7 +4,7 @@ import { updateUserSettings } from '../../services/dbService';
 import { supabase } from '../../lib/supabaseClient';
 import Alert from '../shared/Alert';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/features';
+import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
 import { getCachedWorkLogs } from '../../services/offlineStorage';
 
 export default function AnnualLeaveTab() {

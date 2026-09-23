@@ -303,7 +303,7 @@ export default function CVPdfDocument({ data }: CVPdfDocumentProps) {
     <Document
       title={`${data.firstName} ${data.lastName} - CV`}
       author={`${data.firstName} ${data.lastName}`}
-      creator="Vardiyo ATS Engine"
+      creator="Vardiyo by Mertcan Çetinkaya"
       subject={`${data.jobTitleName} Özgeçmişi`}
     >
       <Page size="A4" style={styles.page}>

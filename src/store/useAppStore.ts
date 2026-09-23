@@ -31,3 +31,11 @@ export const useAppStore = create<AppState>((set) => ({
   setPendingSyncCount: (pendingSyncCount) => set({ pendingSyncCount }),
   setUnreadTicketCount: (unreadTicketCount) => set({ unreadTicketCount }),
 }));
+
+export function isPremiumUser(settings: UserSettings | null): boolean {
+  if (!settings) return false;
+  if (settings.role === 'admin') return true;
+  if (settings.role === 'premium') return true;
+  if (settings.premium_until && new Date(settings.premium_until) > new Date()) return true;
+  return false;
+}

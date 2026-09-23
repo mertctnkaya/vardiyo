@@ -44,7 +44,8 @@ export default function PrivacyPolicy() {
 
         <h3 className="text-indigo-400 mt-8">6. İletişim</h3>
         <p className="text-base-content/80">
-          Kişisel verilerinizle ilgili her türlü soru, itiraz ve talep için uygulamanın <a href="/contact" className="text-indigo-400 underline">İletişim</a> bölümünden bizimle irtibata geçebilirsiniz.
+          Vardiyo, <strong>Mertcan Çetinkaya</strong> (Mertcan Çetinkaya) tarafından geliştirilmiş ve yönetilmektedir.
+          Kişisel verilerinizle ilgili her türlü soru, itiraz ve talep için uygulamanın <a href="/contact" className="text-indigo-400 underline">İletişim</a> bölümünden veya doğrudan <a href="mailto:merutou.labs@gmail.com" className="text-indigo-400 underline">merutou.labs@gmail.com</a> adresinden bizimle irtibata geçebilirsiniz.
         </p>
       </div>
     </div>

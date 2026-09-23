@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.vardiyo.client"
+    namespace = "com.mertcancetinkaya.vardiyo"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.vardiyo.client"
+        applicationId "com.mertcancetinkaya.vardiyo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 3

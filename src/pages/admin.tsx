@@ -176,6 +176,43 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSendNotification = async (userId: string, message: string) => {
+    try {
+      // Create notification in DB
+      const { error: dbError } = await supabase.from('notifications').insert([{
+        user_id: userId,
+        type: 'broadcast',
+        title: 'Yönetici Mesajı',
+        message: message,
+        link: '/',
+        is_interactive: true
+      }]);
+
+      if (dbError) throw dbError;
+
+      // Try to send push if user has subscription
+      const { data: userSettings } = await supabase
+        .from('user_settings')
+        .select('push_subscription')
+        .eq('user_id', userId)
+        .single();
+
+      if (userSettings?.push_subscription) {
+        await supabase.functions.invoke('send-push', {
+          body: {
+            subscription: userSettings.push_subscription,
+            payload: { title: 'Yönetici Mesajı', message: message, url: '/' }
+          }
+        });
+      }
+
+      addToast('Bildirim başarıyla gönderildi.', 'success');
+    } catch (error: any) {
+      addToast('Bildirim gönderilirken hata oluştu.', 'error');
+      console.error(error);
+    }
+  };
+
   const handleOpenChat = async (msg: ContactMessage) => {
     setActiveChatTicket(msg);
     if (!msg.is_read_by_admin) {
@@ -233,6 +270,7 @@ export default function AdminPanel() {
                 actionFeedback={actionFeedback}
                 onGrantPremium={handleGrantPremium}
                 onDeleteAccount={handleDeleteAccount}
+                onSendNotification={handleSendNotification}
               />
             )}
 
@@ -244,7 +282,7 @@ export default function AdminPanel() {
               />
             )}
 
-            {activeTab === 'stats' && <StatsTab stats={stats} />}
+            {activeTab === 'stats' && <StatsTab stats={stats} users={users} messages={messages} />}
 
             {activeTab === 'broadcast' && (
               <div className="flex justify-center mt-4 mb-8">

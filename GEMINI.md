@@ -238,6 +238,14 @@ Phase 6: Viral Growth & User Retention
 [x] Smart Worker CV Generator: Built a 6-step wizard CV builder with 16 main sectors, 50+ specialized job titles, dynamic skill suggestions, dual-output PDF (Kurumsal ATS + Atölye Görsel), freemium strategy (1 free CV, premium for edits/new), Supabase user_cvs table with RLS. Strictly optimized for ATS: Uses Arimo font (ToUnicode bug fixed), enforces start/end dates for education & experience, enforces descriptive content via mandatory inputs, distinct text blocks for name and job titles. Route: /cv-builder.
 [x] WhatsApp Shift Share Card: Build a viral 'Haftalık Vardiya Çizelgem' shareable card generator for organic growth.
 
+Phase 7: Premium System & Payment Readiness
+[x] Feature Gating Architecture: Moved from hardcoded booleans to a scalable `premiumFeatures.ts` registry.
+[x] Premium Evaluation Unification: Centralized `isPremiumUser` logic in Zustand store to consistently validate both `role === 'premium'` and `premium_until` dates.
+[x] Admin Panel Redesign: Rebuilt `PremiumTab.tsx` with a compact user table and introduced `UserManageModal.tsx` for granular operations (granting 1/3/6/12/999 month premium, revoking, custom notifications, and account deletion).
+[x] Paywall UI Polish: Replaced placeholder paywall with a conversion-optimized grid showing Monthly (29.99 TL) and Annual (199.99 TL) tiers, along with specific feature highlights.
+[ ] In-App Purchases (RevenueCat): Pending Play Console identity verification and product creation.
+[ ] Supabase RPC Updates: Need to apply `update_admin_rpc.sql` migration to backend to populate `has_settings`, `logs_count`, etc.
+
 ### 9. INSTRUCTIONS FOR THE CODE AGENT
 
 1. When instructed to add or modify a feature, review Section 4 (Shared Components) and Section 3 (Color Tokens) first.
