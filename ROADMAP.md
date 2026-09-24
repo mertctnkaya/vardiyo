@@ -46,6 +46,9 @@ Büyük yeni modüllere geçmeden önce uygulamanın "Native" hissiyatını art�
 - [x] **Dokunmatik Kaydırma (Swipe) Desteği:** Özellikle Mesai Takvimi (`WorktimeCalendar`) üzerinde ayları değiştirirken mobil cihazlardaki gibi sağa-sola kaydırma hareketlerinin algılanması.
 - [x] **Global Bildirim (Toast/Snackbar) Sistemi:** "Ayarlar kaydedildi", "Kayıt silindi" gibi işlemler sonrası ekranın altından/üstünden belirip kaybolan şık sistem bildirimleri.
 - [x] **Form Validasyonu (Mantıksız Veri Engeli):** Ayarlar ekranında brüt maaşa veya çalışma saatine eksi (-), 24'ten büyük vs. sistemi çökertecek geçersiz değerlerin girilmesinin engellenmesi.
+- [ ] **Derin Bağlantılar (Deep Linking):** WhatsApp'tan paylaşılan vardiya çizelgesine veya belirli sayfalara tıklayan bir kişinin doğrudan cihazındaki (uygulamadaki) ilgili ekrana düşmesini sağlayacak Capacitor ayarları.
+- [ ] **Demo / Onboarding Turu:** Uygulamayı ilk kez yükleyen kullanıcıyı doğrudan ayarlara yönlendiriyoruz ama sistemi nasıl kullanacağı konusunda kısa bir görsel "Tur" (Intro.js tarzı veya basit bir kaydırmalı ekran) eklenmesi.
+- [ ] **App-Review API Entegrasyonu:** Kullanıcı 5. kez vardiya girdiğinde veya maaşını ilk kez hesapladığında Google Play "Puan Ver" native pop-up'ının (In-App Review) çıkartılması.
 
 ---
 

@@ -23,14 +23,19 @@ import CVBuilderPage from './pages/cv-builder';
 
 import { useEffect } from 'react';
 import { useAppStore } from './store/useAppStore';
-import { initRevenueCat } from './services/revenuecat';
+import { initRevenueCat, checkIsPro } from './services/revenuecat';
 
 export default function App() {
-  const { user } = useAppStore();
+  const { user, setIsRevenueCatPro } = useAppStore();
 
   useEffect(() => {
-    initRevenueCat(user?.id);
-  }, [user?.id]);
+    const setupRevenueCat = async () => {
+      await initRevenueCat(user?.id);
+      const isPro = await checkIsPro();
+      setIsRevenueCatPro(isPro);
+    };
+    setupRevenueCat();
+  }, [user?.id, setIsRevenueCatPro]);
 
   return (
     <BrowserRouter>
