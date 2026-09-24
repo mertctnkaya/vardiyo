@@ -41,7 +41,7 @@ export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarP
   return (
     <div className="drawer-side z-50">
       <label htmlFor="mobile-drawer" aria-label="close sidebar" className="drawer-overlay backdrop-blur-sm bg-black/40"></label>
-      <ul className="menu p-6 pt-safe pb-safe w-[82vw] max-w-sm min-h-full bg-base-100 text-base-content gap-2 shadow-2xl flex flex-col">
+      <ul className="menu p-6 pt-[max(env(safe-area-inset-top),1.5rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)] w-[82vw] max-w-sm min-h-full bg-base-100 text-base-content gap-2 shadow-2xl flex flex-col">
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-base-300 pt-2">
           <span className="text-2xl font-black text-indigo-500 tracking-wide">Vardiyo</span>
           <label htmlFor="mobile-drawer" className="btn btn-square btn-ghost btn-sm text-base-content/60 hover:text-base-content">

@@ -74,13 +74,16 @@ export default function AdminPanel() {
 
   const fetchData = async () => {
     setIsLoading(true);
-    const { data: userData } = await supabase.rpc('get_admin_user_list');
+    const { data: userData, error: userError } = await supabase.rpc('get_admin_user_list');
+    if (userError) addToast(`Kullanıcılar Çekilemedi: ${userError.message}`, 'error');
     if (userData) setUsers(userData);
 
-    const { data: msgData } = await supabase.rpc('get_admin_messages');
+    const { data: msgData, error: msgError } = await supabase.rpc('get_admin_messages');
+    if (msgError) addToast(`Mesajlar Çekilemedi: ${msgError.message}`, 'error');
     if (msgData) setMessages(msgData);
 
-    const { data: statData } = await supabase.rpc('get_admin_stats');
+    const { data: statData, error: statError } = await supabase.rpc('get_admin_stats');
+    if (statError) addToast(`İstatistikler Çekilemedi: ${statError.message}`, 'error');
     if (statData) setStats(statData);
     setIsLoading(false);
   };
