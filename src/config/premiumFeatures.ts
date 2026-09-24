@@ -106,5 +106,5 @@ export function getProFeatures(): PremiumFeature[] {
  * false iken HİÇBİR özellik kısıtlanmaz (herkes kullanabilir).
  * true yapıldığında premium olarak işaretlenen özellikler kısıtlanır.
  */
-export const IS_PAYWALL_ACTIVE = true;
+export const IS_PAYWALL_ACTIVE = false;
 
