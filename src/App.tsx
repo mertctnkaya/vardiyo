@@ -23,19 +23,34 @@ import CVBuilderPage from './pages/cv-builder';
 
 import { useEffect } from 'react';
 import { useAppStore } from './store/useAppStore';
-import { initRevenueCat, checkIsPro } from './services/revenuecat';
+import { initRevenueCat, checkIsPro, getCustomerInfo, REVENUECAT_ENTITLEMENT } from './services/revenuecat';
+import { updateUserSettings } from './services/dbService';
 
 export default function App() {
-  const { user, setIsRevenueCatPro } = useAppStore();
+  const { user, settings, setSettings, setIsRevenueCatPro } = useAppStore();
 
   useEffect(() => {
     const setupRevenueCat = async () => {
       await initRevenueCat(user?.id);
       const isPro = await checkIsPro();
       setIsRevenueCatPro(isPro);
+
+      if (isPro && user) {
+        const customerInfo = await getCustomerInfo();
+        const entitlement = customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENT];
+        const expirationDate = entitlement?.expirationDate || '2099-12-31T23:59:59Z';
+
+        if (!settings?.premium_until || new Date(settings.premium_until) < new Date(expirationDate)) {
+          const { data } = await updateUserSettings(user.id, {
+            role: settings?.role === 'admin' ? 'admin' : 'premium',
+            premium_until: expirationDate,
+          });
+          if (data) setSettings(data);
+        }
+      }
     };
     setupRevenueCat();
-  }, [user?.id, setIsRevenueCatPro]);
+  }, [user?.id, setIsRevenueCatPro, settings?.premium_until, settings?.role, setSettings]);
 
   return (
     <BrowserRouter>

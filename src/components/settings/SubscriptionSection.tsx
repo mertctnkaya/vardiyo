@@ -3,17 +3,20 @@ import { useAppStore, isPremiumUser } from '../../store/useAppStore';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
 
 export default function SubscriptionSection() {
-  const { user, settings } = useAppStore();
+  const { user, settings, isRevenueCatPro } = useAppStore();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
   if (!user || !settings) return null;
 
-  const isPro = isPremiumUser(settings);
+  const isPro = isPremiumUser(settings, isRevenueCatPro);
   const isLifetime = settings.premium_until?.includes('2099');
 
   const getPlanName = () => {
-    if (!isPro) return 'Ücretsiz (Free)';
     if (isLifetime) return '✨ Sınırsız (Ömür Boyu)';
+    if (isRevenueCatPro && (!settings.premium_until || new Date(settings.premium_until) <= new Date())) {
+      return '⭐ Vardiyo Premium (Mobil Abonelik)';
+    }
+    if (!isPro) return 'Ücretsiz (Free)';
 
     if (settings.premium_until) {
       const endDate = new Date(settings.premium_until);

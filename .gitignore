@@ -13,8 +13,7 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode/
 .idea
 .DS_Store
 *.suo
@@ -25,3 +24,4 @@ dist-ssr
 ROADMAP.md
 GEMINI.md
 GIT_REHBERI.md
+test_rpc.js

@@ -17,6 +17,8 @@ import PwaUpdatePrompt from '../shared/PwaUpdatePrompt';
 import ToastContainer from '../shared/ToastContainer';
 import { useMobileBackHandler } from '../../hooks/useMobileBackHandler';
 import { useToastStore } from '../../store/useToastStore';
+import { isNative } from '../../utils/isNative';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 export default function MainLayout() {
   useMobileBackHandler();
@@ -92,6 +94,34 @@ export default function MainLayout() {
                 }
               };
               fetchCount();
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+          async (payload: any) => {
+            const notif = payload.new;
+            if (notif) {
+              const { addToast } = useToastStore.getState();
+              addToast(`${notif.title}: ${notif.message}`, 'info');
+
+              if (isNative()) {
+                try {
+                  await LocalNotifications.schedule({
+                    notifications: [
+                      {
+                        id: Math.floor(Math.random() * 100000),
+                        title: notif.title || 'Vardiyo Bildirimi',
+                        body: notif.message || '',
+                        schedule: { at: new Date(Date.now() + 100) },
+                      }
+                    ]
+                  });
+                } catch (e) {
+                  console.warn('Local notification error:', e);
+                }
+              }
             }
           }
         )

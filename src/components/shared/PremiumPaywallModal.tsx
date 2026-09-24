@@ -5,8 +5,11 @@ import type { PremiumPaywallModalProps } from '../../types';
 import { PRICING } from '../../config/pricing';
 import { fetchOfferings, purchasePackage, restorePurchases, REVENUECAT_ENTITLEMENT } from '../../services/revenuecat';
 import { isNative } from '../../utils/isNative';
+import { useAppStore } from '../../store/useAppStore';
+import { updateUserSettings } from '../../services/dbService';
 
 export default function PremiumPaywallModal({ isOpen, onClose, featureName }: PremiumPaywallModalProps) {
+  const { user, settings, setSettings, setIsRevenueCatPro } = useAppStore();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual' | 'lifetime'>('annual');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -30,6 +33,15 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
       return;
     }
 
+    const ALLOWED_TEST_EMAILS = ['m3rt7132@gmail.com'];
+    const isTesterOrAdmin = user?.email && (ALLOWED_TEST_EMAILS.includes(user.email) || settings?.role === 'admin');
+
+    if (!isTesterOrAdmin) {
+      alert("Vardiyo Premium şu anda kapalı test aşamasındadır. Çok yakında resmi lansmanla birlikte tüm kullanıcılara açılacaktır! İlginiz için teşekkür ederiz.");
+      setIsProcessing(false);
+      return;
+    }
+
     try {
       const packages = await fetchOfferings();
       if (!packages || packages.length === 0) {
@@ -49,6 +61,18 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
 
       const customerInfo = await purchasePackage(selectedPackage);
       if (customerInfo && typeof customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT] !== 'undefined') {
+        const entitlement = customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
+        const expirationDate = entitlement?.expirationDate || '2099-12-31T23:59:59Z';
+        setIsRevenueCatPro(true);
+
+        if (user) {
+          const { data } = await updateUserSettings(user.id, {
+            role: settings?.role === 'admin' ? 'admin' : 'premium',
+            premium_until: expirationDate,
+          });
+          if (data) setSettings(data);
+        }
+
         alert("Tebrikler! Premium özellikleriniz başarıyla aktif edildi.");
         onClose();
         window.location.reload();
@@ -74,6 +98,18 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
     try {
       const customerInfo = await restorePurchases();
       if (customerInfo && typeof customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT] !== 'undefined') {
+        const entitlement = customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
+        const expirationDate = entitlement?.expirationDate || '2099-12-31T23:59:59Z';
+        setIsRevenueCatPro(true);
+
+        if (user) {
+          const { data } = await updateUserSettings(user.id, {
+            role: settings?.role === 'admin' ? 'admin' : 'premium',
+            premium_until: expirationDate,
+          });
+          if (data) setSettings(data);
+        }
+
         alert("Satın alımlarınız başarıyla geri yüklendi! Premium aktif.");
         onClose();
         window.location.reload();

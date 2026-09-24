@@ -29,13 +29,13 @@ type SavedCV = {
 export default function Profile() {
   usePageTitle('Hesabım');
   const navigate = useNavigate();
-  const { user, settings } = useAppStore();
+  const { user, settings, isRevenueCatPro } = useAppStore();
   const { loadCVForEdit } = useCVStore();
   const { addToast } = useToastStore();
   const [savedCVs, setSavedCVs] = useState<SavedCV[]>([]);
   const [isLoadingCVs, setIsLoadingCVs] = useState(true);
 
-  const isPro = isPremiumUser(settings);
+  const isPro = isPremiumUser(settings, isRevenueCatPro);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
 
   // Notification states
