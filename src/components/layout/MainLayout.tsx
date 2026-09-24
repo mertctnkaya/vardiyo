@@ -114,7 +114,6 @@ export default function MainLayout() {
                         id: Math.floor(Math.random() * 100000),
                         title: notif.title || 'Vardiyo Bildirimi',
                         body: notif.message || '',
-                        schedule: { at: new Date(Date.now() + 100) },
                       }
                     ]
                   });

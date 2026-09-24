@@ -65,12 +65,14 @@ export default function SubscriptionSection() {
           )}
         </div>
 
-        {!isLifetime && (
+        {(!isLifetime || settings.role === 'admin' || user.email === 'm3rt7132@gmail.com') && (
           <button
             onClick={() => setIsPaywallOpen(true)}
-            className={`btn btn-sm sm:btn-md p-2 ${isPro ? 'bg-base-300/30 text-base-content/70 hover:bg-base-300 hover:text-white border-none' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/50 border-none'}`}
+            className={`btn btn-sm sm:btn-md p-2 ${isPro && !(settings.role === 'admin' && isLifetime) ? 'bg-base-300/30 text-base-content/70 hover:bg-base-300 hover:text-white border-none' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/50 border-none'}`}
           >
-            {isPro ? 'Paketi Uzat / Yönet' : 'Premium\'a Geç'}
+            {settings.role === 'admin' && isLifetime
+              ? '💳 Ödeme Test Et (Admin)'
+              : (isPro ? 'Paketi Uzat / Yönet' : 'Premium\'a Geç')}
           </button>
         )}
       </div>
