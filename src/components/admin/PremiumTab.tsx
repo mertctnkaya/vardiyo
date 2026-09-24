@@ -25,6 +25,7 @@ export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDe
     if (u.premium_until.includes('2099')) return <span className="badge badge-sm bg-emerald-900/30 text-emerald-400 border-emerald-500/30">✨ Sınırsız</span>;
     const diffDays = Math.ceil((new Date(u.premium_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
+    if (diffDays <= 7) return <span className="badge badge-sm bg-base-300/30 text-base-content/50 border-base-300/50">1 Hafta</span>;
     if (diffDays <= 31) return <span className="badge badge-sm bg-sky-900/30 text-sky-400 border-sky-500/30">1 Ay</span>;
     if (diffDays <= 93) return <span className="badge badge-sm bg-indigo-900/30 text-indigo-400 border-indigo-500/30">3 Ay</span>;
     if (diffDays <= 186) return <span className="badge badge-sm bg-fuchsia-900/30 text-fuchsia-400 border-fuchsia-500/30">6 Ay</span>;
@@ -145,7 +146,7 @@ export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDe
       {/* User Manage Modal */}
       {selectedUser && (
         <UserManageModal
-          user={selectedUser}
+          user={users.find(u => u.id === selectedUser.id) || selectedUser}
           isOpen={!!selectedUser}
           onClose={() => setSelectedUser(null)}
           onGrantPremium={(userId, months) => {

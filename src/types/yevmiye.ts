@@ -1,17 +1,17 @@
 export interface YevmiyeStats {
-  totalEarned: number;       // Aylık toplam kazanılan (₺)
-  totalDaysWorked: number;   // Çalışılan gün sayısı
-  weeklyEarning: number;     // Haftalık kazanç ortalaması
-  biweeklyEarning: number;   // 15 günlük kazanç
+  totalEarned: number;       // Takvime giriş yapılan günlerden kazanılan toplam (₺)
+  totalDaysWorked: number;   // Takvime giriş yapılan gün sayısı
+  weeklyEarning: number;     // Haftalık tahmini kazanç (projeksiyon)
+  biweeklyEarning: number;   // 15 günlük tahmini kazanç (projeksiyon)
   deductionsTL: number;      // Eksik saat kesintileri (₺)
-  netMonthly: number;        // Kesinti sonrası aylık net
-  avgDailyRate: number;      // Bu ayın ağırlıklı ortalama günlük yevmiyesi
-  paymentPeriodEarning: number;  // Ödeme dönemi kazancı
+  netMonthly: number;        // Takvimden kazanılan toplam net
+  avgDailyRate: number;      // Ortalama günlük yevmiye
+  paymentPeriodEarning: number;  // Ödeme dönemi kazancı (sadece girişli günler)
   paymentPeriodStart: string;    // Ödeme dönemi başlangıç tarihi
   paymentPeriodEnd: string;      // Ödeme dönemi bitiş tarihi
-  paymentPeriodDaysWorked: number; // Ödeme döneminde çalışılan gün
-  fullMonthProjection: number;   // Tüm ay çalışılırsa kazanılacak tahmini tutar
-  workableDaysInMonth: number;   // Ayda Pazar hariç çalışılabilir gün sayısı
+  paymentPeriodDaysWorked: number; // Ödeme döneminde giriş yapılan gün
+  fullMonthProjection: number;   // Tüm iş günleri çalışılırsa tahmini kazanç
+  workableDaysInMonth: number;   // Ayda tatil hariç çalışılabilir iş günü sayısı
 }
 
 export interface YevmiyePaymentSettings {

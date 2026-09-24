@@ -8,6 +8,7 @@ import StepFinalize from '../components/cv-builder/StepFinalize';
 import CVPreview from '../components/cv-builder/CVPreview';
 import Alert from '../components/shared/Alert';
 import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAppStore } from '../store/useAppStore';
 
 const steps = [
   { id: 1, title: 'Kişisel' },
@@ -20,6 +21,7 @@ const steps = [
 
 export default function CVBuilderPage() {
   const { currentStep } = useCVStore();
+  const { isOnline } = useAppStore();
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const renderStep = () => {
@@ -44,6 +46,13 @@ export default function CVBuilderPage() {
   return (
     <div className="w-full flex flex-col items-center animate-fade-in pb-10">
       <div className="w-full max-w-4xl px-2">
+        {!isOnline && (
+          <div className="mb-4 mt-4">
+            <Alert color="red" icon="info" title="İnternet Bağlantısı Yok">
+              Özgeçmişinizi PDF olarak oluşturmak ve sisteme kaydetmek için aktif bir internet bağlantısına ihtiyacınız var. Lütfen bağlantınızı kontrol edin.
+            </Alert>
+          </div>
+        )}
         <div className="mb-4 mt-4">
           <h1 className="text-3xl font-bold text-white mb-2">Akıllı CV Oluşturucu</h1>
           <p className="text-base-content/70">Mavi yaka ve saha personeline özel ATS uyumlu özgeçmiş hazırlayın.</p>

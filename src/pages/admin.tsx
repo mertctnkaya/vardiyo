@@ -120,17 +120,25 @@ export default function AdminPanel() {
 
   const handleGrantPremium = async (userId: string, monthsToAdd: number) => {
     const targetUser = users.find(u => u.id === userId);
-
     let baseDate = new Date();
+
     if (monthsToAdd === 999) {
       baseDate = new Date('2099-12-31');
     } else if (monthsToAdd === 0) {
       baseDate = new Date(0);
     } else {
-      if (targetUser?.premium_until && new Date(targetUser.premium_until) > baseDate) {
-        baseDate = new Date(targetUser.premium_until);
+      const hasPremium = targetUser?.premium_until && new Date(targetUser.premium_until) > new Date();
+      const isLifetime = targetUser?.premium_until?.includes('2099');
+
+      if (hasPremium && !isLifetime) {
+        baseDate = new Date(targetUser.premium_until!);
       }
-      baseDate.setMonth(baseDate.getMonth() + monthsToAdd);
+
+      if (monthsToAdd === 0.25) {
+        baseDate.setDate(baseDate.getDate() + 7);
+      } else {
+        baseDate.setMonth(baseDate.getMonth() + monthsToAdd);
+      }
     }
 
     const premiumUntilStr = monthsToAdd === 0 ? null : baseDate.toISOString();
@@ -178,15 +186,13 @@ export default function AdminPanel() {
 
   const handleSendNotification = async (userId: string, message: string) => {
     try {
-      // Create notification in DB
-      const { error: dbError } = await supabase.from('notifications').insert([{
-        user_id: userId,
-        type: 'broadcast',
-        title: 'Yönetici Mesajı',
-        message: message,
-        link: '/',
-        is_interactive: true
-      }]);
+      // Create notification in DB using RPC to bypass RLS
+      const { error: dbError } = await supabase.rpc('send_admin_notification', {
+        target_user_id: userId,
+        notif_title: 'Yönetici Mesajı',
+        notif_message: message,
+        notif_link: '/'
+      });
 
       if (dbError) throw dbError;
 
@@ -208,7 +214,7 @@ export default function AdminPanel() {
 
       addToast('Bildirim başarıyla gönderildi.', 'success');
     } catch (error: any) {
-      addToast('Bildirim gönderilirken hata oluştu.', 'error');
+      addToast(`Bildirim hatası: ${error.message || 'Bilinmeyen hata'}`, 'error');
       console.error(error);
     }
   };

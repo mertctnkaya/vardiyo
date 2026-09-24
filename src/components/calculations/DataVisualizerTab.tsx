@@ -16,8 +16,8 @@ export default function DataVisualizerTab() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isPremiumOrAdmin = user?.email === 'm3rt7132@gmail.com';
-  const hasAccess = true;
+  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
+  const hasAccess = !IS_PAYWALL_ACTIVE || isPremiumOrAdmin;
 
   useEffect(() => {
     if (!user || !settings || !hasAccess) return;
@@ -231,7 +231,7 @@ export default function DataVisualizerTab() {
             <p className="text-base-content/70 text-center max-w-sm mb-4">
               Geçmiş aylara dönük kazanç trendleri, mesai yoğunluk haritası ve detaylı analitikleri görmek için Premium'a yükseltin.
             </p>
-            <button className="btn bg-amber-500 hover:bg-amber-600 text-black border-none shadow-lg shadow-amber-500/20 font-bold">
+            <button className="btn bg-amber-500 hover:bg-amber-600 p-3 text-black border-none shadow-lg shadow-amber-500/20 font-bold">
               Premium Al (Yakında)
             </button>
           </div>

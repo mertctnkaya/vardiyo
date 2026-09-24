@@ -32,6 +32,7 @@ export default function UserManageModal({ user, isOpen, onClose, onGrantPremium,
     const endDate = new Date(user.premium_until!);
     const now = new Date();
     const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 7) return `1 Haftalık (${diffDays} gün kaldı)`;
     if (diffDays <= 31) return `1 Aylık (${diffDays} gün kaldı)`;
     if (diffDays <= 93) return `3 Aylık (${diffDays} gün kaldı)`;
     if (diffDays <= 186) return `6 Aylık (${diffDays} gün kaldı)`;
@@ -114,6 +115,7 @@ export default function UserManageModal({ user, isOpen, onClose, onGrantPremium,
             {user.role !== 'admin' && (
               <>
                 <div className="flex flex-wrap gap-2 mb-4">
+                  <button onClick={() => onGrantPremium(user.id, 0.25)} className="btn btn-sm p-3 bg-white/5 text-base-content/50 hover:bg-white/10 hover:text-white border border-white/10">1 Hafta</button>
                   <button onClick={() => onGrantPremium(user.id, 1)} className="btn btn-sm p-3 bg-sky-900/20 text-sky-400 hover:bg-sky-600 hover:text-white border border-sky-500/30">1 Ay</button>
                   <button onClick={() => onGrantPremium(user.id, 3)} className="btn btn-sm p-3 bg-indigo-900/20 text-indigo-400 hover:bg-indigo-600 hover:text-white border border-indigo-500/30">3 Ay</button>
                   <button onClick={() => onGrantPremium(user.id, 6)} className="btn btn-sm p-3 bg-fuchsia-900/20 text-fuchsia-400 hover:bg-fuchsia-600 hover:text-white border border-fuchsia-500/30">6 Ay</button>

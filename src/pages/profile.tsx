@@ -5,6 +5,7 @@ import { useAppStore, isPremiumUser } from '../store/useAppStore';
 import { useCVStore } from '../store/useCVStore';
 import { supabase } from '../lib/supabaseClient';
 import AccountSection from '../components/settings/AccountSection';
+import SubscriptionSection from '../components/settings/SubscriptionSection';
 import NotificationSection from '../components/settings/NotificationSection';
 import { registerAndSubscribeToPush } from '../lib/pushNotifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -179,6 +180,9 @@ export default function Profile() {
         <div className="p-6 sm:p-8 space-y-10">
           {/* Account Details & Deletion */}
           <AccountSection />
+
+          {/* Subscription / Plan Details */}
+          <SubscriptionSection />
 
           {/* CVs Section */}
           <div className="space-y-6 pt-6 border-t border-base-300">

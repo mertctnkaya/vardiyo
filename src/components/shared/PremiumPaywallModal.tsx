@@ -2,9 +2,13 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Crown, CreditCard, ChevronRight } from 'lucide-react';
 import type { PremiumPaywallModalProps } from '../../types';
+import { PRICING } from '../../config/pricing';
+import { fetchOfferings, purchasePackage, restorePurchases, REVENUECAT_ENTITLEMENT } from '../../services/revenuecat';
+import { isNative } from '../../utils/isNative';
 
 export default function PremiumPaywallModal({ isOpen, onClose, featureName }: PremiumPaywallModalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual' | 'lifetime'>('annual');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   if (!isOpen) return null;
 
@@ -17,11 +21,77 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
     'Öncelikli Destek'
   ];
 
+  const handlePurchase = async () => {
+    setIsProcessing(true);
+
+    if (!isNative()) {
+      alert("Premium abonelik işlemleri güvenliğiniz için Google Play üzerinden yapılmaktadır. Lütfen telefonunuza Vardiyo mobil uygulamasını indirerek satın alma işlemini gerçekleştirin.");
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      const packages = await fetchOfferings();
+      if (!packages || packages.length === 0) {
+        alert("Paketler yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.");
+        setIsProcessing(false);
+        return;
+      }
+
+      const targetIdentifier = `$rc_${selectedPlan}`;
+      const selectedPackage = packages.find((p: any) => p.identifier === targetIdentifier);
+
+      if (!selectedPackage) {
+        alert("Seçilen paket şu an kullanılamıyor.");
+        setIsProcessing(false);
+        return;
+      }
+
+      const customerInfo = await purchasePackage(selectedPackage);
+      if (customerInfo && typeof customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT] !== 'undefined') {
+        alert("Tebrikler! Premium özellikleriniz başarıyla aktif edildi.");
+        onClose();
+        window.location.reload();
+      }
+    } catch (error: any) {
+      if (!error.userCancelled) {
+        alert("Satın alma işlemi sırasında bir hata oluştu.");
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setIsProcessing(true);
+
+    if (!isNative()) {
+      alert("Satın alımları geri yükleme işlemi sadece mobil uygulama (Google Play) üzerinden yapılabilmektedir.");
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      const customerInfo = await restorePurchases();
+      if (customerInfo && typeof customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT] !== 'undefined') {
+        alert("Satın alımlarınız başarıyla geri yüklendi! Premium aktif.");
+        onClose();
+        window.location.reload();
+      } else {
+        alert("Hesabınızda aktif bir Premium abonelik bulunamadı.");
+      }
+    } catch (error) {
+      alert("Geri yükleme işlemi başarısız oldu.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onClick={onClose} />
 
-      <div className="bg-[#1e2329] border border-amber-500/30 rounded-3xl p-6 sm:p-8 relative z-10 shadow-[0_0_80px_rgba(245,158,11,0.15)] w-full max-w-lg flex flex-col text-center max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1e2329] border border-amber-500/30 rounded-3xl p-6 sm:p-8 relative z-10 shadow-[0_0_80px_rgba(245,158,11,0.15)] w-full max-w-lg flex flex-col text-center max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
         {/* Header Icon */}
         <div className="mx-auto bg-gradient-to-br from-amber-400 to-orange-600 p-4 rounded-full mb-5 shadow-lg shadow-amber-900/40">
@@ -51,7 +121,7 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
             {
               id: 'monthly',
               title: 'Aylık',
-              price: '29.99',
+              price: PRICING.PLANS.MONTHLY.price.toString(),
               subtitle: null,
               badge: null,
               highlight: false,
@@ -59,29 +129,28 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
             {
               id: 'annual',
               title: 'Yıllık',
-              price: '199.99',
-              subtitle: '16.66 TL / ay',
+              price: PRICING.PLANS.ANNUAL.price.toString(),
+              subtitle: `${(PRICING.PLANS.ANNUAL.price / 12).toFixed(2)} TL / ay`,
               badge: '%45 İNDİRİM',
               highlight: true,
             },
             {
               id: 'lifetime',
               title: 'Ömür Boyu',
-              price: '499.99',
+              price: PRICING.PLANS.LIFETIME.price.toString(),
               subtitle: 'Tek Seferlik',
               badge: 'SINIRSIZ',
               highlight: false,
             }
-            // İleride 3 aylık veya 6 aylık eklemek istersen bu listeye obje eklemen yeterli.
-            // Örn: { id: '3-months', title: '3 Aylık', price: '79.99', subtitle: '26.66 TL / ay', badge: null, highlight: false }
           ].map((plan) => (
             <button
               key={plan.id}
-              onClick={() => setSelectedPlan(plan.id as any)}
+              onClick={() => !isProcessing && setSelectedPlan(plan.id as any)}
+              disabled={isProcessing}
               className={`relative p-3 sm:p-4 rounded-2xl border-2 text-left transition-all overflow-hidden flex flex-col justify-center ${selectedPlan === plan.id
                 ? 'border-amber-500 bg-amber-500/10'
                 : 'border-base-300 hover:border-amber-500/50 bg-black/20'
-                } ${plan.id === 'lifetime' ? 'col-span-2 md:col-span-1' : ''}`}
+                } ${plan.id === 'lifetime' ? 'col-span-2 md:col-span-1' : ''} ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {plan.badge && (
                 <div className={`absolute top-0 right-0 text-black text-[10px] font-black px-2 py-0.5 rounded-bl-lg ${plan.highlight ? 'bg-amber-500' : 'bg-indigo-400'}`}>
@@ -104,13 +173,29 @@ export default function PremiumPaywallModal({ isOpen, onClose, featureName }: Pr
 
         {/* Actions */}
         <div className="flex flex-col gap-3">
-          <button className="btn bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-lg border-none shadow-xl shadow-amber-900/30 w-full rounded-2xl h-14">
-            <CreditCard className="w-5 h-5 mr-1" />
-            Satın Al (Çok Yakında)
+          <button
+            onClick={handlePurchase}
+            disabled={isProcessing}
+            className="btn bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-lg border-none shadow-xl shadow-amber-900/30 w-full rounded-2xl h-14"
+          >
+            {isProcessing ? <span className="loading loading-spinner"></span> : (
+              <>
+                <CreditCard className="w-5 h-5 mr-1" />
+                Satın Al
+              </>
+            )}
           </button>
 
-          <button className="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center justify-center gap-1 mt-2">
-            Satın Alımları Geri Yükle <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={handleRestore}
+            disabled={isProcessing}
+            className="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center justify-center gap-1 mt-2 disabled:opacity-50"
+          >
+            {isProcessing ? 'İşleniyor...' : (
+              <>
+                Satın Alımları Geri Yükle <ChevronRight className="w-4 h-4" />
+              </>
+            )}
           </button>
 
           <Link to="/contact" className="text-xs text-base-content/40 hover:text-white mt-4 underline decoration-base-content/20">

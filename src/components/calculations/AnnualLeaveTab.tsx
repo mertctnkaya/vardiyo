@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { updateUserSettings } from '../../services/dbService';
 import { supabase } from '../../lib/supabaseClient';
 import Alert from '../shared/Alert';
-import PremiumPaywallModal from '../shared/PremiumPaywallModal';
-import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
 import { getCachedWorkLogs } from '../../services/offlineStorage';
 
 export default function AnnualLeaveTab() {
@@ -14,10 +12,6 @@ export default function AnnualLeaveTab() {
   const [isSavingLeave, setIsSavingLeave] = useState(false);
   const [leaveFeedback, setLeaveFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [calendarUsedLeave, setCalendarUsedLeave] = useState(0);
-
-  const [showPaywall, setShowPaywall] = useState(false);
-  const isPremiumOrAdmin = settings?.role === 'admin' || (settings?.premium_until && new Date(settings.premium_until) > new Date());
-  const hasAccess = true;
 
   useEffect(() => {
     const fetchCalendarLeaves = async () => {
@@ -83,7 +77,6 @@ export default function AnnualLeaveTab() {
   const remainingLeave = earnedLeave - totalUsedLeave;
 
   const saveLeaveBalance = async () => {
-    if (!hasAccess) return setShowPaywall(true);
     if (!user || knownLeaveBalance === '') return;
     setIsSavingLeave(true);
 
@@ -105,7 +98,6 @@ export default function AnnualLeaveTab() {
   };
 
   const resetLeaveBalance = async () => {
-    if (!hasAccess) return setShowPaywall(true);
     if (!user) return;
     setIsSavingLeave(true);
     const { error, data } = await updateUserSettings(user.id, { past_used_leave: 0 });
@@ -120,12 +112,6 @@ export default function AnnualLeaveTab() {
 
   return (
     <div className="w-full space-y-6 animate-fade-in px-2 sm:px-0">
-      {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && (
-        <Alert color="amber" title="Premium Özellik" icon="warning" bgStyle="colored">
-          Gelişmiş Bakiye Eşitleme Aracı Premium kullanıcılara özeldir.
-        </Alert>
-      )}
-
       <div className="bg-[#1e2329] rounded-xl border border-base-300 p-6 sm:p-8 shadow-lg">
         <div className="flex justify-between items-end mb-6">
           <h3 className="text-2xl font-bold text-pink-400">Yıllık İzin Durumu</h3>
@@ -167,19 +153,16 @@ export default function AnnualLeaveTab() {
 
             <button className="btn p-4 bg-pink-600 hover:bg-pink-700 text-white border-none shadow-lg shadow-pink-900/40" onClick={saveLeaveBalance} disabled={isSavingLeave || knownLeaveBalance === ''}>
               {isSavingLeave ? <span className="loading loading-spinner"></span> : 'Eşitle'}
-              {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-1 text-[10px] bg-pink-900/40 px-1 rounded text-pink-200">PRO</span>}
             </button>
 
             <button className="btn p-4 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/40" title="Sıfırla" onClick={resetLeaveBalance} disabled={isSavingLeave}>
               Sıfırla
-              {IS_PAYWALL_ACTIVE && !isPremiumOrAdmin && <span className="ml-1 text-[10px] bg-red-900/40 px-1 rounded text-red-200">PRO</span>}
             </button>
           </div>
           {leaveFeedback && <div className={`p-2 rounded-lg text-xs font-bold text-center animate-fade-in ${leaveFeedback.type === 'success' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>{leaveFeedback.message}</div>}
         </div>
       </div>
-
-      <PremiumPaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} featureName="İzin Bakiyesi Eşitleme" />
     </div>
   );
 }
+

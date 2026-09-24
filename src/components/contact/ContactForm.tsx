@@ -8,7 +8,7 @@ interface ContactFormProps {
 }
 
 export default function ContactForm({ onFinish }: ContactFormProps) {
-  const { user } = useAppStore();
+  const { user, isOnline } = useAppStore();
 
   const [name, setName] = useState('');
   const [contactInfo, setContactInfo] = useState('');
@@ -27,6 +27,11 @@ export default function ContactForm({ onFinish }: ContactFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !contactInfo || !message) return;
+
+    if (!isOnline) {
+      setFeedback({ type: 'error', message: 'Destek talebi göndermek için internet bağlantısı gerekiyor.' });
+      return;
+    }
 
     setIsSubmitting(true);
     setFeedback(null);
@@ -117,10 +122,16 @@ export default function ContactForm({ onFinish }: ContactFormProps) {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isOnline}
           className="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-900/40 text-lg mt-2 h-14 p-3"
         >
-          {isSubmitting ? <span className="loading loading-spinner"></span> : 'Mesajı Gönder'}
+          {isSubmitting ? (
+            <span className="loading loading-spinner"></span>
+          ) : !isOnline ? (
+            'İnternet Bağlantısı Bekleniyor...'
+          ) : (
+            'Mesajı Gönder'
+          )}
         </button>
       </form>
     </div>

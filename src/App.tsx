@@ -21,7 +21,17 @@ import TermsOfService from './pages/terms';
 import NotFound from './pages/NotFound';
 import CVBuilderPage from './pages/cv-builder';
 
+import { useEffect } from 'react';
+import { useAppStore } from './store/useAppStore';
+import { initRevenueCat } from './services/revenuecat';
+
 export default function App() {
+  const { user } = useAppStore();
+
+  useEffect(() => {
+    initRevenueCat(user?.id);
+  }, [user?.id]);
+
   return (
     <BrowserRouter>
       <Analytics />
