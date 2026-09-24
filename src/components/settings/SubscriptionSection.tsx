@@ -13,9 +13,11 @@ export default function SubscriptionSection() {
 
   const getPlanName = () => {
     if (isLifetime) return '✨ Sınırsız (Ömür Boyu)';
-    if (isRevenueCatPro && (!settings.premium_until || new Date(settings.premium_until) <= new Date())) {
+
+    if (isRevenueCatPro) {
       return '⭐ Vardiyo Premium (Mobil Abonelik)';
     }
+
     if (!isPro) return 'Ücretsiz (Free)';
 
     if (settings.premium_until) {
