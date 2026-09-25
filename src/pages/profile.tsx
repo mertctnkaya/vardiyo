@@ -17,6 +17,7 @@ import { pdf } from '@react-pdf/renderer';
 import CVPdfDocument from '../components/cv-builder/CVPdfDocument';
 import CVPdfWorkshop from '../components/cv-builder/CVPdfWorkshop';
 import { fetchUserSettings, updateUserSettings } from '../services/dbService';
+import { IS_PAYWALL_ACTIVE, isFeaturePremium } from '../config/premiumFeatures';
 import PremiumPaywallModal from '../components/shared/PremiumPaywallModal';
 
 type SavedCV = {
@@ -242,7 +243,8 @@ export default function Profile() {
                       </button>
                       <button
                         onClick={() => {
-                          if (!isPro) {
+                          const isCvPremium = IS_PAYWALL_ACTIVE && isFeaturePremium('CV_UNLIMITED');
+                          if (isCvPremium && !isPro) {
                             setIsPaywallOpen(true);
                             return;
                           }
@@ -251,7 +253,7 @@ export default function Profile() {
                         }}
                         className="btn btn-sm p-2 bg-[#0f1115] border border-base-300 text-base-content/80 hover:bg-base-200 hover:text-white mt-2 sm:mt-0"
                       >
-                        <Edit className="w-4 h-4 mr-1 sm:mr-0 lg:mr-1" /> <span className="sm:hidden lg:inline">Düzenle {!isPro && '(PRO)'}</span>
+                        <Edit className="w-4 h-4 mr-1 sm:mr-0 lg:mr-1" /> <span className="sm:hidden lg:inline">Düzenle {IS_PAYWALL_ACTIVE && isFeaturePremium('CV_UNLIMITED') && !isPro && '(PRO)'}</span>
                       </button>
                       <button onClick={() => handleDeleteCV(cv.id)} className="btn btn-sm p-2 btn-ghost hover:bg-red-900/20 text-red-500 hover:text-red-400 mt-2 sm:mt-0">
                         <Trash2 className="w-4 h-4 mr-1 sm:mr-0 lg:mr-1" /> <span className="sm:hidden lg:inline">Sil</span>

@@ -1,15 +1,22 @@
 import { useState } from 'react';
-import { useAppStore, isPremiumUser } from '../../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
+import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
+import { useToastStore } from '../../store/useToastStore';
 
 export default function SubscriptionSection() {
   const { user, settings, isRevenueCatPro } = useAppStore();
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const { addToast } = useToastStore();
 
   if (!user || !settings) return null;
 
-  const isPro = isPremiumUser(settings, isRevenueCatPro);
   const isLifetime = settings.premium_until?.includes('2099');
+
+  // Real active subscription check (ignoring admin bypass)
+  const hasActiveSubscription = isRevenueCatPro || (settings.premium_until && new Date(settings.premium_until) > new Date());
+  const isAdmin = settings.role === 'admin';
+  const isTester = user.email === 'm3rt7132@gmail.com';
 
   const getPlanName = () => {
     if (isLifetime) return '✨ Sınırsız (Ömür Boyu)';
@@ -18,27 +25,35 @@ export default function SubscriptionSection() {
       return '⭐ Vardiyo Premium (Mobil Abonelik)';
     }
 
-    if (!isPro) return 'Ücretsiz (Free)';
+    if (!hasActiveSubscription) return 'Ücretsiz (Free)';
 
     if (settings.premium_until) {
       const endDate = new Date(settings.premium_until);
       const now = new Date();
       const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-      if (diffDays <= 7) return `1 Haftalık (${diffDays} gün kaldı)`;
-      if (diffDays <= 31) return `1 Aylık (${diffDays} gün kaldı)`;
-      if (diffDays <= 93) return `3 Aylık (${diffDays} gün kaldı)`;
-      if (diffDays <= 186) return `6 Aylık (${diffDays} gün kaldı)`;
-      return `Yıllık (${diffDays} gün kaldı)`;
+      if (diffDays <= 7) return `1 Haftalık (${Math.max(0, diffDays)} gün kaldı)`;
+      if (diffDays <= 31) return `1 Aylık (${Math.max(0, diffDays)} gün kaldı)`;
+      if (diffDays <= 93) return `3 Aylık (${Math.max(0, diffDays)} gün kaldı)`;
+      if (diffDays <= 186) return `6 Aylık (${Math.max(0, diffDays)} gün kaldı)`;
+      return `Yıllık (${Math.max(0, diffDays)} gün kaldı)`;
     }
 
     return 'Premium';
   };
 
   const planName = getPlanName();
-  const endDateStr = (isPro && !isLifetime && settings.premium_until)
+  const endDateStr = (hasActiveSubscription && !isLifetime && settings.premium_until)
     ? new Date(settings.premium_until).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })
     : null;
+
+  const handlePremiumClick = () => {
+    if (!IS_PAYWALL_ACTIVE && !isAdmin && !isTester) {
+      addToast('Vardiyo Premium şu anda kapalı test aşamasındadır.', 'info');
+      return;
+    }
+    setIsPaywallOpen(true);
+  };
 
   return (
     <div className="space-y-6 pt-6 border-t border-base-300">
@@ -53,10 +68,10 @@ export default function SubscriptionSection() {
         <div>
           <p className="text-sm text-base-content/60 mb-1">Mevcut Planınız</p>
           <div className="flex items-center gap-2">
-            <h4 className={`text-xl font-black ${isPro ? (isLifetime ? 'text-emerald-400' : 'text-indigo-400') : 'text-base-content'}`}>
+            <h4 className={`text-xl font-black ${hasActiveSubscription ? (isLifetime ? 'text-emerald-400' : 'text-indigo-400') : 'text-base-content'}`}>
               {planName}
             </h4>
-            {settings.role === 'admin' && (
+            {isAdmin && (
               <span className="badge badge-sm bg-red-900/30 text-red-400 border-red-500/30">Kurucu</span>
             )}
           </div>
@@ -67,14 +82,14 @@ export default function SubscriptionSection() {
           )}
         </div>
 
-        {(!isLifetime || settings.role === 'admin' || user.email === 'm3rt7132@gmail.com') && (
+        {(!isLifetime || isAdmin || isTester) && (
           <button
-            onClick={() => setIsPaywallOpen(true)}
-            className={`btn btn-sm sm:btn-md p-2 ${isPro && !(settings.role === 'admin' && isLifetime) ? 'bg-base-300/30 text-base-content/70 hover:bg-base-300 hover:text-white border-none' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/50 border-none'}`}
+            onClick={handlePremiumClick}
+            className={`btn btn-sm sm:btn-md p-2 ${hasActiveSubscription && !isAdmin ? 'bg-base-300/30 text-base-content/70 hover:bg-base-300 hover:text-white border-none' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/50 border-none'}`}
           >
-            {settings.role === 'admin' && isLifetime
+            {(isAdmin || isTester)
               ? '💳 Ödeme Test Et (Admin)'
-              : (isPro ? 'Paketi Uzat / Yönet' : 'Premium\'a Geç')}
+              : (hasActiveSubscription ? 'Paketi Uzat / Yönet' : 'Premium\'a Geç')}
           </button>
         )}
       </div>
