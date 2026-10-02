@@ -1,6 +1,18 @@
 import type { CalendarStatsProps } from "../../types";
+import { useState } from "react";
 
 export default function CalendarStats({ monthlyStats, baseDate }: CalendarStatsProps) {
+  const [activeModal, setActiveModal] = useState<'overtime' | 'late' | null>(null);
+
+  const formatItemType = (item: any) => {
+    if (item.isHoliday) return 'Resmi Tatil';
+    if (item.isWeekend) return 'Hafta Sonu';
+    return 'Hafta İçi';
+  };
+
+  const hasOvertimeDetails = monthlyStats.overtimeDetails && monthlyStats.overtimeDetails.length > 0;
+  const hasLateDetails = monthlyStats.lateDetails && monthlyStats.lateDetails.length > 0;
+
   return (
     <>
       {monthlyStats.isDangerAbsent && (
@@ -34,10 +46,20 @@ export default function CalendarStats({ monthlyStats, baseDate }: CalendarStatsP
             <p className="text-xs text-base-content/60 font-bold mb-1">Hafta Tatili</p>
             <p className="text-xl font-bold text-base-content">{monthlyStats.weekendPaid} Gün</p>
           </div>
-          <div className="bg-[#1e2329] p-4 rounded-lg border border-base-300 text-center">
+          
+          <div 
+            onClick={() => hasOvertimeDetails ? setActiveModal('overtime') : null}
+            className={`bg-[#1e2329] p-4 rounded-lg border border-base-300 text-center ${hasOvertimeDetails ? 'cursor-pointer hover:border-green-500/50 hover:bg-green-900/10 transition-colors relative group' : ''}`}
+          >
             <p className="text-xs text-base-content/60 font-bold mb-1">Fazla Mesai</p>
             <p className="text-xl font-bold text-green-400">{monthlyStats.overtimeHours} Saat</p>
+            {hasOvertimeDetails && (
+              <div className="absolute top-2 right-2 text-green-500/50 group-hover:text-green-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+            )}
           </div>
+
           <div className="bg-[#1e2329] p-4 rounded-lg border border-base-300 text-center">
             <p className="text-xs text-base-content/60 font-bold mb-1">Resmi Tatil</p>
             <p className="text-xl font-bold text-yellow-300">{monthlyStats.holidayWork} Gün</p>
@@ -50,16 +72,72 @@ export default function CalendarStats({ monthlyStats, baseDate }: CalendarStatsP
             <p className="text-xs text-base-content/60 font-bold mb-1">Ücretli/Rapor</p>
             <p className="text-xl font-bold text-purple-400">{monthlyStats.leave} Gün</p>
           </div>
-          <div className="bg-[#1e2329] p-4 rounded-lg border border-base-300 text-center">
+          
+          <div 
+            onClick={() => hasLateDetails ? setActiveModal('late') : null}
+            className={`bg-[#1e2329] p-4 rounded-lg border border-base-300 text-center ${hasLateDetails ? 'cursor-pointer hover:border-orange-500/50 hover:bg-orange-900/10 transition-colors relative group' : ''}`}
+          >
             <p className="text-xs text-base-content/60 font-bold mb-1">Geç/Eksik</p>
             <p className="text-xl font-bold text-orange-400">{monthlyStats.lateHours} Saat</p>
+            {hasLateDetails && (
+              <div className="absolute top-2 right-2 text-orange-500/50 group-hover:text-orange-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+            )}
           </div>
+
           <div className="bg-[#1e2329] p-4 rounded-lg border border-base-300 text-center">
             <p className="text-xs text-base-content/60 font-bold mb-1">Devamsızlık</p>
             <p className="text-xl font-bold text-red-400">{monthlyStats.absent} Gün</p>
           </div>
         </div>
       </div>
+
+      {activeModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setActiveModal(null)}></div>
+          <div className="bg-[#16191d] border border-base-300 rounded-2xl p-6 relative z-10 shadow-2xl w-full max-w-sm animate-fade-in max-h-[80vh] flex flex-col">
+            <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${activeModal === 'overtime' ? 'text-green-400' : 'text-orange-400'}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {activeModal === 'overtime' ? 'Fazla Mesai Detayları' : 'Geç/Eksik Mesai Detayları'}
+            </h3>
+            
+            <div className="overflow-y-auto pr-1 flex-1 space-y-3 mb-4 custom-scrollbar">
+              {(activeModal === 'overtime' ? monthlyStats.overtimeDetails : monthlyStats.lateDetails)?.map((item: any, idx: number) => (
+                <div key={idx} className="bg-[#1e2329] border border-base-300 p-3 rounded-xl flex justify-between items-center">
+                  <div>
+                    <p className="font-bold text-white text-sm">
+                      {new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' }).format(item.date)}
+                    </p>
+                    {activeModal === 'overtime' && (
+                      <p className="text-xs text-base-content/60 mt-0.5">{formatItemType(item)}</p>
+                    )}
+                  </div>
+                  <div className={`font-black text-lg ${activeModal === 'overtime' ? 'text-green-400' : 'text-orange-400'}`}>
+                    {item.hours} Saat
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="pt-4 border-t border-base-300 flex justify-between items-center shrink-0">
+              <span className="text-base-content/60 font-medium">Toplam</span>
+              <span className={`text-2xl font-black ${activeModal === 'overtime' ? 'text-green-500' : 'text-orange-500'}`}>
+                {activeModal === 'overtime' ? monthlyStats.overtimeHours : monthlyStats.lateHours} Saat
+              </span>
+            </div>
+            
+            <button 
+              onClick={() => setActiveModal(null)}
+              className="btn btn-block bg-base-200 hover:bg-base-300 text-base-content border-none mt-4"
+            >
+              Kapat
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

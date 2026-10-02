@@ -158,6 +158,29 @@ export default function AdminPanel() {
       fetchData();
     } else {
       addToast('Premium güncellendi', 'success');
+
+      // Send in-app notification to the user
+      if (monthsToAdd > 0) {
+        let durationText = '';
+        if (monthsToAdd === 999) durationText = 'Ömür Boyu Sınırsız';
+        else if (monthsToAdd === 0.25) durationText = '1 Haftalık';
+        else if (monthsToAdd === 1) durationText = '1 Aylık';
+        else if (monthsToAdd === 3) durationText = '3 Aylık';
+        else if (monthsToAdd === 6) durationText = '6 Aylık';
+        else if (monthsToAdd === 12) durationText = '1 Yıllık';
+        else durationText = `${monthsToAdd} Aylık`;
+
+        try {
+          await supabase.rpc('send_admin_notification', {
+            target_user_id: userId,
+            notif_title: '⭐ Premium Üyeliğiniz Tanımlandı!',
+            notif_message: `Tebrikler! Hesabınıza ${durationText} Vardiyo Premium hediye edildi. Tüm profesyonel özelliklerin keyfini çıkarın.`,
+            notif_link: '/profile'
+          });
+        } catch (notifErr) {
+          console.error('Bildirim gönderilemedi:', notifErr);
+        }
+      }
     }
   };
 

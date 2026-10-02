@@ -18,10 +18,10 @@ const parseRestDays = (settings: UserSettings): number[] => {
  */
 export const calculateDailyEarning = (
   log: WorkLog | undefined,
-  _date: Date,
+  date: Date,
   defaultYevmiye: number,
   baseHours: number,
-  _restDays: number[] = [0]
+  settings?: UserSettings
 ): number => {
   // Log yoksa: giriş yapılmamış gün → 0
   if (!log) {
@@ -51,8 +51,27 @@ export const calculateDailyEarning = (
     case 'leave':
       return 0;
 
-    case 'overtime':
-      return dayYevmiye;
+    case 'overtime': {
+      let multiplier = 1.0;
+      if (settings) {
+        const restDays = parseRestDays(settings);
+        const sortedRestDays = [...restDays].sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
+        const dayOfWeek = date.getDay();
+        
+        if (sortedRestDays.length === 2 && dayOfWeek === sortedRestDays[0]) {
+          multiplier = Number(settings.saturday_multiplier) || 1.5;
+        } else if ((sortedRestDays.length === 2 && dayOfWeek === sortedRestDays[1]) || (sortedRestDays.length === 1 && dayOfWeek === sortedRestDays[0])) {
+          multiplier = Number(settings.weekend_multiplier) || 2.0;
+        } else {
+          multiplier = 1.5;
+        }
+      }
+
+      if (log.hours != null && Number(log.hours) > 0 && Number(log.hours) !== baseHours) {
+         return dayYevmiye * (Number(log.hours) / baseHours) * multiplier;
+      }
+      return dayYevmiye * multiplier;
+    }
 
     default:
       return dayYevmiye;
@@ -100,7 +119,7 @@ export const calculateMonthlyYevmiyeStats = (
       }
     }
 
-    const actualEarning = calculateDailyEarning(log, date, defaultYevmiye, baseHours, restDays);
+    const actualEarning = calculateDailyEarning(log, date, defaultYevmiye, baseHours, settings);
 
     if (actualEarning > 0) {
       totalEarned += actualEarning;
@@ -127,7 +146,7 @@ export const calculateMonthlyYevmiyeStats = (
   const frequency = (settings.payment_frequency as 'weekly' | 'biweekly' | 'daily') || 'weekly';
   const dayOfWeek = Number(settings.payment_day_of_week) || 3;
   const { periodStart, periodEnd, periodEarning, periodDaysWorked } = calculatePaymentPeriodEarning(
-    logsMap, frequency, dayOfWeek, defaultYevmiye, baseHours, restDays
+    logsMap, frequency, dayOfWeek, defaultYevmiye, baseHours, settings
   );
 
   return {
@@ -157,15 +176,16 @@ const calculatePaymentPeriodEarning = (
   dayOfWeek: number,
   defaultYevmiye: number,
   baseHours: number,
-  restDays: number[]
+  settings: UserSettings
 ): { periodStart: string; periodEnd: string; periodEarning: number; periodDaysWorked: number } => {
   const today = new Date();
+  const restDays = parseRestDays(settings);
   today.setHours(0, 0, 0, 0);
 
   if (frequency === 'daily') {
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const log = logsMap[dateStr];
-    const earning = calculateDailyEarning(log, today, defaultYevmiye, baseHours, restDays);
+    const earning = calculateDailyEarning(log, today, defaultYevmiye, baseHours, settings);
     const todayStr = formatDateTR(today);
     return { periodStart: todayStr, periodEnd: todayStr, periodEarning: earning, periodDaysWorked: earning > 0 ? 1 : 0 };
   }
@@ -192,7 +212,7 @@ const calculatePaymentPeriodEarning = (
   while (cursor <= effectiveEnd) {
     const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
     const log = logsMap[dateStr];
-    const earning = calculateDailyEarning(log, cursor, defaultYevmiye, baseHours, restDays);
+    const earning = calculateDailyEarning(log, cursor, defaultYevmiye, baseHours, settings);
     if (earning > 0) {
       periodEarning += earning;
       periodDaysWorked++;

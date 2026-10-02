@@ -49,17 +49,17 @@ export default function Sidebar({ user, isFounder, onLogout, onClose }: SidebarP
           </label>
         </div>
 
-        <li><Link to="/" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Güncel Vardiya</Link></li>
+        <li><Link to="/currentShift" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Güncel Vardiya</Link></li>
         <li><Link to="/worktime" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Mesai Takvimim</Link></li>
         <li><Link to="/next-weeks" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Gelecek Haftalar</Link></li>
-        <li><Link to="/calculations" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Hesaplamalar&İşlemler</Link></li>
+        <li><Link to="/calculations" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">Maaş & Hakediş</Link></li>
         <li>
           <Link to="/cv-builder" onClick={onClose} className="text-lg py-3 font-bold text-amber-500 rounded-xl hover:bg-amber-500/10 flex items-center justify-between">
             📄 Akıllı CV Oluştur
             <span className="badge badge-warning badge-sm">PRO</span>
           </Link>
         </li>
-        <li><Link to="/faq" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">S.S.S & Haklar</Link></li>
+        <li><Link to="/faq" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400">İşçi Rehberi & S.S.S</Link></li>
         <li>
           <Link to="/contact" onClick={onClose} className="text-lg py-3 font-medium rounded-xl hover:bg-indigo-500/10 hover:text-indigo-400 flex justify-between items-center">
             İletişim

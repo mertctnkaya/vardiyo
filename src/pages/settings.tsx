@@ -245,6 +245,9 @@ export default function Settings() {
               displayOvertime={displayOvertime}
               baseWorkHours={baseWorkHours} setBaseWorkHours={setBaseWorkHours}
               nightBonus={nightBonus} setNightBonus={setNightBonus}
+              saturdayMultiplier={saturdayMultiplier} setSaturdayMultiplier={setSaturdayMultiplier}
+              weekendMultiplier={weekendMultiplier} setWeekendMultiplier={setWeekendMultiplier}
+              restDays={restDays}
             />
           )}
 

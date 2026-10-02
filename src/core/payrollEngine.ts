@@ -42,7 +42,6 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
   const baseWorkHours = Number(settings.base_work_hours) || 7.5;
   const hourlyGross = dailyGross / baseWorkHours;
 
-  const overtimeMultiplier = 1.5;
   const nightBonusPercent = Number(settings.night_bonus_percent) || 0;
   const hourlyNightBonus = hourlyGross * (nightBonusPercent / 100);
   const holidayMultiplier = Number(settings.holiday_multiplier) || 2;
@@ -57,14 +56,16 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
 
   const workType = settings.work_type || '3-shift';
   const shiftStartTime = settings.shift_start_time || '08:00';
-  const isSaturdayWork = settings.is_saturday_workday || false;
   const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
 
-  let stats = { payrollDays: 30, activeDays: 0, passedDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0 };
+  let stats = { payrollDays: 30, activeDays: 0, passedDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, weekdayOvertimeHours: 0, firstOffDayOvertimeHours: 0, secondOffDayOvertimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0 };
   let calculatedNightHours = 0;
 
   const actualToday = new Date();
   actualToday.setHours(0, 0, 0, 0);
+
+  const restDays = settings.rest_days || [0];
+  const sortedRestDays = [...restDays].sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
 
   for (let i = 1; i <= daysInMonth; i++) {
     const currentDate = new Date(year, month, i);
@@ -77,9 +78,15 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
     const log = logsMap[dateKey];
 
     const dayOfWeek = currentDate.getDay();
-    const isSunday = dayOfWeek === 0;
-    const isSaturday = dayOfWeek === 6;
-    const isOffDay = workType === 'fixed' ? (isSunday || (!isSaturdayWork && isSaturday)) : isSunday;
+    let isFirstOffDay = false;
+    let isSecondOffDay = false;
+
+    if (sortedRestDays.length === 2 && dayOfWeek === sortedRestDays[0]) {
+      isFirstOffDay = true;
+    } else if ((sortedRestDays.length === 2 && dayOfWeek === sortedRestDays[1]) || (sortedRestDays.length === 1 && dayOfWeek === sortedRestDays[0])) {
+      isSecondOffDay = true;
+    }
+    const isOffDay = isFirstOffDay || isSecondOffDay;
 
     const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     const monday = new Date(currentDate);
@@ -107,7 +114,15 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
     if (log) {
       if (log.status === 'absent') stats.absentDays++;
       else if (log.status === 'late' || log.status === 'partial_leave') { stats.lateHours += (Number(log.hours) || 0); if (!isOffDay) processNightHours(); }
-      else if (log.status === 'overtime') { stats.overtimeHours += (Number(log.hours) || 0); if (!isOffDay) processNightHours(); }
+      else if (log.status === 'overtime') { 
+        const h = Number(log.hours) || 0;
+        stats.overtimeHours += h; 
+        if (isFirstOffDay) stats.firstOffDayOvertimeHours += h;
+        else if (isSecondOffDay) stats.secondOffDayOvertimeHours += h;
+        else stats.weekdayOvertimeHours += h;
+        
+        if (!isOffDay) processNightHours(); 
+      }
       else if (log.status === 'holiday_work') { stats.holidayWorkDays++; if (!isOffDay) processNightHours(); }
       else if (log.status === 'annual_leave') stats.annualLeaveDays++;
       else if (log.status === 'normal' || log.status === 'leave') { if (!isOffDay) processNightHours(); }
@@ -119,8 +134,13 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
   const isPastMonth = (year < actualToday.getFullYear()) || (year === actualToday.getFullYear() && month < actualToday.getMonth());
   const basePayrollDays = isPastMonth ? Math.min(30, stats.activeDays) : Math.min(30, stats.passedDays);
 
+  const satMult = Number(settings.saturday_multiplier) || 1.5;
+  const sunMult = Number(settings.weekend_multiplier) || 2.0;
+
   const baseGrossPay = basePayrollDays * dailyGross;
-  const overtimeGrossPay = stats.overtimeHours * hourlyGross * overtimeMultiplier;
+  const overtimeGrossPay = (stats.weekdayOvertimeHours * hourlyGross * 1.5) +
+                           (stats.firstOffDayOvertimeHours * hourlyGross * satMult) +
+                           (stats.secondOffDayOvertimeHours * hourlyGross * sunMult);
   const holidayWorkGrossPay = stats.holidayWorkDays * dailyGross * holidayMultiplier;
   const nightBonusGrossPay = calculatedNightHours * hourlyNightBonus;
 

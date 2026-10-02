@@ -19,7 +19,7 @@ export default function UserManageModal({ user, isOpen, onClose, onGrantPremium,
   const isPremium = user.premium_until && new Date(user.premium_until) > new Date();
   const isLifetime = user.premium_until?.includes('2099');
   const isActive = (user.has_settings && (user.logs_count ?? 0) > 0);
-  const displayName = user.name || user.email.split('@')[0];
+  const displayName = user.name?.trim() ? user.name.trim() : (user.email.split('@')[0] || 'Kullanıcı');
   const initial = displayName.charAt(0).toUpperCase();
 
   const memberSince = user.created_at
@@ -69,8 +69,8 @@ export default function UserManageModal({ user, isOpen, onClose, onGrantPremium,
               {initial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xl font-bold text-base-content truncate">{displayName}</p>
-              <p className="text-sm text-base-content/60 truncate">{user.email}</p>
+              <p className="text-xl font-bold text-white truncate">{displayName}</p>
+              <p className="text-sm text-base-content/60 truncate font-mono">{user.email}</p>
               <p className="text-xs text-base-content/40 mt-1">Üyelik: {memberSince}</p>
             </div>
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useShiftCalculator } from '../../hooks/useShiftCalculator';
 import { supabase } from '../../lib/supabaseClient';
 import { useAppStore } from '../../store/useAppStore';
@@ -26,6 +26,7 @@ export default function MainLayout() {
   const shiftContext = useShiftCalculator();
   const { user, setUser, setSession, setSettings } = useAppStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleFocusIn = (e: FocusEvent) => {
@@ -174,10 +175,10 @@ export default function MainLayout() {
     <div className="drawer">
       <input id="mobile-drawer" type="checkbox" className="drawer-toggle" />
 
-      <div className="drawer-content flex flex-col min-h-screen bg-base-300 items-center pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      <div className="drawer-content relative flex flex-col min-h-screen bg-base-300 items-center pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         <Navbar user={user} isFounder={isFounder} onLogout={handleLogout} />
 
-        <div className="w-full max-w-5xl px-4 pb-12 flex flex-col items-center flex-grow">
+        <div className={`w-full pb-12 flex flex-col items-center flex-grow ${location.pathname === '/' ? '' : 'max-w-5xl px-4'}`}>
           <Outlet context={shiftContext} />
         </div>
 

@@ -6,7 +6,7 @@ import TerminationCodesTab from '../components/faq/TerminationCodesTab';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function FAQ() {
-    usePageTitle('S.S.S & Haklar');
+    usePageTitle('İşçi Rehberi & S.S.S');
     const [activeTab, setActiveTab] = useState<'usage' | 'rights' | 'codes' | 'faq'>('usage');
 
     return (

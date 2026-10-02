@@ -91,7 +91,7 @@ export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDe
           </thead>
           <tbody>
             {filteredUsers.map((u) => {
-              const displayName = u.name || u.email.split('@')[0];
+              const displayName = u.name?.trim() ? u.name.trim() : (u.email.split('@')[0] || 'Kullanıcı');
               const initial = displayName.charAt(0).toUpperCase();
               const registeredAt = u.created_at
                 ? new Date(u.created_at).toLocaleDateString('tr-TR')
@@ -106,8 +106,8 @@ export default function PremiumTab({ users, actionFeedback, onGrantPremium, onDe
                         {initial}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-base-content truncate text-sm">{displayName}</p>
-                        <p className="text-xs text-base-content/40 truncate">{u.email}</p>
+                        <p className="font-bold text-white truncate text-sm">{displayName}</p>
+                        <p className="text-xs text-base-content/50 truncate font-mono">{u.email}</p>
                         {/* Mobile-only badges */}
                         <div className="flex gap-1.5 mt-1 sm:hidden">
                           {getPlanBadge(u)}

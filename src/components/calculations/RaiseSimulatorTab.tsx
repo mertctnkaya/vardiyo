@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function RaiseSimulatorTab() {
-  const [currentSalary, setCurrentSalary] = useState<string>('');
+  const { settings } = useAppStore();
+  const [currentSalary, setCurrentSalary] = useState<string>(() => settings?.daily_wage ? (settings.daily_wage * 30).toFixed(2).replace(/\.00$/, '') : '');
   const [raiseType, setRaiseType] = useState<'percent' | 'flat'>('percent');
   const [raiseValue, setRaiseValue] = useState<string>('');
 

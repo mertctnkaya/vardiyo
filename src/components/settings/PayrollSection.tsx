@@ -3,7 +3,8 @@ import Icon from '../shared/Icon';
 import type { PayrollSectionProps } from '../../types';
 
 export default function PayrollSection({
-  workType, monthlyGross, setMonthlyGross, displayOvertime, baseWorkHours, setBaseWorkHours, nightBonus, setNightBonus
+  workType, monthlyGross, setMonthlyGross, displayOvertime, baseWorkHours, setBaseWorkHours, nightBonus, setNightBonus,
+  saturdayMultiplier, setSaturdayMultiplier, weekendMultiplier, setWeekendMultiplier, restDays
 }: PayrollSectionProps) {
 
   if (workType === 'yevmiye') return null;
@@ -54,6 +55,34 @@ export default function PayrollSection({
           <div className="p-1 mt-1">
             <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
               Sadece gece vardiyalarına (20:00 - 06:00 arası) işveren tarafından ödenen ekstra ücretin yüzdesi (Varsa 10, 20 gibi girin).
+            </span>
+          </div>
+        </div>
+
+        {restDays.length === 2 && (
+          <div className="form-control w-full">
+            <label className="label pb-1"><span className="label-text font-bold text-base-content/80">1. Tatil Günü Mesai Çarpanı</span></label>
+            <label className="input input-bordered flex items-center gap-2 bg-base-200">
+              <span className="text-base-content/50">x</span>
+              <input type="number" step="0.1" className="grow" value={saturdayMultiplier} onChange={(e) => setSaturdayMultiplier(e.target.value)} />
+            </label>
+            <div className="p-1 mt-1">
+              <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
+                İlk izin gününüzde (örn: Cumartesi) mesaiye kalırsanız alacağınız ücretin katıdır. %50 zamlı mesai için 1.5 yazın.
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="form-control w-full">
+          <label className="label pb-1"><span className="label-text font-bold text-base-content/80">{restDays.length === 2 ? '2. Tatil Günü (Hafta Tatili)' : 'Hafta Tatili'} Mesai Çarpanı</span></label>
+          <label className="input input-bordered flex items-center gap-2 bg-base-200">
+            <span className="text-base-content/50">x</span>
+            <input type="number" step="0.1" className="grow" value={weekendMultiplier} onChange={(e) => setWeekendMultiplier(e.target.value)} />
+          </label>
+          <div className="p-1 mt-1">
+            <span className="text-xs text-base-content/50 whitespace-normal block leading-snug">
+              Hafta tatilinizde (örn: Pazar) mesaiye kalırsanız alacağınız ücretin katıdır. Çift yevmiye (%100 zamlı) için 2, %150 zamlı için 2.5 yazın.
             </span>
           </div>
         </div>

@@ -16,50 +16,82 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { useAppStore } from '../store/useAppStore';
 
 type TabType = 'payroll' | 'charts' | 'annual_leave' | 'tazminat' | 'hourly' | 'tools' | 'unemployment' | 'raise' | 'report' | 'short_work' | 'maternity';
+type CategoryType = 'bordro' | 'izinler' | 'odenek';
 
 /** Yevmiye modunda kullanılamayacak sekmeler */
 const YEVMIYE_DISABLED_TABS: TabType[] = ['annual_leave', 'tazminat', 'hourly', 'tools', 'unemployment', 'report', 'short_work', 'maternity'];
 
+const CATEGORIES: { id: CategoryType; label: string; icon: string }[] = [
+  { id: 'bordro', label: 'Bordro & Analiz', icon: '💰' },
+  { id: 'izinler', label: 'Yasal İzinler', icon: '🏖️' },
+  { id: 'odenek', label: 'Ödenek & Tazminat', icon: '⚖️' },
+];
+
+const TABS_BY_CATEGORY: Record<CategoryType, { id: TabType; label: string }[]> = {
+  bordro: [
+    { id: 'payroll', label: 'Aylık Bordro' },
+    { id: 'charts', label: 'İstatistikler' },
+    { id: 'raise', label: 'Zam Simülatörü' },
+    { id: 'hourly', label: 'Saatlikten Bul' },
+    { id: 'tools', label: 'Maaştan Bul' }
+  ],
+  izinler: [
+    { id: 'annual_leave', label: 'Yıllık İzin' },
+    { id: 'maternity', label: 'Doğum & Süt İzni' }
+  ],
+  odenek: [
+    { id: 'tazminat', label: 'Tazminat Hesapla' },
+    { id: 'unemployment', label: 'İşsizlik' },
+    { id: 'report', label: 'Rapor Parası' },
+    { id: 'short_work', label: 'Kısa Çalışma' }
+  ]
+};
+
 export default function Calculations() {
-  usePageTitle('Hesaplamalar & İşlemler');
+  usePageTitle('Maaş & Hakediş');
   const [searchParams] = useSearchParams();
 
+  const [activeCategory, setActiveCategory] = useState<CategoryType>('bordro');
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const tabFromUrl = searchParams.get('tab') as TabType;
     return tabFromUrl || 'payroll';
   });
 
+  // URL'den gelen tab'a göre kategoriyi de otomatik seç
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab') as TabType;
     if (tabFromUrl) {
       setActiveTab(tabFromUrl);
+      for (const [cat, tabs] of Object.entries(TABS_BY_CATEGORY)) {
+        if (tabs.some(t => t.id === tabFromUrl)) {
+          setActiveCategory(cat as CategoryType);
+          break;
+        }
+      }
     }
   }, [searchParams]);
 
   const { settings } = useAppStore();
   const isYevmiye = settings?.work_type === 'yevmiye';
 
+  const handleCategoryClick = (cat: CategoryType) => {
+    setActiveCategory(cat);
+    // Kategori değişince, o kategorinin ilk sekmesini seç (eğer yevmiye değilse veya yevmiye ise izin verilen ilk sekmeyi seç)
+    const firstTab = TABS_BY_CATEGORY[cat].find(t => !(isYevmiye && YEVMIYE_DISABLED_TABS.includes(t.id)));
+    if (firstTab) {
+      setActiveTab(firstTab.id);
+    }
+  };
+
   const handleTabClick = (tab: TabType) => {
     if (isYevmiye && YEVMIYE_DISABLED_TABS.includes(tab)) return;
     setActiveTab(tab);
   };
 
-  const getTabClass = (tab: TabType) => {
-    const isActive = activeTab === tab;
-    const isDisabled = isYevmiye && YEVMIYE_DISABLED_TABS.includes(tab);
-
-    if (isDisabled) {
-      return 'tab tab-lg rounded-lg transition-all text-base-content/20 cursor-not-allowed line-through';
-    }
-    if (isActive) {
-      return 'tab tab-lg rounded-lg transition-all bg-indigo-600 text-white font-bold shadow-md';
-    }
-    return 'tab tab-lg rounded-lg transition-all text-base-content/60 hover:text-white hover:bg-white/5';
-  };
-
   // Eğer yevmiye modundayken disabled bir sekmedeyse, payroll'a yönlendir
   if (isYevmiye && YEVMIYE_DISABLED_TABS.includes(activeTab)) {
     setActiveTab('payroll');
+    setActiveCategory('bordro');
   }
 
   return (
@@ -68,35 +100,67 @@ export default function Calculations() {
       <div className="w-full max-w-5xl mb-6 px-2 flex justify-between items-end">
         <div>
           <h2 className="text-3xl font-bold text-base-content">
-            {isYevmiye ? 'Yevmiye Bordro Paneli' : 'Gerçek Bordro Motoru'}
+            {isYevmiye ? 'Yevmiye & Haklar' : 'Maaş & Yasal Haklar'}
           </h2>
           <p className="text-base-content/60 mt-1">
             {isYevmiye
               ? 'Günlük yevmiye bazlı kazanç takibi ve istatistikler.'
-              : 'Türkiye standartlarında Brüt\'ten Net\'e kuruşu kuruşuna hesaplama.'}
+              : 'Türkiye standartlarında Brüt\'ten Net\'e hesaplama ve yasal haklarınız.'}
           </p>
         </div>
       </div>
 
-      <div className="w-full max-w-5xl px-2 mb-6 print:hidden">
-        <div className="tabs tabs-boxed bg-[#16191d] p-1 border border-base-300 flex-wrap justify-center sm:justify-start gap-1">
-          <a className={getTabClass('payroll')} onClick={() => handleTabClick('payroll')}>Aylık Bordro</a>
-          <a className={getTabClass('charts')} onClick={() => handleTabClick('charts')}>İstatistikler & Grafikler</a>
-          <a className={getTabClass('annual_leave')} onClick={() => handleTabClick('annual_leave')}>Yıllık İzin</a>
-          <a className={getTabClass('tazminat')} onClick={() => handleTabClick('tazminat')}>Tazminat Hesapla</a>
-          <a className={getTabClass('hourly')} onClick={() => handleTabClick('hourly')}>Saatlikten Bul</a>
-          <a className={getTabClass('tools')} onClick={() => handleTabClick('tools')}>Maaştan Bul</a>
-          <a className={getTabClass('unemployment')} onClick={() => handleTabClick('unemployment')}>İşsizlik</a>
-          <a className={getTabClass('raise')} onClick={() => handleTabClick('raise')}>Zam Simülatörü</a>
-          <a className={getTabClass('report')} onClick={() => handleTabClick('report')}>Rapor Parası</a>
-          <a className={getTabClass('short_work')} onClick={() => handleTabClick('short_work')}>Kısa/Yarım Çalışma</a>
-          <a className={getTabClass('maternity')} onClick={() => handleTabClick('maternity')}>Doğum & Süt İzni</a>
+      <div className="w-full max-w-5xl px-2 mb-6 print:hidden flex flex-col gap-4">
+        {/* Kategori Seçici (Ana Sekmeler) */}
+        <div className="flex bg-[#16191d] border border-base-300 rounded-xl overflow-hidden p-1 shadow-sm w-full md:w-max">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.id)}
+              className={`flex-1 md:flex-none px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                activeCategory === cat.id
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-base-content/70 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <span className="text-lg">{cat.icon}</span>
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Alt Sekmeler (Aktif Kategoriye Göre) */}
+        <div className="flex flex-wrap gap-2">
+          {TABS_BY_CATEGORY[activeCategory].map((tab) => {
+            const isActive = activeTab === tab.id;
+            const isDisabled = isYevmiye && YEVMIYE_DISABLED_TABS.includes(tab.id);
+
+            let btnClass = 'px-4 py-2 text-sm font-medium rounded-lg transition-all border ';
+            if (isDisabled) {
+              btnClass += 'border-base-300 bg-[#16191d] text-base-content/20 cursor-not-allowed line-through';
+            } else if (isActive) {
+              btnClass += 'border-indigo-500/50 bg-indigo-900/30 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)]';
+            } else {
+              btnClass += 'border-base-300 bg-[#16191d] text-base-content/60 hover:text-white hover:border-base-content/30';
+            }
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={btnClass}
+                disabled={isDisabled}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
 
         {isYevmiye && (
-          <div className="mt-3">
+          <div className="mt-2">
             <Alert color="amber" icon="warning" borderStyle="colored" bgStyle="colored">
-              Yevmiye sistemi seçili olduğunuz için brüt/net maaş hesaplamaları, tazminat, işsizlik maaşı ve izin ücretleri gibi SGK'ya bağlı modüller devre dışıdır. Bu hesaplamalar yalnızca resmi maaşlı çalışanlar için geçerlidir.
+              Yevmiye sistemi seçili olduğunuz için SGK'ya bağlı modüller (tazminat, işsizlik, izin ücretleri vb.) devre dışıdır.
             </Alert>
           </div>
         )}
@@ -115,7 +179,6 @@ export default function Calculations() {
         {activeTab === 'short_work' && <ShortWorkTab />}
         {activeTab === 'maternity' && <MaternityLeaveTab />}
       </div>
-
     </div>
   );
 }

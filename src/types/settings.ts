@@ -23,6 +23,11 @@ export interface PayrollSectionProps {
   setBaseWorkHours: (val: string) => void;
   nightBonus: string;
   setNightBonus: (val: string) => void;
+  saturdayMultiplier: string;
+  setSaturdayMultiplier: (val: string) => void;
+  weekendMultiplier: string;
+  setWeekendMultiplier: (val: string) => void;
+  restDays: number[];
 }
 
 export interface YevmiyeSectionProps {

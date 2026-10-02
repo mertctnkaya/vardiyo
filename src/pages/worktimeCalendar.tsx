@@ -156,8 +156,19 @@ export default function WorktimeCalendar() {
 
   const monthlyStats = useMemo(() => {
     let normal = 0, overtimeHours = 0, lateHours = 0, absent = 0;
+    let weekdayOvertimeHours = 0, firstOffDayOvertimeHours = 0, secondOffDayOvertimeHours = 0;
     let leave = 0, annualLeave = 0, holidayWork = 0, weekendPaid = 0;
     let maxConsecutiveAbsent = 0, currentConsecutive = 0;
+    
+    const overtimeDetails: { date: Date; hours: number; isWeekend: boolean; isHoliday: boolean }[] = [];
+    const lateDetails: { date: Date; hours: number }[] = [];
+
+    const userRestDays = settings?.rest_days || [0];
+    const sortedRestDays = [...userRestDays].sort((a, b) => {
+      const aVal = a === 0 ? 7 : a;
+      const bVal = b === 0 ? 7 : b;
+      return aVal - bVal;
+    });
 
     calendarDays.forEach(item => {
       if (!item.isCurrentMonth || item.date < employmentStartDate) return;
@@ -167,11 +178,33 @@ export default function WorktimeCalendar() {
       const shift = getShiftForDate(item.date, workLogs);
       const isPast = item.date < actualToday;
       const isToday = item.date.toDateString() === actualToday.toDateString();
+      const isHoliday = !!TURKISH_HOLIDAYS_2026[dateKey];
+      const dayOfWeek = item.date.getDay();
 
       if (log && log.status !== 'unlogged_normal' && log.status !== 'off_day' && log.note !== 'SYSTEM_AUTO_OFF' && log.note !== 'SYSTEM_AUTO_NORMAL') {
         if (log.status === 'normal') normal++;
-        if (log.status === 'overtime') { normal++; overtimeHours += (Number(log.hours) || 0); }
-        if (log.status === 'late' || log.status === 'partial_leave') { normal++; lateHours += (Number(log.hours) || 0); }
+        if (log.status === 'overtime') { 
+          normal++; 
+          const h = Number(log.hours) || 0;
+          overtimeHours += h; 
+
+          // Dinamik Çarpan Mantığı
+          if (sortedRestDays.length === 2 && dayOfWeek === sortedRestDays[0]) {
+            firstOffDayOvertimeHours += h;
+          } else if ((sortedRestDays.length === 2 && dayOfWeek === sortedRestDays[1]) || (sortedRestDays.length === 1 && dayOfWeek === sortedRestDays[0])) {
+            secondOffDayOvertimeHours += h;
+          } else {
+            weekdayOvertimeHours += h;
+          }
+
+          overtimeDetails.push({ date: item.date, hours: h, isWeekend: dayOfWeek === 0 || dayOfWeek === 6, isHoliday });
+        }
+        if (log.status === 'late' || log.status === 'partial_leave') { 
+          normal++; 
+          const h = Number(log.hours) || 0;
+          lateHours += h; 
+          lateDetails.push({ date: item.date, hours: h });
+        }
         if (log.status === 'absent') absent++;
         if (log.status === 'leave') leave++;
         if (log.status === 'annual_leave') annualLeave++;
@@ -195,10 +228,10 @@ export default function WorktimeCalendar() {
     const isDangerAbsent = absent >= 3 || maxConsecutiveAbsent >= 2;
 
     return {
-      normal, overtimeHours, lateHours, absent, leave, annualLeave, holidayWork, weekendPaid,
-      isDangerAbsent, maxConsecutiveAbsent
+      normal, overtimeHours, weekdayOvertimeHours, firstOffDayOvertimeHours, secondOffDayOvertimeHours, lateHours, absent, leave, annualLeave, holidayWork, weekendPaid,
+      isDangerAbsent, maxConsecutiveAbsent, overtimeDetails, lateDetails
     };
-  }, [calendarDays, workLogs, employmentStartDate, actualToday, getShiftForDate]);
+  }, [calendarDays, workLogs, employmentStartDate, actualToday, getShiftForDate, settings?.rest_days]);
 
   const handleExportCSV = () => {
     const fileName = generateFileName('Vardiyo', baseDate, user?.user_metadata?.name, '.csv');

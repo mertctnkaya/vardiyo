@@ -52,6 +52,9 @@ export interface CalendarStatsProps {
   monthlyStats: {
     normal: number;
     overtimeHours: number;
+    weekdayOvertimeHours?: number;
+    firstOffDayOvertimeHours?: number;
+    secondOffDayOvertimeHours?: number;
     lateHours: number;
     absent: number;
     leave: number;
@@ -60,6 +63,8 @@ export interface CalendarStatsProps {
     weekendPaid: number;
     isDangerAbsent: boolean;
     maxConsecutiveAbsent: number;
+    overtimeDetails?: { date: Date; hours: number; isWeekend: boolean; isHoliday: boolean }[];
+    lateDetails?: { date: Date; hours: number }[];
   };
   baseDate: Date;
 }

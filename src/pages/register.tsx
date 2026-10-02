@@ -37,7 +37,10 @@ export default function Register() {
       email,
       password,
       options: {
-        data: { name: name }
+        data: {
+          name: name.trim(),
+          full_name: name.trim()
+        }
       }
     });
 
@@ -87,11 +90,11 @@ export default function Register() {
 
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text font-bold text-base-content/80">Ad</span>
+              <span className="label-text font-bold text-base-content/80">Ad Soyad</span>
             </label>
             <input
               type="text"
-              placeholder="Örn: Mert"
+              placeholder="Adınız ve Soyadınız"
               className="input input-bordered w-full bg-base-200 focus:ring-2 focus:ring-indigo-500 transition-all"
               value={name}
               onChange={(e) => setName(e.target.value)}

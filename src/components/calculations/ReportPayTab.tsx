@@ -1,7 +1,11 @@
 import { useState } from 'react';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function ReportPayTab() {
-  const [grossSalary, setGrossSalary] = useState<string>('');
+  const { settings } = useAppStore();
+  const [grossSalary, setGrossSalary] = useState<string>(() => {
+    return settings?.daily_wage ? (settings.daily_wage * 30).toFixed(2).replace(/\.00$/, '') : '';
+  });
   const [reportDays, setReportDays] = useState<string>('');
   const [treatmentType, setTreatmentType] = useState<'ayakta' | 'yatarak'>('ayakta');
 

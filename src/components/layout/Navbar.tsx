@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import NotificationDropdown from '../shared/NotificationDropdown';
 import OfflineSyncIndicator from '../shared/OfflineSyncIndicator';
 import type { NavbarProps } from '../../types';
@@ -6,9 +6,15 @@ import { useAppStore } from '../../store/useAppStore';
 
 export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
   const { unreadTicketCount } = useAppStore();
+  const location = useLocation();
+  const isLanding = location.pathname === '/';
 
   return (
-    <div className="navbar bg-base-100 shadow-xl mb-6 sm:mb-8 w-full z-10 px-2 sm:px-4 print:hidden justify-between">
+    <div className={`navbar w-full z-[100] px-2 sm:px-4 print:hidden justify-between ${
+      isLanding 
+        ? 'bg-transparent absolute top-0 left-0 border-b border-white/5' 
+        : 'bg-base-100 shadow-xl mb-6 sm:mb-8 relative'
+    }`}>
       <div className="navbar-start w-auto flex items-center shrink-0">
         <label htmlFor="mobile-drawer" className="btn btn-ghost btn-circle lg:hidden cursor-pointer" aria-label="Menüyü Aç">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-base-content" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -22,17 +28,17 @@ export default function Navbar({ user, isFounder, onLogout }: NavbarProps) {
 
       <div className="navbar-center hidden lg:flex flex-1 justify-center px-2">
         <ul className="menu menu-horizontal px-1 font-medium text-base-content text-xs xl:text-sm gap-0.5 xl:gap-1 items-center flex-nowrap whitespace-nowrap">
-          <li><Link to="/" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Güncel Vardiya</Link></li>
+          <li><Link to="/currentShift" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Güncel Vardiya</Link></li>
           <li><Link to="/worktime" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Mesai Takvimim</Link></li>
           <li><Link to="/next-weeks" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Gelecek Haftalar</Link></li>
-          <li><Link to="/calculations" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Hesaplamalar&İşlemler</Link></li>
+          <li><Link to="/calculations" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">Maaş & Hakediş</Link></li>
           <li>
             <Link to="/cv-builder" className="hover:text-amber-400 focus:bg-amber-500/10 text-amber-500 font-semibold rounded-lg px-2 xl:px-2.5 py-1.5 flex items-center gap-1">
               CV Oluştur
               <span className="badge badge-warning badge-xs">PRO</span>
             </Link>
           </li>
-          <li><Link to="/faq" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">S.S.S & Haklar</Link></li>
+          <li><Link to="/faq" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5">İşçi Rehberi & S.S.S</Link></li>
           <li>
             <Link to="/contact" className="hover:text-indigo-400 focus:bg-indigo-500/10 focus:text-indigo-400 rounded-lg px-2 xl:px-2.5 py-1.5 relative">
               İletişim

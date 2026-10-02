@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
 import MainLayout from './components/layout/MainLayout';
+import Landing from './pages/landing';
 import CurrentShift from './pages/currentShift';
 import NextWeeks from './pages/nextWeeks';
 import WorktimeCalendar from './pages/worktimeCalendar';
@@ -58,7 +59,8 @@ export default function App() {
       <SpeedInsights />
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<CurrentShift />} />
+          <Route index element={<Landing />} />
+          <Route path="currentShift" element={<CurrentShift />} />
           <Route path="next-weeks" element={<NextWeeks />} />
           <Route path="worktime" element={<WorktimeCalendar />} />
           <Route path="settings" element={<Settings />} />
