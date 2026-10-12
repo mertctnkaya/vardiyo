@@ -60,7 +60,14 @@ const initialFormData: CVFormData = {
   commutePreference: '',
   smoking: '',
   shiftPreference: '', 
-  travelRestriction: ''
+  travelRestriction: '',
+
+  // --- Faz 2: Global ATS ve Teknik Özellikler ---
+  language: 'tr',
+  linkedin: '',
+  github: '',
+  portfolio: '',
+  projects: []
 };
 
 export const useCVStore = create<CVState>()(

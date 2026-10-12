@@ -32,9 +32,8 @@ export default function PWAInstallPrompt() {
   }, []);
 
   const handleInstall = () => {
-    // Kullanıcıyı Play Store'a yönlendir (uygulamanın gerçek paket adını/linkini buraya yazmalısın)
-    // Şimdilik genel bir format, kendi uygulamanın id'si ile değiştirebilirsin
-    window.location.href = 'https://play.google.com/store/apps/details?id=com.vardiyo.app';
+    // Kullanıcıyı Play Store'a yönlendir
+    window.location.href = 'https://play.google.com/store/apps/details?id=com.mertcancetinkaya.vardiyo';
 
     // Yönlendirdikten sonra tekrar çıkmaması için dismissed işaretle
     localStorage.setItem('vardiyo_playstore_dismissed', 'true');

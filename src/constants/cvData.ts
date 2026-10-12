@@ -683,6 +683,45 @@ export const CV_DATA: CVSector[] = [
     ]
   },
   {
+    id: 'insan-kaynaklari',
+    name: 'İnsan Kaynakları (İK) & İşe Alım',
+    jobTitles: [
+      {
+        id: 'ise-alim-uzmani',
+        name: 'İşe Alım Personeli / Uzmanı',
+        suggestedSkills: [
+          { name: 'Mülakat Teknikleri (Yetkinlik Bazlı)', category: 'Mesleki Bilgi' },
+          { name: 'CV İnceleme (Screening)', category: 'Mesleki Bilgi' },
+          { name: 'Kariyer Portalları (LinkedIn, Kariyer.net vs.)', category: 'Makine/Ekipman' },
+          { name: 'İkna Kabiliyeti ve Güçlü İletişim', category: 'Genel' },
+          { name: 'Teknik İşe Alım (IT Recruitment)', category: 'Mesleki Bilgi' },
+          { name: 'ATS (Aday Takip Sistemleri) Kullanımı', category: 'Makine/Ekipman' }
+        ],
+        summaryTemplates: [
+          { level: 'Çırak', text: 'İnsan ilişkileri kuvvetli, analitik düşünebilen ve işe alım (recruitment) süreçlerinde kariyer yapmayı hedefleyen aday. Hızlı öğrenme yeteneğiyle aday analizi, mülakat organizasyonu ve CV inceleme süreçlerine destek vermeye hazırdır.' },
+          { level: 'Kalfa', text: 'Uçtan uca işe alım (end-to-end recruitment) süreçlerini yönetebilen, aday araştırması (sourcing) ve mülakat konularında tecrübeli, doğru yeteneği doğru pozisyonla eşleştiren İşe Alım profesyoneli.' },
+          { level: 'Usta', text: 'Şirketin stratejik yetenek kazanımı hedeflerini belirleyen, headhunting (beyin avcısı) operasyonlarını yöneten, işveren markası (employer branding) ve toplu işe alım projelerinde uzmanlaşmış Kıdemli İşe Alım Yöneticisi.' }
+        ]
+      },
+      {
+        id: 'ik-genel-uzman',
+        name: 'İnsan Kaynakları Uzmanı / Yöneticisi',
+        suggestedSkills: [
+          { name: 'Bordro ve Özlük İşleri', category: 'Mesleki Bilgi' },
+          { name: '4857 Sayılı İş Kanunu', category: 'Mesleki Bilgi' },
+          { name: 'Performans Değerlendirme Sistemleri', category: 'Mesleki Bilgi' },
+          { name: 'Eğitim ve Gelişim (L&D) Planlama', category: 'Mesleki Bilgi' },
+          { name: 'SGK ve Teşvik Uygulamaları', category: 'Mesleki Bilgi' }
+        ],
+        summaryTemplates: [
+          { level: 'Çırak', text: 'İnsan Kaynakları departmanında temel özlük işleri, evrak takibi ve personel oryantasyon süreçlerinde görev alarak kariyerini bu yönde geliştirmeyi hedefleyen istekli İK asistanı.' },
+          { level: 'Kalfa', text: 'Bordro tahakkuku, puantaj takibi, SGK bildirgeleri ve personel özlük dosyalarının yönetimini yasal mevzuata (4857) uygun olarak gerçekleştiren operasyonel İK uzmanı.' },
+          { level: 'Usta', text: 'Tüm İnsan Kaynakları fonksiyonlarını (İşe Alım, Bordro, Performans, Eğitim) stratejik olarak yöneten, kurum kültürünü inşa eden ve üst yönetime raporlama yapan İK Müdürü.' }
+        ]
+      }
+    ]
+  },
+  {
     id: 'egitim',
     name: 'Eğitim',
     jobTitles: [

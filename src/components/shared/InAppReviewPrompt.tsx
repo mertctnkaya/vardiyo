@@ -35,8 +35,8 @@ export default function InAppReviewPrompt() {
     triggerHaptic('success');
     setIsVisible(false);
     localStorage.setItem('hasSeenReviewPrompt', 'true');
-    // For now, open a temp link
-    window.open('https://play.google.com/store/apps/details?id=com.vardiyo.app', '_blank');
+    // Open exact Play Store link
+    window.open('https://play.google.com/store/apps/details?id=com.mertcancetinkaya.vardiyo', '_blank');
   };
 
   return (

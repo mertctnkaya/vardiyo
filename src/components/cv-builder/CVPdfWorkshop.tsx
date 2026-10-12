@@ -168,6 +168,30 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginTop: 1,
   },
+  // Proje
+  projItem: {
+    marginBottom: 5,
+  },
+  projHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  projTitle: {
+    fontSize: 10,
+    fontFamily: 'Arimo',
+    fontWeight: 700,
+    color: '#1e293b',
+  },
+  projTech: {
+    fontSize: 8.5,
+    color: '#3b82f6',
+    marginTop: 1,
+  },
+  projUrl: {
+    fontSize: 8.5,
+    color: '#64748b',
+    textDecoration: 'underline',
+  },
   // Eğitim
   eduItem: {
     marginBottom: 3,
@@ -213,6 +237,7 @@ export default function CVPdfWorkshop({ data }: Props) {
   const allSkills = [...data.selectedSkills, ...data.customSkills];
   const hasExperience = data.experiences.some(e => e.company.trim().length > 0);
   const hasEducation = data.educations.some(e => e.schoolName.trim().length > 0);
+  const hasProjects = data.projects && data.projects.some(p => p.name.trim().length > 0);
 
   const disciplineTags: string[] = [];
   if (data.disciplineShifts) disciplineTags.push('Vardiyalı Çalışma');
@@ -254,6 +279,15 @@ export default function CVPdfWorkshop({ data }: Props) {
             </Text>
             {data.availability && (
               <Text style={styles.availabilityTag}>{data.availability}</Text>
+            )}
+            {(data.linkedin || data.github || data.portfolio) && (
+              <Text style={{ ...styles.contactText, color: '#94a3b8', marginTop: 4 }}>
+                {[
+                  data.linkedin && `linkedin.com/in/${data.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, '').replace(/\/$/, '')}`,
+                  data.github && `github.com/${data.github.replace(/^https?:\/\/(www\.)?github\.com\//, '').replace(/\/$/, '')}`,
+                  data.portfolio && data.portfolio.replace(/^https?:\/\//, '')
+                ].filter(Boolean).join('  |  ')}
+              </Text>
             )}
           </View>
           {data.photo && (
@@ -312,6 +346,23 @@ export default function CVPdfWorkshop({ data }: Props) {
                 </View>
                 <Text style={styles.positionText}>{exp.position}</Text>
                 {exp.description ? <Text style={styles.descText}>• {exp.description}</Text> : null}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* PROJELER */}
+        {hasProjects && (
+          <View>
+            <Text style={styles.sectionTitle}>PROJELER</Text>
+            {data.projects!.filter(p => p.name.trim()).map((proj, i) => (
+              <View key={i} style={styles.projItem}>
+                <View style={styles.projHeader}>
+                  <Text style={styles.projTitle}>{proj.name}</Text>
+                  {proj.url && <Text style={styles.projUrl}>{proj.url.replace(/^https?:\/\//, '')}</Text>}
+                </View>
+                {proj.technologies && <Text style={styles.projTech}>{proj.technologies}</Text>}
+                {proj.description ? <Text style={styles.descText}>• {proj.description}</Text> : null}
               </View>
             ))}
           </View>

@@ -16,12 +16,14 @@ import InAppReviewPrompt from '../shared/InAppReviewPrompt';
 import PwaUpdatePrompt from '../shared/PwaUpdatePrompt';
 import ToastContainer from '../shared/ToastContainer';
 import { useMobileBackHandler } from '../../hooks/useMobileBackHandler';
+import { useInAppUpdate } from '../../hooks/useInAppUpdate';
 import { useToastStore } from '../../store/useToastStore';
 import { isNative } from '../../utils/isNative';
 import { LocalNotifications } from '@capacitor/local-notifications';
 
 export default function MainLayout() {
   useMobileBackHandler();
+  useInAppUpdate();
 
   const shiftContext = useShiftCalculator();
   const { user, setUser, setSession, setSettings } = useAppStore();

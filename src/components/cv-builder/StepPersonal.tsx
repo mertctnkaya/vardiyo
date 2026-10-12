@@ -133,6 +133,66 @@ export default function StepPersonal() {
         </div>
       </div>
 
+      {/* Sosyal & Profesyonel Linkler */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+        <div className="form-control w-full">
+          <label className="label">
+            <span className="label-text text-white">CV Dili (Global Başvurular İçin)</span>
+          </label>
+          <select
+            name="language"
+            value={formData.language || 'tr'}
+            onChange={handleChange}
+            className="select select-bordered w-full bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white"
+          >
+            <option value="tr">Türkçe (TR)</option>
+            <option value="en">İngilizce (EN)</option>
+          </select>
+        </div>
+
+        <div className="form-control w-full">
+          <label className="label">
+            <span className="label-text text-white">LinkedIn URL</span>
+          </label>
+          <input
+            type="text"
+            name="linkedin"
+            value={formData.linkedin || ''}
+            onChange={handleChange}
+            placeholder="linkedin.com/in/"
+            className="input input-bordered w-full p-2 bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white text-sm"
+          />
+        </div>
+
+        <div className="form-control w-full">
+          <label className="label">
+            <span className="label-text text-white">GitHub URL</span>
+          </label>
+          <input
+            type="text"
+            name="github"
+            value={formData.github || ''}
+            onChange={handleChange}
+            placeholder="github.com/"
+            className="input input-bordered w-full p-2 bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white text-sm"
+          />
+        </div>
+
+        <div className="form-control w-full">
+          <label className="label">
+            <span className="label-text text-white">Kişisel Web Sitesi / Portfolyo</span>
+          </label>
+          <input
+            type="text"
+            name="portfolio"
+            value={formData.portfolio || ''}
+            onChange={handleChange}
+            placeholder="ornek.com"
+            className="input input-bordered w-full p-2 bg-[#0f1115] border-white/10 focus:border-indigo-500 text-white text-sm"
+          />
+        </div>
+      </div>
+
       <div className="flex justify-end pt-6 border-t border-white/5 mt-8">
         <button
           onClick={nextStep}

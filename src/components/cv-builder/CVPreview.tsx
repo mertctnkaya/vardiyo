@@ -6,11 +6,12 @@ import { supabase } from '../../lib/supabaseClient';
 import { pdf } from '@react-pdf/renderer';
 import CVPdfDocument from './CVPdfDocument';
 import CVPdfWorkshop from './CVPdfWorkshop';
-import { FileDown, Building2, Wrench, CheckCircle2, Trash2 } from 'lucide-react';
+import CoverLetterPdf from './CoverLetterPdf';
+import { FileDown, Building2, Wrench, CheckCircle2, Trash2, Mail } from 'lucide-react';
 import PremiumPaywallModal from '../shared/PremiumPaywallModal';
 import { IS_PAYWALL_ACTIVE, isFeaturePremium } from '../../config/premiumFeatures';
 
-type PdfFormat = 'kurumsal' | 'atolye';
+type PdfFormat = 'kurumsal' | 'atolye' | 'onyazi';
 
 export default function CVPreview() {
   const { user, settings } = useAppStore();
@@ -63,14 +64,16 @@ export default function CVPreview() {
     try {
       const doc = format === 'kurumsal'
         ? <CVPdfDocument data={formData} />
-        : <CVPdfWorkshop data={formData} />;
+        : format === 'atolye' 
+          ? <CVPdfWorkshop data={formData} /> 
+          : <CoverLetterPdf data={formData} />;
 
       const blob = await pdf(doc).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
 
       const safeName = `${formData.firstName}_${formData.lastName}`.replace(/\s+/g, '_');
-      const suffix = format === 'kurumsal' ? 'Kurumsal_ATS' : 'Atolye_Gorsel';
+      const suffix = format === 'kurumsal' ? 'Kurumsal_ATS' : format === 'atolye' ? 'Atolye_Gorsel' : 'On_Yazi';
       link.href = url;
       link.download = `CV_${safeName}_${suffix}.pdf`;
       document.body.appendChild(link);
@@ -128,7 +131,7 @@ export default function CVPreview() {
       </div>
 
       {/* İndirme Kartları */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Kurumsal / ATS Format */}
         <div className="bg-[#1e2329] rounded-xl border border-white/10 p-6 flex flex-col justify-between">
           <div>
@@ -195,6 +198,43 @@ export default function CVPreview() {
               <><CheckCircle2 className="w-4 h-4 mr-1" /> İndirildi — Tekrar İndir</>
             ) : (
               <><FileDown className="w-4 h-4 mr-1" /> Atölye PDF İndir</>
+            )}
+          </button>
+        </div>
+
+        {/* Ön Yazı Formatı */}
+        <div className="bg-[#1e2329] rounded-xl border border-white/10 p-6 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-0 right-0 bg-emerald-600/20 text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl border-b border-l border-emerald-500/30">
+            YENİ
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Mail className="w-5 h-5 text-emerald-400" />
+              <h3 className="font-bold text-white">Akıllı Ön Yazı</h3>
+            </div>
+            <p className="text-xs text-base-content/60 mb-4">
+              Kurumsal başvurularda sizi bir adım öne çıkaracak, seçtiğiniz mesleğe uygun profesyonel kapak mektubu (Cover Letter).
+            </p>
+            <ul className="text-xs text-base-content/50 space-y-1 mb-4">
+              <li>✓ Seçtiğiniz mesleğe özel metin</li>
+              <li>✓ Dil seçiminize (TR/EN) göre dil desteği</li>
+              <li>✓ Profesyonel mektup standartlarında</li>
+            </ul>
+          </div>
+          <button
+            onClick={() => handleDownload('onyazi')}
+            disabled={downloading === 'onyazi'}
+            className={`btn w-full border-none shadow-lg ${downloaded.includes('onyazi')
+              ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-900/40'
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-900/40'
+              }`}
+          >
+            {downloading === 'onyazi' ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : downloaded.includes('onyazi') ? (
+              <><CheckCircle2 className="w-4 h-4 mr-1" /> İndirildi — Tekrar İndir</>
+            ) : (
+              <><FileDown className="w-4 h-4 mr-1" /> Ön Yazı İndir</>
             )}
           </button>
         </div>

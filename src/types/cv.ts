@@ -108,5 +108,18 @@ export interface CVFormData {
   smoking: 'Kullanmıyorum' | 'Kullanıyorum' | 'Belirtmek İstemiyorum' | '';
   shiftPreference: 'Gündüz' | 'Gece' | 'Farketmez' | '';
   travelRestriction: 'Şehir dışı engelim yok' | 'Sadece şehir içi' | '';
+
+  // --- Faz 2: Global ATS ve Teknik Özellikler ---
+  language?: 'tr' | 'en';
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+  projects?: {
+    id: string;
+    name: string;
+    url?: string;
+    description: string;
+    technologies: string;
+  }[];
 }
 

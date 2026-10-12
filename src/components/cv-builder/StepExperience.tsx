@@ -55,6 +55,32 @@ export default function StepExperience() {
     updateFormData({ educations: formData.educations.filter(edu => edu.id !== id) });
   };
 
+  // --- Proje İşlemleri (Faz 2) ---
+  const handleAddProject = () => {
+    if (formData.projects && formData.projects.length >= 3) return; // Max 3 proje
+    const newProject = {
+      id: Date.now().toString(),
+      name: '',
+      url: '',
+      description: '',
+      technologies: ''
+    };
+    updateFormData({ projects: [...(formData.projects || []), newProject] });
+  };
+
+  const handleUpdateProject = (id: string, field: string, value: string) => {
+    if (!formData.projects) return;
+    const updated = formData.projects.map(proj =>
+      proj.id === id ? { ...proj, [field]: value } : proj
+    );
+    updateFormData({ projects: updated });
+  };
+
+  const handleRemoveProject = (id: string) => {
+    if (!formData.projects) return;
+    updateFormData({ projects: formData.projects.filter(proj => proj.id !== id) });
+  };
+
   const handleNextStep = () => {
     // İş Deneyimi Validasyonu
     for (const exp of formData.experiences) {
@@ -68,6 +94,15 @@ export default function StepExperience() {
       if (!edu.schoolName || !edu.startDate || !edu.endDate) {
         alert("Lütfen eklediğiniz eğitimlerde kurum adı, başlangıç ve bitiş yıllarını mutlaka doldurun.");
         return;
+      }
+    }
+    // Proje Validasyonu
+    if (formData.projects) {
+      for (const proj of formData.projects) {
+        if (!proj.name || !proj.description || !proj.technologies) {
+          alert("Lütfen eklediğiniz çalışmalarda Ad, Açıklama ve Kullanılan Araçlar/Teknolojiler alanlarını doldurun.");
+          return;
+        }
       }
     }
     nextStep();
@@ -225,6 +260,68 @@ export default function StepExperience() {
                       <button onClick={() => handleUpdateEducation(edu.id, 'endDate', 'Devam Ediyor')} className="text-[10px] text-emerald-400 font-bold hover:underline">"Devam Ediyor" yap</button>
                     </label>
                     <input type="text" value={edu.endDate} onChange={e => handleUpdateEducation(edu.id, 'endDate', e.target.value)} placeholder="Örn: 2022 veya Devam Ediyor" className="input p-3 w-full input-bordered bg-[#0f1115] border-white/10 text-white" />
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      {/* PROJELER BÖLÜMÜ (FAZ 2) */}
+      <section className="pt-4 border-t border-white/5">
+        <div className="border-b border-white/10 pb-4 mb-4 flex justify-between items-end">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-indigo-400" />
+              Projeler & Önemli Çalışmalar
+            </h2>
+            <p className="text-sm text-base-content/60 mt-1">Yazılım projelerini, kurduğunuz üretim hatlarını, katıldığınız şantiye projelerini veya başardığınız önemli işleri buraya ekleyin. (Max 3)</p>
+          </div>
+          {(!formData.projects || formData.projects.length < 3) && (
+            <button onClick={handleAddProject} className="btn btn-sm p-3 btn-outline border-indigo-500/30 text-indigo-400 hover:bg-indigo-500 hover:border-indigo-500 hover:text-white">
+              <Plus className="w-4 h-4 mr-1" /> Ekle
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          {!formData.projects || formData.projects.length === 0 ? (
+            <div className="text-center py-6 bg-[#0f1115] border border-dashed border-white/10 rounded-xl">
+              <p className="text-base-content/50 text-sm mb-2">Henüz proje bilgisi eklemediniz.</p>
+              <button onClick={handleAddProject} className="btn btn-sm p-3 border-none bg-white/5 hover:bg-white/10 text-white">
+                <Plus className="w-4 h-4 mr-1" /> Proje Ekle
+              </button>
+            </div>
+          ) : (
+            formData.projects.map((proj, index) => (
+              <div key={proj.id} className="p-4 bg-[#1e2329] rounded-xl border border-white/5 relative">
+                <button
+                  onClick={() => handleRemoveProject(proj.id)}
+                  className="absolute top-3 right-3 text-base-content/40 hover:text-red-400 transition-colors p-1"
+                  title="Projeyi Sil"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+
+                <h3 className="text-sm font-bold text-indigo-400 mb-3 uppercase tracking-wider">{index + 1}. Proje</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-control">
+                    <label className="label"><span className="label-text text-white text-xs">Proje / Çalışma Adı *</span></label>
+                    <input type="text" value={proj.name} onChange={e => handleUpdateProject(proj.id, 'name', e.target.value)} placeholder="" className="input p-3 w-full input-bordered bg-[#0f1115] border-white/10 text-white" />
+                  </div>
+                  <div className="form-control">
+                    <label className="label"><span className="label-text text-white text-xs">Proje Linki (Opsiyonel)</span></label>
+                    <input type="text" value={proj.url || ''} onChange={e => handleUpdateProject(proj.id, 'url', e.target.value)} placeholder="Örn: https://github.com/..." className="input p-3 w-full input-bordered bg-[#0f1115] border-white/10 text-white" />
+                  </div>
+                  <div className="form-control md:col-span-2">
+                    <label className="label"><span className="label-text text-white text-xs">Kullanılan Teknolojiler / Araçlar *</span></label>
+                    <input type="text" value={proj.technologies} onChange={e => handleUpdateProject(proj.id, 'technologies', e.target.value)} placeholder="Örn: React, Node.js veya CNC Torna, Fanuc, Autocad" className="input p-3 w-full input-bordered bg-[#0f1115] border-white/10 text-white" />
+                  </div>
+                  <div className="form-control md:col-span-2">
+                    <label className="label"><span className="label-text text-white text-xs">Proje Açıklaması *</span></label>
+                    <textarea value={proj.description} onChange={e => handleUpdateProject(proj.id, 'description', e.target.value)} placeholder="Projenin amacı, yapılan iş ve senin katkıların..." className="textarea p-3 w-full textarea-bordered bg-[#0f1115] border-white/10 text-white h-20"></textarea>
                   </div>
                 </div>
               </div>
