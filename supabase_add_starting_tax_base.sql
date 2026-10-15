@@ -24,3 +24,4 @@ BEGIN
 END $$;
 
 COMMENT ON COLUMN public.user_settings.starting_tax_base IS 'Yıl içinde iş değiştiren veya uygulamaya yıl ortasında katılan personelin önceki işyerinden devreden kümülatif gelir vergisi matrahı.';
+

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { fetchWorkLogsRange } from '../../services/dbService';
 import { generatePayrollData } from '../../core/payrollEngine';
+import { estimatePriorMonthsTaxBase } from '../../core/taxEngine';
 import { calculateMonthlyYevmiyeStats } from '../../core/yevmiyeEngine';
 import { IS_PAYWALL_ACTIVE } from '../../config/premiumFeatures';
 import Alert from '../shared/Alert';
@@ -69,7 +70,9 @@ export default function DataVisualizerTab() {
           // Yevmiye için ek kesinti ve mesai verisi pek net değil, şimdilik total çalıştığı günü alalım
           overtime = stats.totalDaysWorked;
         } else {
-          const stats = generatePayrollData(settings, monthLogs, targetDate, '0', '0') as any;
+          // Kümülatif vergi matrahını 6 aylık akışta zincirleme aktar
+          const priorBase = estimatePriorMonthsTaxBase(settings, y, m, logs);
+          const stats = generatePayrollData(settings, monthLogs, targetDate, '0', '0', priorBase) as any;
           net = stats.hesabaYatanNet;
           overtime = stats.stats.overtimeHours;
           absent = stats.stats.absentDays;
