@@ -1,21 +1,42 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Project specific ProGuard rules for Vardiyo
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Preserve line numbers and source file names for crash reporting
+-keepattributes SourceFile,LineNumberTable
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# JavaScript Interface preservation for Capacitor WebViews
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Capacitor Core & Plugin Bridge
+-keep public class * extends com.getcapacitor.Plugin
+-keep public class * extends com.getcapacitor.Bridge
+-keep public class * extends com.getcapacitor.PluginMethod
+-keepclassmembers class * {
+    @com.getcapacitor.PluginMethod public *;
+}
+-keepclassmembers class com.getcapacitor.Bridge {
+    public *;
+}
+-keepclassmembers class com.getcapacitor.BridgeWebView {
+    public *;
+}
+
+# Capacitor Official Plugins
+-keep class com.capacitorjs.plugins.app.** { *; }
+-keep class com.capacitorjs.plugins.haptics.** { *; }
+-keep class com.capacitorjs.plugins.localnotifications.** { *; }
+-keep class com.capacitorjs.plugins.share.** { *; }
+-keep class com.capacitorjs.plugins.filesystem.** { *; }
+
+# Capawesome In-App Update Plugin
+-keep class io.capawesome.capacitorjs.plugins.appupdate.** { *; }
+
+# RevenueCat Capacitor SDK & Google Play Billing
+-keep class com.revenuecat.purchases.** { *; }
+-keep class com.android.billingclient.** { *; }
+-dontwarn com.revenuecat.purchases.**
+
+# Kotlin Coroutines & Serialization
+-dontwarn kotlinx.coroutines.**

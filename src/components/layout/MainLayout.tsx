@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import PageLoader from '../shared/PageLoader';
 import { useShiftCalculator } from '../../hooks/useShiftCalculator';
 import { supabase } from '../../lib/supabaseClient';
 import { useAppStore } from '../../store/useAppStore';
@@ -181,7 +182,9 @@ export default function MainLayout() {
         <Navbar user={user} isFounder={isFounder} onLogout={handleLogout} />
 
         <div className={`w-full pb-12 flex flex-col items-center flex-grow ${location.pathname === '/' ? '' : 'max-w-5xl px-4'}`}>
-          <Outlet context={shiftContext} />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet context={shiftContext} />
+          </Suspense>
         </div>
 
         <Footer />
