@@ -49,6 +49,10 @@ export interface UserSettings {
   payment_frequency?: 'weekly' | 'biweekly' | 'daily';
   payment_day_of_week?: number;
   frozen_months?: string[];
+
+  // Kümülatif Vergi Matrahı Devri
+  starting_tax_base?: number;
+  starting_tax_base_month?: number; // 1: Ocak, ..., 12: Aralık
 }
 
 export interface Reminder {

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { fetchMonthWorkLogs } from '../../services/dbService';
+import { fetchMonthWorkLogs, fetchWorkLogsRange } from '../../services/dbService';
 import { generatePayrollData } from '../../core/payrollEngine';
+import { estimatePriorMonthsTaxBase } from '../../core/taxEngine';
 import { downloadDataAsJSON, generateFileName, exportFile } from '../../utils/exportUtils';
 import ExportPanel from '../shared/ExportPanel';
 import YevmiyePayrollView from './YevmiyePayrollView';
@@ -13,13 +14,14 @@ export default function PayrollTab() {
   const [payrollDate, setPayrollDate] = useState(new Date());
   const [isLoadingPayroll, setIsLoadingPayroll] = useState(false);
   const [fetchedLogs, setFetchedLogs] = useState<any[]>([]);
+  const [priorCumulativeBase, setPriorCumulativeBase] = useState<number>(0);
 
   const [besDeduction, setBesDeduction] = useState('0');
   const [otherDeductions, setOtherDeductions] = useState('0');
 
   const [payrollData, setPayrollData] = useState<LegacyPayrollData>({
     baseGrossInfo: { daily: 0, hourly: 0 },
-    incomes: { baseMonth: 0, overtime: 0, nightBonus: 0, holidayWork: 0, totalGrossHakedis: 0, extra: 0, extraSgkExempt: false }, // <-- DÜZELTİLDİ
+    incomes: { baseMonth: 0, overtime: 0, nightBonus: 0, holidayWork: 0, totalGrossHakedis: 0, extra: 0, extraSgkExempt: false },
     deductionsGross: { absent: 0, late: 0 },
     newGrossMatrah: 0,
     taxes: { sgk: 0, unemployment: 0, incomeTax: 0, stampTax: 0 },
@@ -27,7 +29,13 @@ export default function PayrollTab() {
     netKesintiler: { bes: 0, other: 0, total: 0 },
     hesabaYatanNet: 0,
     calculatedNightHours: 0,
-    stats: { payrollDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0, totalMesai: 0, totalGece: 0, totalTatil: 0, devamsizlik: 0, gecKalma: 0 }
+    stats: { payrollDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0, totalMesai: 0, totalGece: 0, totalTatil: 0, devamsizlik: 0, gecKalma: 0 },
+    taxBase: 0,
+    cumulativeTaxBase: 0,
+    previousCumulativeBase: 0,
+    taxBracketLabel: '%15',
+    isBracketCrossed: false,
+    bracketBreakdown: []
   });
 
   const fetchWorkLogs = async () => {
@@ -39,24 +47,43 @@ export default function PayrollTab() {
     const firstDayStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const lastDayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
 
+    // 1. Cari ayın logları
     const logsMap = await fetchMonthWorkLogs(user.id, firstDayStr, lastDayStr);
-
-    // YENİ KURALLAR: Gelecek tarihli mesailer / izinler o gün gelmeden bordroya yansımamalı.
     const todayStr = new Date().toISOString().split('T')[0];
     const filteredLogs = logsMap ? Object.values(logsMap).filter((l: any) => l.log_date <= todayStr) : [];
-
     setFetchedLogs(filteredLogs);
+
+    // 2. Yıl başından (1 Ocak) önceki aya kadarki loglar (kümülatif matrah hesabı için)
+    if (month > 0) {
+      const yearStartStr = `${year}-01-01`;
+      const prevMonthEndDay = new Date(year, month, 0).getDate();
+      const prevMonthEndStr = `${year}-${String(month).padStart(2, '0')}-${String(prevMonthEndDay).padStart(2, '0')}`;
+      const priorLogs = await fetchWorkLogsRange(user.id, yearStartStr, prevMonthEndStr);
+      const priorBase = estimatePriorMonthsTaxBase(settings, year, month, priorLogs);
+      setPriorCumulativeBase(priorBase);
+    } else {
+      const priorBase = Number(settings?.starting_tax_base) || 0;
+      setPriorCumulativeBase(priorBase);
+    }
+
     setIsLoadingPayroll(false);
   };
 
   useEffect(() => {
     fetchWorkLogs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payrollDate]);
+  }, [payrollDate, settings?.starting_tax_base]);
 
   useEffect(() => {
     if (!settings) return;
-    const computedData = generatePayrollData(settings, fetchedLogs, payrollDate, besDeduction, otherDeductions);
+    const computedData = generatePayrollData(
+      settings,
+      fetchedLogs,
+      payrollDate,
+      besDeduction,
+      otherDeductions,
+      priorCumulativeBase
+    );
     setPayrollData(computedData as unknown as LegacyPayrollData);
 
     // AHA! Moment: They just saw their payroll. Wait 3 seconds and trigger review prompt
@@ -66,7 +93,7 @@ export default function PayrollTab() {
       }, 3500);
       return () => clearTimeout(timer);
     }
-  }, [fetchedLogs, settings, besDeduction, otherDeductions, payrollDate]);
+  }, [fetchedLogs, settings, besDeduction, otherDeductions, payrollDate, priorCumulativeBase]);
 
   const getCalcExportName = (prefix: string) => {
     return generateFileName(`Vardiyo_${prefix}`, payrollDate, user?.user_metadata?.name, '');
@@ -94,6 +121,8 @@ export default function PayrollTab() {
     csv += `Devamsizlik,-${payrollData.deductionsGross.absent.toFixed(2)}\n`;
     csv += `Gec Kalma,-${payrollData.deductionsGross.late.toFixed(2)}\n`;
     csv += `Yeni Brut Matrah,${payrollData.newGrossMatrah.toFixed(2)}\n`;
+    csv += `Kumulatif Vergi Matrahi,${(payrollData.cumulativeTaxBase || 0).toFixed(2)}\n`;
+    csv += `Vergi Dilimi,${payrollData.taxBracketLabel || '%15'}\n`;
     csv += `SGK Isci Primi,-${payrollData.taxes.sgk.toFixed(2)}\n`;
     csv += `Issizlik Primi,-${payrollData.taxes.unemployment.toFixed(2)}\n`;
     csv += `Gelir Vergisi,-${payrollData.taxes.incomeTax.toFixed(2)}\n`;
@@ -178,10 +207,47 @@ export default function PayrollTab() {
                 </div>
               </div>
 
-              <div className="text-center mt-6">
-                <p className="text-[12px] text-base-content/40 leading-relaxed">
-                  * Hesaplamalar sabit ilk vergi dilimi üzerinden yapılmaktadır. Yıl sonuna doğru artan kümülatif gelir vergisi matrahı (üst vergi dilimlerine geçiş) nedeniyle gerçek bordronuzdaki net maaşınızda kesinti yönünde ufak sapmalar olabilir.
-                </p>
+              {/* DİNAMİK KÜMÜLATİF VERGİ MATRAHI BİLGİLENDİRME PANELİ */}
+              <div className="bg-[#1e2329] rounded-2xl border border-indigo-500/20 p-5 shadow-lg space-y-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="badge badge-lg bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 font-bold px-3 py-4 text-sm">
+                      🎯 Aktif Dilim: {payrollData.taxBracketLabel || '%15'}
+                    </span>
+                    {payrollData.isBracketCrossed && (
+                      <span className="badge badge-warning text-xs font-bold gap-1 animate-pulse">
+                        ⚠️ Dilim Geçişi
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-base-content/70 sm:text-right">
+                    <span>Yıl İçi Kümülatif Matrah: </span>
+                    <strong className="text-white font-mono text-sm ml-1">
+                      {(payrollData.cumulativeTaxBase || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                    </strong>
+                  </div>
+                </div>
+
+                {payrollData.isBracketCrossed ? (
+                  <p className="text-xs text-amber-300/90 leading-relaxed bg-amber-950/20 p-3 rounded-xl border border-amber-500/20">
+                    💡 Bu ay kümülatif matrahınız gelir vergisi basamağını aştığı için gelirinizin bir kısmı alt dilimden, aşan kısmı ise üst dilimden parçalı olarak vergilendirilmiştir.
+                  </p>
+                ) : (
+                  <p className="text-xs text-base-content/50 leading-relaxed">
+                    Gelir Vergisi Kanunu 103 uyarınca matrahınız yıl başından itibaren kümülatif takip edilir. Asgari ücret vergi istisnası (GVK 23/18) her ay yasal olarak tam mahsup edilmektedir.
+                  </p>
+                )}
+
+                {payrollData.bracketBreakdown && payrollData.bracketBreakdown.length > 0 && (
+                  <div className="pt-2 border-t border-base-300/40 flex flex-wrap gap-2 text-[11px] text-base-content/60">
+                    <span className="font-semibold text-base-content/80">Dilim Dağılımı:</span>
+                    {payrollData.bracketBreakdown.map((item, idx) => (
+                      <span key={idx} className="bg-base-100/70 px-2 py-0.5 rounded border border-base-300">
+                        {item.portionAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺ × %{Math.round(item.bracketRate * 100)} = <strong>{item.taxAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</strong>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -259,11 +325,13 @@ export default function PayrollTab() {
                       <p className="font-bold text-red-400">-{payrollData.taxes.unemployment.toFixed(2)} ₺</p>
                     </div>
                     <div>
-                      <p className="text-xs text-base-content/60 font-bold mb-1">Gelir Vergisi (İstisna Düşülmüş)</p>
+                      <p className="text-xs text-base-content/60 font-bold mb-1">
+                        Gelir Vergisi ({payrollData.taxBracketLabel || '%15'})
+                      </p>
                       <p className="font-bold text-red-400">-{payrollData.taxes.incomeTax.toFixed(2)} ₺</p>
                     </div>
                     <div>
-                      <p className="text-xs text-base-content/60 font-bold mb-1">Damga Vergisi (İstisna Düşülmüş)</p>
+                      <p className="text-xs text-base-content/60 font-bold mb-1">Damga Vergisi (Binde 7,59)</p>
                       <p className="font-bold text-red-400">-{payrollData.taxes.stampTax.toFixed(2)} ₺</p>
                     </div>
                   </div>

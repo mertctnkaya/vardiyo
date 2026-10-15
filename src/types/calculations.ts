@@ -32,6 +32,10 @@ export interface PayrollResult {
   taxes: PayrollTaxes;
   netKesintiler: PayrollNetDeductions;
   hesabaYatanNet: number;
+  taxBase?: number;
+  cumulativeTaxBase?: number;
+  taxBracketLabel?: string;
+  isBracketCrossed?: boolean;
 }
 
 export interface SeveranceResult {
@@ -68,4 +72,10 @@ export interface LegacyPayrollData {
   baseGrossInfo?: any; 
   calculatedNightHours?: number;
   netMaaş: number; 
+  taxBase?: number;
+  cumulativeTaxBase?: number;
+  previousCumulativeBase?: number;
+  taxBracketLabel?: string;
+  isBracketCrossed?: boolean;
+  bracketBreakdown?: Array<{ bracketRate: number; portionAmount: number; taxAmount: number }>;
 }

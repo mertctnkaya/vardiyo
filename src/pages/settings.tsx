@@ -44,6 +44,7 @@ export default function Settings() {
   const [yevmiyeBaseHours, setYevmiyeBaseHours] = useState('12');
   const [paymentFrequency, setPaymentFrequency] = useState('weekly');
   const [paymentDayOfWeek, setPaymentDayOfWeek] = useState('3');
+  const [startingTaxBase, setStartingTaxBase] = useState('0');
 
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export default function Settings() {
         if (data.yevmiye_base_hours) setYevmiyeBaseHours(data.yevmiye_base_hours.toString());
         if (data.payment_frequency) setPaymentFrequency(data.payment_frequency);
         if (data.payment_day_of_week) setPaymentDayOfWeek(data.payment_day_of_week.toString());
+        if (data.starting_tax_base) setStartingTaxBase(data.starting_tax_base.toString());
       }
       setIsLoading(false);
     }
@@ -181,6 +183,7 @@ export default function Settings() {
       yevmiye_base_hours: Number(yevmiyeBaseHours) || 12,
       payment_frequency: paymentFrequency,
       payment_day_of_week: Number(paymentDayOfWeek) || 3,
+      starting_tax_base: Number(startingTaxBase) || 0,
       updated_at: new Date().toISOString()
     };
 
@@ -248,6 +251,8 @@ export default function Settings() {
               saturdayMultiplier={saturdayMultiplier} setSaturdayMultiplier={setSaturdayMultiplier}
               weekendMultiplier={weekendMultiplier} setWeekendMultiplier={setWeekendMultiplier}
               restDays={restDays}
+              startingTaxBase={startingTaxBase}
+              setStartingTaxBase={setStartingTaxBase}
             />
           )}
 

@@ -28,6 +28,8 @@ export interface PayrollSectionProps {
   weekendMultiplier: string;
   setWeekendMultiplier: (val: string) => void;
   restDays: number[];
+  startingTaxBase?: string;
+  setStartingTaxBase?: (val: string) => void;
 }
 
 export interface YevmiyeSectionProps {

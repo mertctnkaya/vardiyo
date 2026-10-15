@@ -4,7 +4,8 @@ import type { PayrollSectionProps } from '../../types';
 
 export default function PayrollSection({
   workType, monthlyGross, setMonthlyGross, displayOvertime, baseWorkHours, setBaseWorkHours, nightBonus, setNightBonus,
-  saturdayMultiplier, setSaturdayMultiplier, weekendMultiplier, setWeekendMultiplier, restDays
+  saturdayMultiplier, setSaturdayMultiplier, weekendMultiplier, setWeekendMultiplier, restDays,
+  startingTaxBase, setStartingTaxBase
 }: PayrollSectionProps) {
 
   if (workType === 'yevmiye') return null;
@@ -86,6 +87,28 @@ export default function PayrollSection({
             </span>
           </div>
         </div>
+
+        {setStartingTaxBase && (
+          <div className="form-control w-full sm:col-span-2 bg-[#1e2329] p-4 rounded-xl border border-indigo-500/20">
+            <div className="flex items-center gap-2 mb-1">
+              <Icon name="info" className="w-4 h-4 text-indigo-400" />
+              <label className="label-text font-bold text-indigo-300">Önceki İşyerinden / Aylardan Devreden Kümülatif Vergi Matrahı (₺)</label>
+            </div>
+            <label className="input input-bordered flex items-center gap-2 bg-base-100 border-base-300 mt-1">
+              <span className="text-base-content/50 font-bold">₺</span>
+              <input 
+                type="number" 
+                placeholder="0.00 (Yıl ortasında işe başladıysanız girin, yoksa 0 bırakın)" 
+                className="grow" 
+                value={startingTaxBase || ''} 
+                onChange={(e) => setStartingTaxBase(e.target.value)} 
+              />
+            </label>
+            <span className="text-xs text-base-content/50 mt-2 block leading-relaxed">
+              Yıl içinde iş değiştirdiyseniz veya Vardiyo&apos;ya yıl ortasında geçiş yaptıysanız, eski işyerinizden devreden kümülatif matrahınızı buraya yazabilirsiniz. Sistem bordronuzu doğrudan doğru vergi diliminden (%15, %20 veya %27) başlatır.
+            </span>
+          </div>
+        )}
 
       </div>
     </div>

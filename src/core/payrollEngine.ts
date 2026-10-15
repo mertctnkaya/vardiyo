@@ -1,4 +1,5 @@
 import { TAX_CONSTANTS } from '../constants/taxRates';
+import { calculateProgressiveIncomeTax } from './taxEngine';
 
 export const calculateNightHours = (startTimeStr: string, durationHours: number) => {
   if (!startTimeStr || durationHours <= 0) return 0;
@@ -15,7 +16,14 @@ export const calculateNightHours = (startTimeStr: string, durationHours: number)
   return nightMins / 60;
 };
 
-export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDate: Date, besDeduction: string, otherDeductions: string) => {
+export const generatePayrollData = (
+  settings: any,
+  fetchedLogs: any[],
+  payrollDate: Date,
+  besDeduction: string,
+  otherDeductions: string,
+  cumulativeTaxBaseBeforeMonth: number = 0
+) => {
   const defaultData = {
     baseGrossInfo: { daily: 0, hourly: 0 },
     incomes: { baseMonth: 0, overtime: 0, nightBonus: 0, holidayWork: 0, totalGrossHakedis: 0, extra: 0 },
@@ -26,7 +34,13 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
     netKesintiler: { bes: 0, other: 0, total: 0 },
     hesabaYatanNet: 0,
     calculatedNightHours: 0,
-    stats: { payrollDays: 0, activeDays: 0, passedDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0 }
+    stats: { payrollDays: 0, activeDays: 0, passedDays: 0, absentDays: 0, lateHours: 0, overtimeHours: 0, holidayWorkDays: 0, annualLeaveDays: 0 },
+    taxBase: 0,
+    cumulativeTaxBase: 0,
+    previousCumulativeBase: 0,
+    taxBracketLabel: '%15',
+    isBracketCrossed: false,
+    bracketBreakdown: [] as any[]
   };
 
   if (!settings) return defaultData;
@@ -152,10 +166,16 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
 
   const sgkCut = newGrossMatrah * TAX_CONSTANTS.SGK_RATE;
   const unempCut = newGrossMatrah * TAX_CONSTANTS.UNEMPLOYMENT_RATE;
-  const taxBase = newGrossMatrah - sgkCut - unempCut;
+  const taxBase = Math.max(0, newGrossMatrah - sgkCut - unempCut);
 
-  const incomeTaxRaw = taxBase * TAX_CONSTANTS.TAX_RATE_TIER_1;
-  const incomeTaxFinal = Math.max(0, incomeTaxRaw - TAX_CONSTANTS.MIN_WAGE_GV_EXEMPTION);
+  // Dinamik Kümülatif Vergi Matrahı ve Dilim Geçiş Motoru
+  const taxCalcResult = calculateProgressiveIncomeTax({
+    previousCumulativeBase: cumulativeTaxBaseBeforeMonth,
+    currentMonthBase: taxBase,
+    monthIndex: month
+  });
+
+  const incomeTaxFinal = taxCalcResult.taxFinal;
   const stampTaxRaw = newGrossMatrah * TAX_CONSTANTS.STAMP_TAX_RATE;
   const stampTaxFinal = Math.max(0, stampTaxRaw - TAX_CONSTANTS.MIN_WAGE_DV_EXEMPTION);
 
@@ -176,6 +196,12 @@ export const generatePayrollData = (settings: any, fetchedLogs: any[], payrollDa
     netKesintiler: { bes, other: others, total: bes + others },
     hesabaYatanNet,
     calculatedNightHours,
-    stats: { ...stats, payrollDays: basePayrollDays }
+    stats: { ...stats, payrollDays: basePayrollDays },
+    taxBase,
+    cumulativeTaxBase: taxCalcResult.newCumulativeBase,
+    previousCumulativeBase: taxCalcResult.previousCumulativeBase,
+    taxBracketLabel: taxCalcResult.activeBracketLabel,
+    isBracketCrossed: taxCalcResult.isBracketCrossed,
+    bracketBreakdown: taxCalcResult.breakdown
   };
 };

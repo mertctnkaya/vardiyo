@@ -121,8 +121,9 @@ export const generateAdvancedPayrollPDF = (
     body: [
       [tr2en('SGK Isci Primi (%14)'), `-${payrollData.taxes.sgk.toFixed(2)}`],
       [tr2en('Issizlik Primi (%1)'), `-${payrollData.taxes.unemployment.toFixed(2)}`],
-      [tr2en('Gelir Vergisi (Istisna Dusulmus)'), `-${payrollData.taxes.incomeTax.toFixed(2)}`],
-      [tr2en('Damga Vergisi (Istisna Dusulmus)'), `-${payrollData.taxes.stampTax.toFixed(2)}`],
+      [tr2en(`Gelir Vergisi (${payrollData.taxBracketLabel || '%15'})`), `-${payrollData.taxes.incomeTax.toFixed(2)}`],
+      [tr2en('Damga Vergisi (Binde 7,59)'), `-${payrollData.taxes.stampTax.toFixed(2)}`],
+      [tr2en(`Kumulatif Vergi Matrahi: ${(payrollData.cumulativeTaxBase || 0).toFixed(2)} TL`), ''],
       [tr2en('Vergiler Sonrasi Net Maas'), `${payrollData.netMaaş.toFixed(2)}`],
     ],
     theme: 'striped',
